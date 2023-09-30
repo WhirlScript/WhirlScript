@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('../lib/wrsc.js');
+require('../lib/cli/index');
