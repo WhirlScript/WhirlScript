@@ -1,0 +1,20 @@
+# Node modules
+node_modules/
+.node_modules/
+
+# Project preferences
+**/.vs/
+**/.vscode/
+!**/.vscode/tasks.json
+!**/.vscode/settings.template.json
+!**/.vscode/launch.template.json
+!**/.vscode/extensions.json
+.idea/
+
+# Lock file not from pnpm
+yarn.lock
+yarn-error.log
+package-lock.json
+
+# Build output
+/lib/

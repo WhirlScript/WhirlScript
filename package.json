@@ -1,0 +1,43 @@
+{
+  "name": "whirlscript",
+  "author": "Bluemangoo",
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "description": "A language that compiles to bat and sh scripts",
+  "keywords": [
+    "WhirlScript",
+    "script",
+    "compiler",
+    "language",
+    "bat",
+    "sh",
+    "shell"
+  ],
+  "bugs": {
+    "url": "https://github.com/Bluemangoo/WhirlScript/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bluemangoo/WhirlScript.git"
+  },
+  "main": "./lib/whirlscript.js",
+  "typings": "./lib/whirlscript.d.ts",
+  "bin": {
+    "wrsc": "./bin/wrsc"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "whirlscript",
+    "LICENSE.txt",
+    "README.md",
+    "!**/.gitattributes"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^20.7.2",
+    "typescript": "^5.2.2"
+  }
+}
