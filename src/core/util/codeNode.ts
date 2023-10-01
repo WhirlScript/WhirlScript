@@ -1,13 +1,28 @@
-type CodeNodeType = "code" | "raw" | "var" | "#var" | "function" | "#function"
+import Deque from "./deque";
+
+type CodeNodeType = "code" | "raw" | "var" | "#var" | "function" | "#function" | "const" | "block"
 
 export default class CodeNode {
     type: CodeNodeType;
     value: string;
+    line: number;
+    child: Deque<CodeNode> | null;
 
-    constructor(type: CodeNodeType, value: string) {
-        this.type = type;
-        this.value = value;
+    constructor(arg: {
+        type: CodeNodeType,
+        value: string,
+        line: number,
+        child?: Deque<CodeNode>;
+    }) {
+        this.type = arg.type;
+        this.value = arg.value;
+        this.line = arg.line;
+        this.child = arg.child ?? null;
     }
 
-
+    expand(){
+        if(this.type=="raw"){
+            return
+        }
+    }
 }

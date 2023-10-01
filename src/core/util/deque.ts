@@ -1,4 +1,4 @@
-class Deque<T> {
+export default class Deque<T> {
     private data: T[];
 
     constructor() {
