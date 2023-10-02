@@ -1,6 +1,6 @@
 import FileApi from "./types/api/fileApi";
 import Index from "./types/api";
-import CodeNode from "./util/codeNode";
+import CodeNode from "./util/parser/codeNode";
 
 export default class Parser {
     protected file: string;

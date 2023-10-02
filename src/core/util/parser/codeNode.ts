@@ -1,6 +1,7 @@
-import Deque from "./deque";
+import Deque from "../deque";
 
 type CodeNodeType = "code" | "raw" | "var" | "#var" | "function" | "#function" | "const" | "block"
+
 
 export default class CodeNode {
     type: CodeNodeType;
@@ -20,9 +21,4 @@ export default class CodeNode {
         this.child = arg.child ?? null;
     }
 
-    expand(){
-        if(this.type=="raw"){
-            return
-        }
-    }
 }

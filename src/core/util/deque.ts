@@ -5,11 +5,11 @@ export default class Deque<T> {
         this.data = [];
     }
 
-    addFront(item: T): void {
+    pushFront(item: T): void {
         this.data.unshift(item);
     }
 
-    addRear(item: T): void {
+    pushRear(item: T): void {
         this.data.push(item);
     }
 

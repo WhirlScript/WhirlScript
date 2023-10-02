@@ -15,4 +15,8 @@ export default class MacroVal<T> {
         return this.props.indexOf(prop) >= 0;
     }
 
+    setInit(): void {
+        this.init = true;
+    }
+
 }
