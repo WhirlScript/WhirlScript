@@ -1,0 +1,16 @@
+#import test
+
+#if define a
+#const a="1"
+#end if
+
+/**
+ * docs test
+ */
+#function t(x:string):string{
+    {
+        return `a${x}`
+    }
+}
+
+@count global editable v = true

@@ -1,4 +1,4 @@
-import WORD_TEST from "../../../../src/core/util/parser/wordTest";
+import WORD_TEST from "../../../../core/util/parser/wordTest";
 
 describe("test wordTest.isOperator method", () => {
     test("a should not not be an operator", () => {

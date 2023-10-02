@@ -1,6 +1,6 @@
-import Deque from "../../../../src/core/util/deque";
-import Word from "../../../../src/core/types/parser/word";
-import pushWord from "../../../../src/core/util/parser/pushWord";
+import Deque from "../../../../core/util/deque";
+import Word from "../../../../core/types/parser/word";
+import pushWord from "../../../../core/util/parser/pushWord";
 
 describe("test pushWord method with empty value", () => {
     const deque = new Deque<Word>();

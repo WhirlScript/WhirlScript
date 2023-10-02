@@ -87,9 +87,14 @@ export default function pushWord(words: Deque<Word>, piece: string, status: Stat
             flag: "normal"
         });
         words.pushRear({
-            value: piece.slice(1),
+            value: piece.slice(1, -1),
             line,
             flag: "string"
+        });
+        words.pushRear({
+            value: "$",
+            line,
+            flag: "normal"
         });
     } else if (status == "stringR+R") {
         words.pushRear({

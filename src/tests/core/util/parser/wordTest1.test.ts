@@ -1,4 +1,4 @@
-import WORD_TEST from "../../../../src/core/util/parser/wordTest";
+import WORD_TEST from "../../../../core/util/parser/wordTest";
 
 describe("test wordTest.isWord method", () => {
     test("a should be a word", () => {
@@ -13,8 +13,11 @@ describe("test wordTest.isWord method", () => {
     test("@count should be a word", () => {
         expect(WORD_TEST.isWord("@count")).toBeTruthy();
     });
-    test("#function should be a word", () => {
-        expect(WORD_TEST.isWord("#function")).toBeTruthy();
+    test("@ should be a word", () => {
+        expect(WORD_TEST.isWord("@")).toBeTruthy();
+    });
+    test("# should be a word", () => {
+        expect(WORD_TEST.isWord("#")).toBeTruthy();
     });
     test("5 should not be word", () => {
         expect(WORD_TEST.isWord("5")).toBeFalsy();

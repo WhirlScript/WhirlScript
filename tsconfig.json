@@ -5,9 +5,11 @@
     "sourceMap": false,
     "declaration": true,
     "strict": true,
+    "rootDir": "./src",
     "outDir": "./lib"
   },
   "exclude": [
-    "./lib"
+    "./lib",
+    "./tests"
   ]
 }

@@ -1,4 +1,4 @@
-import Deque from "../../../src/core/util/deque";
+import Deque from "../../../core/util/deque";
 
 describe("test whether deque works well", () => {
     test("push front", () => {

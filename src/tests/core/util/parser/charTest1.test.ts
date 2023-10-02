@@ -1,4 +1,4 @@
-import CHAR_TEST from "../../../../src/core/util/parser/charTest";
+import CHAR_TEST from "../../../../core/util/parser/charTest";
 
 describe("test charTest.isAlphabet method", () => {
     test("a should be alphabet", () => {

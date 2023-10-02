@@ -21,14 +21,15 @@ class CodeTypes {
         "raw", "rawln",
         "cmd", "bash"
     ];
-    escapes = {
+    escapes: { [key: string]: string } = {
         "\\": "\\",
         "n": "\n",
         "t": "\t",
         "\'": "\'",
         "\"": "\"",
         "\`": "\`",
-        "\$": "$"
+        "\$": "$",
+        "\n": ""
     };
 }
 

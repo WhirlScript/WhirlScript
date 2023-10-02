@@ -1,6 +1,6 @@
-import Deque from "../../../../src/core/util/deque";
-import Word from "../../../../src/core/types/parser/word";
-import pushWord from "../../../../src/core/util/parser/pushWord";
+import Deque from "../../../../core/util/deque";
+import Word from "../../../../core/types/parser/word";
+import pushWord from "../../../../core/util/parser/pushWord";
 
 describe("test pushWord method normally", () => {
     const deque = new Deque<Word>();
@@ -81,8 +81,8 @@ describe("test pushWord method normally", () => {
             flag: "string"
         });
     });
-    test("stringR+L to  \` + string", () => {
-        pushWord(deque, "\`test", "stringR+L", line);
+    test("stringR+L to  \` + string + $", () => {
+        pushWord(deque, "\`test$", "stringR+L", line);
         expect(deque.popFront()).toEqual({
             value: "\`",
             line: 1,
@@ -92,6 +92,11 @@ describe("test pushWord method normally", () => {
             value: "test",
             line: 1,
             flag: "string"
+        });
+        expect(deque.popFront()).toEqual({
+            value: "$",
+            line: 1,
+            flag: "normal"
         });
     });
     test("stringR+R to string + \`", () => {

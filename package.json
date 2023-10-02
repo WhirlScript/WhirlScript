@@ -28,6 +28,7 @@
   "files": [
     "bin",
     "lib",
+    "!lib/tests",
     "whirlscript",
     "LICENSE.txt",
     "README.md",
