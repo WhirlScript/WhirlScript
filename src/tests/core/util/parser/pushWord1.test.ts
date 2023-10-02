@@ -5,12 +5,28 @@ import pushWord from "../../../../core/util/parser/pushWord";
 describe("test pushWord method normally", () => {
     const deque = new Deque<Word>();
     const line = 1;
-    test("normal to normal", () => {
-        pushWord(deque, "test", "normal", line);
+    test("word to word", () => {
+        pushWord(deque, "test", "word", line);
         expect(deque.popFront()).toEqual({
             value: "test",
             line: 1,
-            flag: "normal"
+            flag: "word"
+        });
+    });
+    test("operator to operator > on char", () => {
+        pushWord(deque, "+", "operator", line);
+        expect(deque.popFront()).toEqual({
+            value: "+",
+            line: 1,
+            flag: "operator"
+        });
+    });
+    test("operator to operator > multi-char", () => {
+        pushWord(deque, "+=", "operator", line);
+        expect(deque.popFront()).toEqual({
+            value: "+=",
+            line: 1,
+            flag: "operator"
         });
     });
     test("comment to comment", () => {
@@ -42,7 +58,7 @@ describe("test pushWord method normally", () => {
         expect(deque.popFront()).toEqual({
             value: "\'",
             line: 1,
-            flag: "normal"
+            flag: "operator"
         });
         expect(deque.popFront()).toEqual({
             value: "test",
@@ -52,7 +68,7 @@ describe("test pushWord method normally", () => {
         expect(deque.popFront()).toEqual({
             value: "\'",
             line: 1,
-            flag: "normal"
+            flag: "operator"
         });
     });
     test("stringD to \" + string + \"", () => {
@@ -60,7 +76,7 @@ describe("test pushWord method normally", () => {
         expect(deque.popFront()).toEqual({
             value: "\"",
             line: 1,
-            flag: "normal"
+            flag: "operator"
         });
         expect(deque.popFront()).toEqual({
             value: "test",
@@ -70,7 +86,7 @@ describe("test pushWord method normally", () => {
         expect(deque.popFront()).toEqual({
             value: "\"",
             line: 1,
-            flag: "normal"
+            flag: "operator"
         });
     });
     test("stringR to string", () => {
@@ -86,7 +102,7 @@ describe("test pushWord method normally", () => {
         expect(deque.popFront()).toEqual({
             value: "\`",
             line: 1,
-            flag: "normal"
+            flag: "operator"
         });
         expect(deque.popFront()).toEqual({
             value: "test",
@@ -96,7 +112,7 @@ describe("test pushWord method normally", () => {
         expect(deque.popFront()).toEqual({
             value: "$",
             line: 1,
-            flag: "normal"
+            flag: "operator"
         });
     });
     test("stringR+R to string + \`", () => {
@@ -109,7 +125,7 @@ describe("test pushWord method normally", () => {
         expect(deque.popFront()).toEqual({
             value: "\`",
             line: 1,
-            flag: "normal"
+            flag: "operator"
         });
     });
     test("stringR+LR to \` + string + \`", () => {
@@ -117,7 +133,7 @@ describe("test pushWord method normally", () => {
         expect(deque.popFront()).toEqual({
             value: "\`",
             line: 1,
-            flag: "normal"
+            flag: "operator"
         });
         expect(deque.popFront()).toEqual({
             value: "test",
@@ -127,7 +143,7 @@ describe("test pushWord method normally", () => {
         expect(deque.popFront()).toEqual({
             value: "\`",
             line: 1,
-            flag: "normal"
+            flag: "operator"
         });
     });
     test("block to block", () => {

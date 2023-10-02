@@ -1,8 +1,12 @@
 import Word from "../../types/parser/word";
 import Deque from "../deque";
+import WORD_TEST from "./wordTest";
+import LOGGER from "../../logger/logger";
+import LOG_ERROR from "../../logger/messages/logError";
 
 export type Status =
-    "normal"
+    "word"
+    | "operator"
     | "comment"// comment start with //
     | "longComment"// comment wrapped with /* and */
     | "docs"//docs wrapped with /** and */
@@ -18,12 +22,36 @@ export default function pushWord(words: Deque<Word>, piece: string, status: Stat
     if (piece == "") {
         return;
     }
-    if (status == "normal") {
+    if (status == "word") {
         words.pushRear({
             value: piece,
             line,
-            flag: "normal"
+            flag: "word"
         });
+    } else if (status == "operator") {
+        const v = piece;
+        let l = 0;
+        let r = v.length;
+        while (l < r) {
+            const sub = v.substring(l, r);
+            if (WORD_TEST.isOperator(sub)) {
+                words.pushRear({
+                    value: sub,
+                    line,
+                    flag: "operator"
+                });
+                l = r;
+                r = v.length;
+                continue;
+            }
+            if (l == r - 1) {
+                LOGGER.error(LOG_ERROR.invalidCharacter(v[l]));
+                l = r;
+                r = v.length;
+                continue;
+            }
+            r--;
+        }
     } else if (status == "comment") {
         words.pushRear({
             value: piece.slice(2),// remove `//`
@@ -46,7 +74,7 @@ export default function pushWord(words: Deque<Word>, piece: string, status: Stat
         words.pushRear({
             value: `'`,
             line,
-            flag: "normal"
+            flag: "operator"
         });
         words.pushRear({
             value: piece.slice(1, -1),
@@ -56,13 +84,13 @@ export default function pushWord(words: Deque<Word>, piece: string, status: Stat
         words.pushRear({
             value: `'`,
             line,
-            flag: "normal"
+            flag: "operator"
         });
     } else if (status == "stringD") {
         words.pushRear({
             value: `"`,
             line,
-            flag: "normal"
+            flag: "operator"
         });
         words.pushRear({
             value: piece.slice(1, -1),
@@ -72,7 +100,7 @@ export default function pushWord(words: Deque<Word>, piece: string, status: Stat
         words.pushRear({
             value: `"`,
             line,
-            flag: "normal"
+            flag: "operator"
         });
     } else if (status == "stringR") {
         words.pushRear({
@@ -84,7 +112,7 @@ export default function pushWord(words: Deque<Word>, piece: string, status: Stat
         words.pushRear({
             value: "\`",
             line,
-            flag: "normal"
+            flag: "operator"
         });
         words.pushRear({
             value: piece.slice(1, -1),
@@ -94,7 +122,7 @@ export default function pushWord(words: Deque<Word>, piece: string, status: Stat
         words.pushRear({
             value: "$",
             line,
-            flag: "normal"
+            flag: "operator"
         });
     } else if (status == "stringR+R") {
         words.pushRear({
@@ -105,13 +133,13 @@ export default function pushWord(words: Deque<Word>, piece: string, status: Stat
         words.pushRear({
             value: "\`",
             line,
-            flag: "normal"
+            flag: "operator"
         });
     } else if (status == "stringR+LR") {
         words.pushRear({
             value: "\`",
             line,
-            flag: "normal"
+            flag: "operator"
         });
         words.pushRear({
             value: piece.slice(1, -1),
@@ -121,7 +149,7 @@ export default function pushWord(words: Deque<Word>, piece: string, status: Stat
         words.pushRear({
             value: "\`",
             line,
-            flag: "normal"
+            flag: "operator"
         });
     } else if (status == "block") {
         words.pushRear({

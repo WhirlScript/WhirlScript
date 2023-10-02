@@ -6,9 +6,9 @@ class CodeTypes {
         "++", "--",
         "<", ">", ">=", "<=",
         "!", "&&", "||",
-        "$", ".",
-        "(", ")"
-        // "${", "{", "}"
+        "$", ".", ";", ":",
+        "(", ")",
+        "{", "}"
     ];
     keywords = [
         "var", "const",
@@ -21,7 +21,9 @@ class CodeTypes {
         "raw", "rawln",
         "cmd", "bash"
     ];
-    escapes: { [key: string]: string } = {
+    escapes: {
+        [key: string]: string
+    } = {
         "\\": "\\",
         "n": "\n",
         "t": "\t",

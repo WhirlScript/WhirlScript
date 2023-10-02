@@ -6,7 +6,7 @@ describe("test pushWord method with empty value", () => {
     const deque = new Deque<Word>();
     const line = 1;
     test("ignore empty", () => {
-        pushWord(deque, "", "normal", line);
+        pushWord(deque, "", "operator", line);
         expect(deque.isEmpty()).toEqual(true);
     });
 });

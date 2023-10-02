@@ -1,5 +1,5 @@
 export default interface Word {
     value: string,
     line: number,
-    flag: "normal" | "comment" | "docs" | "string" | "block"
+    flag: "word" | "operator" | "comment" | "docs" | "string" | "block"
 }

@@ -1,16 +1,23 @@
-#import test
+#import test;
 
-#if define a
-#const a="1"
-#end if
+#if define a;
+#const a="1";
+#end if;
 
 /**
  * docs test
  */
-#function t(x:string):string{
-    {
-        return `a${x}`
-    }
+#function t(x:int):string{
+    1{{1}{2}{3}
+    }2
 }
 
-@count global editable v = true
+#function f(){
+
+}
+
+var x=5;
+x+=2;
+const y=`a${x}`;
+
+@count global editable v = true;
