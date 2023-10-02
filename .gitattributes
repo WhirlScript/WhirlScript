@@ -1,1 +1,2 @@
-*.wrs linguist-language=WhirlScript
+*.wrs linguist-language=WhirlScript*.wrs
+pnpm-lock.yaml -diff
