@@ -1,6 +1,18 @@
 import Deque from "../deque";
 
-type CodeNodeType = "code" | "raw" | "var" | "#var" | "function" | "#function" | "const" | "block" | "comment" | "operator"
+type CodeNodeType =
+    "code"
+    | "raw"
+    | "var"
+    | "#var"
+    | "function"
+    | "#function"
+    | "const"
+    | "block"
+    | "comment"
+    | "operator"
+    | "define"
+    | "element"
 
 
 export default class CodeNode {

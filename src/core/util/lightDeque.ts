@@ -1,5 +1,5 @@
-export default class Deque<T> {
-    private data: T[];
+export default class LightDeque<T> {
+    data: T[];
 
     constructor(list: T[] = []) {
         this.data = list;

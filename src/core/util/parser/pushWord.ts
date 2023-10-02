@@ -1,6 +1,6 @@
 import Word from "../../types/parser/word";
 import Deque from "../deque";
-import WORD_TEST from "./wordTest";
+import WORD_TEST from "../wordTest";
 import LOGGER from "../../logger/logger";
 import LOG_ERROR from "../../logger/messages/logError";
 

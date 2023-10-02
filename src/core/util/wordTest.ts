@@ -1,4 +1,4 @@
-import CODE_TYPES from "../../types/parser/codeTypes";
+import CODE_TYPES from "../types/parser/codeTypes";
 
 class WordTest {
     isWord(x: string): boolean {

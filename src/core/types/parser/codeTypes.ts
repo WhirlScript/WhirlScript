@@ -19,7 +19,8 @@ class CodeTypes {
         "function", "#function",
         "for", "while",
         "raw", "rawln",
-        "cmd", "bash"
+        "cmd", "bash",
+        "#import"
     ];
     escapes: {
         [key: string]: string

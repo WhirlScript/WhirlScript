@@ -1,4 +1,4 @@
-import CHAR_TEST from "../../../../core/util/parser/charTest";
+import CHAR_TEST from "../../../../core/util/charTest";
 
 describe("test charTest.isNumber method", () => {
     test("a should not be number", () => {
