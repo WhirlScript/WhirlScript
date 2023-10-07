@@ -1,12 +1,12 @@
 import Deque from "../../../../core/util/deque";
-import Word from "../../../../core/types/parser/word";
-import pushWord from "../../../../core/util/parser/pushWord";
+import Field from "../../../../core/types/parser/field";
+import pushField from "../../../../core/util/parser/pushField";
 
 describe("test pushWord method with empty value", () => {
-    const deque = new Deque<Word>();
+    const deque = new Deque<Field>();
     const line = 1;
     test("ignore empty", () => {
-        pushWord(deque, "", "operator", line);
+        pushField(deque, "", "operator", line);
         expect(deque.isEmpty()).toEqual(true);
     });
 });

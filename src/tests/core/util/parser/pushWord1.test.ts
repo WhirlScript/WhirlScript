@@ -1,12 +1,12 @@
 import Deque from "../../../../core/util/deque";
-import Word from "../../../../core/types/parser/word";
-import pushWord from "../../../../core/util/parser/pushWord";
+import Field from "../../../../core/types/parser/field";
+import pushField from "../../../../core/util/parser/pushField";
 
 describe("test pushWord method normally", () => {
-    const deque = new Deque<Word>();
+    const deque = new Deque<Field>();
     const line = 1;
     test("word to word", () => {
-        pushWord(deque, "test", "word", line);
+        pushField(deque, "test", "word", line);
         expect(deque.popFront()).toEqual({
             value: "test",
             line: 1,
@@ -14,7 +14,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("operator to operator > on char", () => {
-        pushWord(deque, "+", "operator", line);
+        pushField(deque, "+", "operator", line);
         expect(deque.popFront()).toEqual({
             value: "+",
             line: 1,
@@ -22,7 +22,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("operator to operator > multi-char", () => {
-        pushWord(deque, "+=", "operator", line);
+        pushField(deque, "+=", "operator", line);
         expect(deque.popFront()).toEqual({
             value: "+=",
             line: 1,
@@ -30,7 +30,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("comment to comment", () => {
-        pushWord(deque, "//test", "comment", line);
+        pushField(deque, "//test", "comment", line);
         expect(deque.popFront()).toEqual({
             value: "test",
             line: 1,
@@ -38,7 +38,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("longComment to comment", () => {
-        pushWord(deque, "/*test*/", "longComment", line);
+        pushField(deque, "/*test*/", "longComment", line);
         expect(deque.popFront()).toEqual({
             value: "test",
             line: 1,
@@ -46,7 +46,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("docs to docs", () => {
-        pushWord(deque, "/**test*/", "docs", line);
+        pushField(deque, "/**test*/", "docs", line);
         expect(deque.popFront()).toEqual({
             value: "/**test*/",
             line: 1,
@@ -54,7 +54,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("stringS to ' + string + '", () => {
-        pushWord(deque, "\'test\'", "stringS", line);
+        pushField(deque, "\'test\'", "stringS", line);
         expect(deque.popFront()).toEqual({
             value: "\'",
             line: 1,
@@ -72,7 +72,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("stringD to \" + string + \"", () => {
-        pushWord(deque, "\"test\"", "stringD", line);
+        pushField(deque, "\"test\"", "stringD", line);
         expect(deque.popFront()).toEqual({
             value: "\"",
             line: 1,
@@ -90,15 +90,15 @@ describe("test pushWord method normally", () => {
         });
     });
     test("stringR to string", () => {
-        pushWord(deque, "test", "stringR", line);
+        pushField(deque, "test", "stringR", line);
         expect(deque.popFront()).toEqual({
             value: "test",
             line: 1,
             flag: "string"
         });
     });
-    test("stringR+L to  \` + string + $", () => {
-        pushWord(deque, "\`test$", "stringR+L", line);
+    test("stringR+L to  \` + string", () => {
+        pushField(deque, "\`test", "stringR+L", line);
         expect(deque.popFront()).toEqual({
             value: "\`",
             line: 1,
@@ -109,14 +109,9 @@ describe("test pushWord method normally", () => {
             line: 1,
             flag: "string"
         });
-        expect(deque.popFront()).toEqual({
-            value: "$",
-            line: 1,
-            flag: "operator"
-        });
     });
     test("stringR+R to string + \`", () => {
-        pushWord(deque, "test\`", "stringR+R", line);
+        pushField(deque, "test\`", "stringR+R", line);
         expect(deque.popFront()).toEqual({
             value: "test",
             line: 1,
@@ -129,7 +124,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("stringR+LR to \` + string + \`", () => {
-        pushWord(deque, "\`test\`", "stringR+LR", line);
+        pushField(deque, "\`test\`", "stringR+LR", line);
         expect(deque.popFront()).toEqual({
             value: "\`",
             line: 1,
@@ -144,14 +139,6 @@ describe("test pushWord method normally", () => {
             value: "\`",
             line: 1,
             flag: "operator"
-        });
-    });
-    test("block to block", () => {
-        pushWord(deque, "{test}", "block", line);
-        expect(deque.popFront()).toEqual({
-            value: "test",
-            line: 1,
-            flag: "block"
         });
     });
 });

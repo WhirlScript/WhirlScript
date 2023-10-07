@@ -1,7 +1,7 @@
 import CodeNode from "./codeNode";
 import Deque from "../deque";
-import Word from "../../types/parser/word";
-import pushWord, { Status } from "./pushWord";
+import Field from "../../types/parser/field";
+import pushField, { Status } from "./pushField";
 import CODE_TYPES from "../../types/parser/codeTypes";
 import CHAR_TEST from "../charTest";
 import WORD_TEST from "../wordTest";
@@ -9,10 +9,10 @@ import LOGGER from "../../logger/logger";
 import LOG_ERROR from "../../logger/messages/logError";
 import LOG_WARNING from "../../logger/messages/logWarning";
 
-export default function expandNode(node: CodeNode): Deque<Word> {
-    const words = new Deque<Word>();
+export default function splitNode(node: CodeNode): Deque<Field> {
+    const fields = new Deque<Field>();
     if (node.type == "raw") {
-        return words;
+        return fields;
     }
 
     let line = node.line;
@@ -27,11 +27,12 @@ export default function expandNode(node: CodeNode): Deque<Word> {
         escape: false,
         isWord: false,
         inStringR: false,
+        inStringRFormat: false,
         lineS: line
     };
 
     function push() {
-        pushWord(words, piece, status, flags.lineS);
+        pushField(fields, piece, status, flags.lineS);
         piece = "";
         status = "operator";
     }
@@ -68,6 +69,24 @@ export default function expandNode(node: CodeNode): Deque<Word> {
                 flags.lineS = line;
                 push();
                 continue;
+            }
+            if (flags.inStringRFormat) {
+                if (code[i] == "{") {
+                    flags.layerCount++;
+                }
+                if (code[i] == "}") {
+                    flags.layerCount--;
+                }
+                if (flags.layerCount == 0) {
+                    push();
+                    piece += code[i];
+                    status = "operator";
+                    push();
+                    flags.stringR.l = false;
+                    flags.inStringRFormat = false;
+                    status = "stringR";
+                    continue;
+                }
             }
             if (piece.endsWith("/")) {
                 if (code[i] == "/") {
@@ -116,14 +135,6 @@ export default function expandNode(node: CodeNode): Deque<Word> {
                 status = "stringR";
                 flags.inStringR = true;
                 flags.stringR.l = true;
-                continue;
-            }
-            if (code[i] == "{") {
-                flags.lineS = line;
-                push();
-                piece += code[i];
-                status = "block";
-                flags.layerCount = 1;
                 continue;
             }
             if (status == "operator" && (CHAR_TEST.isNumber(code[i]) || CHAR_TEST.isAlphabet(code[i]))) {
@@ -177,6 +188,8 @@ export default function expandNode(node: CodeNode): Deque<Word> {
                 status = "operator";
                 continue;
             }
+            piece += code[i];
+            continue;
         }
         if (status == "stringD") {
             if (code[i] == "\\") {
@@ -194,6 +207,8 @@ export default function expandNode(node: CodeNode): Deque<Word> {
                 status = "operator";
                 continue;
             }
+            piece += code[i];
+            continue;
         }
         if (status == "stringR") {
             if (code[i] == "\\") {
@@ -201,21 +216,22 @@ export default function expandNode(node: CodeNode): Deque<Word> {
                 stringEscape(i);
                 continue;
             }
-            if (code[i] == "$") {
-                if (code[i + 1] == "{") {
-                    if (flags.stringR.l) {
-                        status = "stringR+L";
-                        flags.stringR.l = false;
-                    }
-                    piece += code[i];
-                    push();
-                    i++;
-                    piece += code[i];
-                    status = "block";
-                    continue;
+            if (code[i] == "$" && code[i + 1] == "{") {
+                if (flags.stringR.l) {
+                    status = "stringR+L";
+                    flags.stringR.l = false;
                 }
+                push();
+                piece += code[i];
+                i++;
+                piece += code[i];
+                status = "operator";
+                flags.inStringRFormat = true;
+                flags.layerCount = 1;
+                continue;
             }
             if (code[i] == "`") {
+                piece += code[i];
                 if (flags.stringR.l) {
                     status = "stringR+LR";
                 } else {
@@ -227,27 +243,9 @@ export default function expandNode(node: CodeNode): Deque<Word> {
                 continue;
             }
             piece += code[i];
-            continue;
-        }
-        if (status == "block") {
-            piece += code[i];
-            if (code[i] == "{") {
-                flags.layerCount++;
-            }
-            if (code[i] == "}") {
-                flags.layerCount--;
-            }
-            if (flags.layerCount == 0) {
-                push();
-                if (flags.inStringR) {
-                    status = "stringR";
-                } else {
-                    status = "operator";
-                }
-            }
             // continue;
         }
     }
 
-    return words;
+    return fields;
 }

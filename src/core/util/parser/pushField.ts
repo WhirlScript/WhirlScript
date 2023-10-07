@@ -1,4 +1,4 @@
-import Word from "../../types/parser/word";
+import Field from "../../types/parser/field";
 import Deque from "../deque";
 import WORD_TEST from "../wordTest";
 import LOGGER from "../../logger/logger";
@@ -16,14 +16,13 @@ export type Status =
     | "stringR+L"// string wrapped with ` and with leading `
     | "stringR+R"// string wrapped with ` and with trailing `
     | "stringR+LR"// string wrapped with ` and with leading and trailing `
-    | "block"// code block wrapped with { and }
 
-export default function pushWord(words: Deque<Word>, piece: string, status: Status, line: number) {
+export default function pushField(fields: Deque<Field>, piece: string, status: Status, line: number) {
     if (piece == "") {
         return;
     }
     if (status == "word") {
-        words.pushRear({
+        fields.pushRear({
             value: piece,
             line,
             flag: "word"
@@ -35,7 +34,7 @@ export default function pushWord(words: Deque<Word>, piece: string, status: Stat
         while (l < r) {
             const sub = v.substring(l, r);
             if (WORD_TEST.isOperator(sub)) {
-                words.pushRear({
+                fields.pushRear({
                     value: sub,
                     line,
                     flag: "operator"
@@ -53,109 +52,98 @@ export default function pushWord(words: Deque<Word>, piece: string, status: Stat
             r--;
         }
     } else if (status == "comment") {
-        words.pushRear({
+        fields.pushRear({
             value: piece.slice(2),// remove `//`
             line,
             flag: "comment"
         });
     } else if (status == "longComment") {
-        words.pushRear({
+        fields.pushRear({
             value: piece.slice(2, -2),// remove `/*` and `*/`
             line,
             flag: "comment"
         });
     } else if (status == "docs") {
-        words.pushRear({
+        fields.pushRear({
             value: piece,// keep raw as it will not be in output
             line,
             flag: "docs"
         });
     } else if (status == "stringS") {
-        words.pushRear({
+        fields.pushRear({
             value: `'`,
             line,
             flag: "operator"
         });
-        words.pushRear({
+        fields.pushRear({
             value: piece.slice(1, -1),
             line,
             flag: "string"
         });
-        words.pushRear({
+        fields.pushRear({
             value: `'`,
             line,
             flag: "operator"
         });
     } else if (status == "stringD") {
-        words.pushRear({
+        fields.pushRear({
             value: `"`,
             line,
             flag: "operator"
         });
-        words.pushRear({
+        fields.pushRear({
             value: piece.slice(1, -1),
             line,
             flag: "string"
         });
-        words.pushRear({
+        fields.pushRear({
             value: `"`,
             line,
             flag: "operator"
         });
     } else if (status == "stringR") {
-        words.pushRear({
+        fields.pushRear({
             value: piece,
             line,
             flag: "string"
         });
     } else if (status == "stringR+L") {
-        words.pushRear({
+        fields.pushRear({
             value: "\`",
             line,
             flag: "operator"
         });
-        words.pushRear({
-            value: piece.slice(1, -1),
+        fields.pushRear({
+            value: piece.slice(1),
             line,
             flag: "string"
         });
-        words.pushRear({
-            value: "$",
-            line,
-            flag: "operator"
-        });
     } else if (status == "stringR+R") {
-        words.pushRear({
+        fields.pushRear({
             value: piece.slice(0, -1),
             line,
             flag: "string"
         });
-        words.pushRear({
+        fields.pushRear({
             value: "\`",
             line,
             flag: "operator"
         });
     } else if (status == "stringR+LR") {
-        words.pushRear({
+        fields.pushRear({
             value: "\`",
             line,
             flag: "operator"
         });
-        words.pushRear({
+        fields.pushRear({
             value: piece.slice(1, -1),
             line,
             flag: "string"
         });
-        words.pushRear({
+        fields.pushRear({
             value: "\`",
             line,
             flag: "operator"
-        });
-    } else if (status == "block") {
-        words.pushRear({
-            value: piece.slice(1, -1),// remove `{` and `}`
-            line,
-            flag: "block"
         });
     }
 }
