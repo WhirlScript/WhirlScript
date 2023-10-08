@@ -1,16 +1,15 @@
 import FileApi from "../../../core/types/api/fileApi";
 
-export default class CliFileApi implements FileApi {
-    getFile(path: string): string {
-        return "";
+export default class CliFileApi implements FileApi {//TODO: implement
+    getFile(path: string, base?: string) {
+        return {
+            path: "", success: false, value: ""
+        };
     }
 
-    getLib(path: string): string {
-        return "";
+    getLib(path: string, base?: string) {
+        return {
+            path: "", success: false, value: ""
+        };
     }
-
-    getStdLib(path: string): string {
-        return "";
-    }
-
 }
