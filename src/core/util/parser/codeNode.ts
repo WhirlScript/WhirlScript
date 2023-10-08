@@ -1,4 +1,5 @@
 import Deque from "../deque";
+import Coordinate from "../../types/parser/Coordinate";
 
 type CodeNodeType =
     "code"
@@ -18,18 +19,18 @@ type CodeNodeType =
 export default class CodeNode {
     type: CodeNodeType;
     value: string;
-    line: number;
+    coordinate: Coordinate;
     child: Deque<CodeNode> | null;
 
     constructor(arg: {
         type: CodeNodeType,
         value: string,
-        line: number,
+        coordinate: Coordinate,
         child?: Deque<CodeNode>;
     }) {
         this.type = arg.type;
         this.value = arg.value;
-        this.line = arg.line;
+        this.coordinate = arg.coordinate;
         this.child = arg.child ?? null;
     }
 

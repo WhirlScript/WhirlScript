@@ -3,6 +3,7 @@ import Deque from "../deque";
 import WORD_TEST from "../wordTest";
 import LOGGER from "../../logger/logger";
 import LOG_ERROR from "../../logger/messages/logError";
+import Coordinate from "../../types/parser/Coordinate";
 
 export type Status =
     "word"
@@ -17,14 +18,14 @@ export type Status =
     | "stringR+R"// string wrapped with ` and with trailing `
     | "stringR+LR"// string wrapped with ` and with leading and trailing `
 
-export default function pushField(fields: Deque<Field>, piece: string, status: Status, line: number) {
+export default function pushField(fields: Deque<Field>, piece: string, status: Status, coordinate: Coordinate) {
     if (piece == "") {
         return;
     }
     if (status == "word") {
         fields.pushRear({
             value: piece,
-            line,
+            coordinate,
             flag: "word"
         });
     } else if (status == "operator") {
@@ -36,7 +37,10 @@ export default function pushField(fields: Deque<Field>, piece: string, status: S
             if (WORD_TEST.isOperator(sub)) {
                 fields.pushRear({
                     value: sub,
-                    line,
+                    coordinate: {
+                        ...coordinate,
+                        column: coordinate.column + l
+                    },
                     flag: "operator"
                 });
                 l = r;
@@ -54,95 +58,119 @@ export default function pushField(fields: Deque<Field>, piece: string, status: S
     } else if (status == "comment") {
         fields.pushRear({
             value: piece.slice(2),// remove `//`
-            line,
+            coordinate,
             flag: "comment"
         });
     } else if (status == "longComment") {
         fields.pushRear({
             value: piece.slice(2, -2),// remove `/*` and `*/`
-            line,
+            coordinate,
             flag: "comment"
         });
     } else if (status == "docs") {
         fields.pushRear({
             value: piece,// keep raw as it will not be in output
-            line,
+            coordinate,
             flag: "docs"
         });
     } else if (status == "stringS") {
         fields.pushRear({
             value: `'`,
-            line,
+            coordinate,
             flag: "operator"
         });
         fields.pushRear({
             value: piece.slice(1, -1),
-            line,
+            coordinate: {
+                ...coordinate,
+                column: coordinate.column + 1
+            },
             flag: "string"
         });
         fields.pushRear({
             value: `'`,
-            line,
+            coordinate: {
+                ...coordinate,
+                column: coordinate.column + piece.length - 1
+            },
             flag: "operator"
         });
     } else if (status == "stringD") {
         fields.pushRear({
             value: `"`,
-            line,
+            coordinate,
             flag: "operator"
         });
         fields.pushRear({
             value: piece.slice(1, -1),
-            line,
+            coordinate: {
+                ...coordinate,
+                column: coordinate.column + 1
+            },
             flag: "string"
         });
         fields.pushRear({
             value: `"`,
-            line,
+            coordinate: {
+                ...coordinate,
+                column: coordinate.column + piece.length - 1
+            },
             flag: "operator"
         });
     } else if (status == "stringR") {
         fields.pushRear({
             value: piece,
-            line,
+            coordinate,
             flag: "string"
         });
     } else if (status == "stringR+L") {
         fields.pushRear({
             value: "\`",
-            line,
+            coordinate,
             flag: "operator"
         });
         fields.pushRear({
             value: piece.slice(1),
-            line,
+            coordinate: {
+                ...coordinate,
+                column: coordinate.column + 1
+            },
             flag: "string"
         });
     } else if (status == "stringR+R") {
         fields.pushRear({
             value: piece.slice(0, -1),
-            line,
+            coordinate,
             flag: "string"
         });
         fields.pushRear({
             value: "\`",
-            line,
+            coordinate: {
+                ...coordinate,
+                column: coordinate.column + piece.length - 1
+            },
             flag: "operator"
         });
     } else if (status == "stringR+LR") {
         fields.pushRear({
             value: "\`",
-            line,
+            coordinate,
             flag: "operator"
         });
         fields.pushRear({
             value: piece.slice(1, -1),
-            line,
+            coordinate: {
+                ...coordinate,
+                column: coordinate.column + 1
+            },
             flag: "string"
         });
         fields.pushRear({
             value: "\`",
-            line,
+            coordinate: {
+                ...coordinate,
+                column: coordinate.column + piece.length - 1
+            },
             flag: "operator"
         });
     }

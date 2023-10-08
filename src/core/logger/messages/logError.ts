@@ -2,15 +2,19 @@ class LogError {
     /// why I select such a long method name......
 
     unknownFile(f: string) {
-        return `Unknown file ${f}`;
+        return `File Error: Unknown file ${f}`;
     }
 
     unterminatedStringLiteral() {
-        return "Unterminated string literal.";
+        return "Syntax Error: Unterminated string literal.";
     }
 
     invalidCharacter(c: string) {
-        return `Invalid character ${c}`;
+        return `Syntax Error: Invalid character ${c}`;
+    }
+
+    templateStringInTemplateString() {
+        return `Syntax Error: Template string in template string`;
     }
 }
 

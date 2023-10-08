@@ -1,5 +1,7 @@
+import Coordinate from "./Coordinate";
+
 export default interface Field {
     value: string,
-    line: number,
+    coordinate: Coordinate,
     flag: "word" | "operator" | "comment" | "docs" | "string"
 }

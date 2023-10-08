@@ -8,6 +8,7 @@ import WORD_TEST from "../wordTest";
 import LOGGER from "../../logger/logger";
 import LOG_ERROR from "../../logger/messages/logError";
 import LOG_WARNING from "../../logger/messages/logWarning";
+import Coordinate from "../../types/parser/Coordinate";
 
 export default function splitNode(node: CodeNode): Deque<Field> {
     const fields = new Deque<Field>();
@@ -15,10 +16,11 @@ export default function splitNode(node: CodeNode): Deque<Field> {
         return fields;
     }
 
-    let line = node.line;
+    let line = node.coordinate.line;
+    let lineStart = 0 - node.coordinate.column;
     let piece = "";
     let status: Status = "operator";
-    const code: string = node.value;
+    const code: string = node.value.replace(/\r/g, "");
     const flags = {
         layerCount: 0,
         stringR: {
@@ -28,13 +30,19 @@ export default function splitNode(node: CodeNode): Deque<Field> {
         isWord: false,
         inStringR: false,
         inStringRFormat: false,
-        lineS: line
+        coordinate: <Coordinate>{
+            file: node.coordinate.file,
+            line: node.coordinate.line,
+            column: node.coordinate.column
+        }
     };
 
-    function push() {
-        pushField(fields, piece, status, flags.lineS);
+    function push(i: number) {
+        pushField(fields, piece, status, { ...flags.coordinate });
         piece = "";
         status = "operator";
+        flags.coordinate.line = line;
+        flags.coordinate.column = i - lineStart + 1;
     }
 
     function stringEscape(i: number) {
@@ -44,6 +52,7 @@ export default function splitNode(node: CodeNode): Deque<Field> {
         }
         if (code[i] == "\n") {
             line++;
+            lineStart = i;
         }
         let escapeResult: string | undefined = CODE_TYPES.escapes?.[code[i]];
         if (escapeResult == null) {
@@ -54,20 +63,26 @@ export default function splitNode(node: CodeNode): Deque<Field> {
     }
 
     for (let i = 0; i < node.value.length; i++) {
-        // console.log(i, "  |  ", code[i] == "\n" ? "\\n" : code[i], "  |  ", flags.layerCount, "  |  ", status, "  |  ", piece);
-        if (code[i] == "\r") {
-            continue;
-        }
+        // if (i > 0)
+        //     console.log(i, "  |  ", code[i - 1] == "\n" ? "\\n" : code[i - 1], "  |  ", status, "  |  ", piece, "  |  ", `${flags.coordinate.line}:${flags.coordinate.column}`, "  |  ", lineStart);
+
         if (code[i] == "\n") {
             line++;
+            lineStart = i;
         }
         if (status == "operator" || status == "word") {
             if (CODE_TYPES.separates.indexOf(code[i]) >= 0) {
-                if (piece == "") {
+                if (piece != "") {
+                    push(i - 1);
+                    flags.coordinate.column = i - lineStart + 1;
+                } else {
+                    flags.coordinate.line = line;
+                    flags.coordinate.column = i - lineStart + 1;
+                }
+                if (code[i] == "\n") {
+                    lineStart = i;
                     continue;
                 }
-                flags.lineS = line;
-                push();
                 continue;
             }
             if (flags.inStringRFormat) {
@@ -78,10 +93,10 @@ export default function splitNode(node: CodeNode): Deque<Field> {
                     flags.layerCount--;
                 }
                 if (flags.layerCount == 0) {
-                    push();
+                    push(i - 1);
                     piece += code[i];
                     status = "operator";
-                    push();
+                    push(i);
                     flags.stringR.l = false;
                     flags.inStringRFormat = false;
                     status = "stringR";
@@ -115,22 +130,22 @@ export default function splitNode(node: CodeNode): Deque<Field> {
                 }
             }
             if (code[i] == "'") {
-                flags.lineS = line;
-                push();
+                push(i - 1);
                 piece += code[i];
                 status = "stringS";
                 continue;
             }
             if (code[i] == "\"") {
-                flags.lineS = line;
-                push();
+                push(i - 1);
                 piece += code[i];
                 status = "stringD";
                 continue;
             }
             if (code[i] == "`") {
-                flags.lineS = line;
-                push();
+                if (flags.inStringR) {
+                    LOGGER.error(LOG_ERROR.templateStringInTemplateString());
+                }
+                push(i - 1);
                 piece += code[i];
                 status = "stringR";
                 flags.inStringR = true;
@@ -138,15 +153,13 @@ export default function splitNode(node: CodeNode): Deque<Field> {
                 continue;
             }
             if (status == "operator" && (CHAR_TEST.isNumber(code[i]) || CHAR_TEST.isAlphabet(code[i]))) {
-                flags.lineS = line;
-                push();
+                push(i - 1);
                 status = "word";
                 piece += code[i];
                 continue;
             }
             if (status == "word" && !WORD_TEST.isWord(piece + code[i])) {
-                flags.lineS = line;
-                push();
+                push(i - 1);
                 status = "operator";
                 piece += code[i];
                 continue;
@@ -155,7 +168,7 @@ export default function splitNode(node: CodeNode): Deque<Field> {
         }
         if (status == "comment") {
             if (code[i] == "\n") {
-                push();
+                push(i);
                 status = "operator";
             } else {
                 piece += code[i];
@@ -165,7 +178,7 @@ export default function splitNode(node: CodeNode): Deque<Field> {
         if (status == "longComment" || status == "docs") {
             if (piece.endsWith("*") && code[i] == "/") {
                 piece += code[i];
-                push();
+                push(i);
                 status = "operator";
                 continue;
             }
@@ -184,7 +197,7 @@ export default function splitNode(node: CodeNode): Deque<Field> {
             }
             if (code[i] == "'") {
                 piece += code[i];
-                push();
+                push(i);
                 status = "operator";
                 continue;
             }
@@ -203,7 +216,7 @@ export default function splitNode(node: CodeNode): Deque<Field> {
             }
             if (code[i] == "\"") {
                 piece += code[i];
-                push();
+                push(i);
                 status = "operator";
                 continue;
             }
@@ -221,7 +234,7 @@ export default function splitNode(node: CodeNode): Deque<Field> {
                     status = "stringR+L";
                     flags.stringR.l = false;
                 }
-                push();
+                push(i - 1);
                 piece += code[i];
                 i++;
                 piece += code[i];
@@ -237,7 +250,7 @@ export default function splitNode(node: CodeNode): Deque<Field> {
                 } else {
                     status = "stringR+R";
                 }
-                push();
+                push(i);
                 status = "operator";
                 flags.inStringR = false;
                 continue;
