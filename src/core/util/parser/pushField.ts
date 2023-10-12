@@ -1,9 +1,9 @@
 import Field from "../../types/parser/field";
 import Deque from "../deque";
 import WORD_TEST from "../wordTest";
-import LOGGER from "../../logger/logger";
-import LOG_ERROR from "../../logger/messages/logError";
+import LOG_ERROR from "../../logger/logError";
 import Coordinate from "../../types/parser/Coordinate";
+import Api from "../../types/api";
 
 export type Status =
     "word"
@@ -18,7 +18,8 @@ export type Status =
     | "stringR+R"// string wrapped with ` and with trailing `
     | "stringR+LR"// string wrapped with ` and with leading and trailing `
 
-export default function pushField(fields: Deque<Field>, piece: string, status: Status, coordinate: Coordinate) {
+export default function pushField(fields: Deque<Field>, piece: string, status: Status, context: { coordinate: Coordinate, api: Api }) {
+    const { coordinate, api } = context;
     if (piece == "") {
         return;
     }
@@ -48,7 +49,7 @@ export default function pushField(fields: Deque<Field>, piece: string, status: S
                 continue;
             }
             if (l == r - 1) {
-                LOGGER.error(LOG_ERROR.invalidCharacter(v[l]));
+                api.loggerApi.error(LOG_ERROR.invalidCharacter(v[l]), coordinate);
                 l = r;
                 r = v.length;
                 continue;

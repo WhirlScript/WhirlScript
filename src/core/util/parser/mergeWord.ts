@@ -3,8 +3,7 @@ import Deque from "../deque";
 import Field from "../../types/parser/field";
 import Pools from "./Pools";
 import Api from "../../types/api";
-import LOG_ERROR from "../../logger/messages/logError";
-import LOGGER from "../../logger/logger";
+import LOG_ERROR from "../../logger/logError";
 import readFile from "../api/readFile";
 import splitNode from "./splitNode";
 
@@ -35,30 +34,31 @@ export default function mergeWord(node: CodeNode, fields: Deque<Field>, context:
                 const lineCoordinate = cursor.coordinate;
                 cursor = fields.popFront();
                 if (cursor.flag != "string") {
-                    LOGGER.error(LOG_ERROR.invalidCharacter(cursor.value));
+                    api.loggerApi.error(LOG_ERROR.invalidCharacter(cursor.value), cursor.coordinate);
                 }
                 const filePath = cursor.value;
                 cursor = fields.popFront();
                 if (cursor.value != ";") {
-                    LOGGER.error(LOG_ERROR.invalidCharacter(cursor.value));
+                    api.loggerApi.error(LOG_ERROR.invalidCharacter(cursor.value), cursor.coordinate);
                 }
                 if (pools.importPool.indexOf(filePath) >= 0) {
                     continue;
                 }
-                const file = readFile(filePath, api);
+                const file = readFile(filePath, { api, coordinate: lineCoordinate });
                 if (!file.success) {
-                    LOGGER.error(LOG_ERROR.unknownFile(filePath));
+                    api.loggerApi.error(LOG_ERROR.unknownFile(filePath), lineCoordinate);
                 }
                 const fieldsImported = splitNode(new CodeNode({
-                    coordinate: {
-                        file: file.path,
-                        line: 1,
-                        column: 1,
-                        chain: [...cursor.coordinate.chain ?? [], lineCoordinate]
-                    },
-                    type: "code",
-                    value: file.value
-                }));
+                        coordinate: {
+                            file: file.path,
+                            line: 1,
+                            column: 1,
+                            chain: [...cursor.coordinate.chain ?? [], lineCoordinate]
+                        },
+                        type: "code",
+                        value: file.value
+                    }),
+                    { api });
                 while (!fieldsImported.isEmpty()) {
                     fields.pushFront(fieldsImported.popRear());
                 }

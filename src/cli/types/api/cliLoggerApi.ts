@@ -1,6 +1,6 @@
-import Coordinate from "../types/parser/Coordinate";
+import Coordinate from "../../../core/types/parser/Coordinate";
 
-class Logger {//TODO: implement
+export default class CliLoggerApi {//TODO: implement
     info(msg: string) {
         console.log(msg);
     }
@@ -20,6 +20,3 @@ class Logger {//TODO: implement
         throw text;
     }
 }
-
-const LOGGER = new Logger();
-export default LOGGER;

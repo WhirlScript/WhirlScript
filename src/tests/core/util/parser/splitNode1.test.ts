@@ -3,8 +3,10 @@ import CodeNode from "../../../../core/util/parser/codeNode";
 import splitNode from "../../../../core/util/parser/splitNode";
 import Deque from "../../../../core/util/deque";
 import Field from "../../../../core/types/parser/field";
+import CliApi from "../../../../cli/types/api";
 
 describe("test splitNode method", () => {
+    const api = new CliApi();
     test("script expand", () => {
         const path = process.cwd() + "/src/tests/resource/splitTest.txt";
         const script = fs.readFileSync(path).toString();
@@ -617,6 +619,6 @@ describe("test splitNode method", () => {
                 }
             }
         ]);
-        expect(splitNode(codeNode)).toEqual(expectedValue);
+        expect(splitNode(codeNode, { api })).toEqual(expectedValue);
     });
 });

@@ -5,12 +5,13 @@ import pushField, { Status } from "./pushField";
 import CODE_TYPES from "../../types/parser/codeTypes";
 import CHAR_TEST from "../charTest";
 import WORD_TEST from "../wordTest";
-import LOGGER from "../../logger/logger";
-import LOG_ERROR from "../../logger/messages/logError";
-import LOG_WARNING from "../../logger/messages/logWarning";
+import LOG_ERROR from "../../logger/logError";
+import LOG_WARNING from "../../logger/logWarning";
 import Coordinate from "../../types/parser/Coordinate";
+import Api from "../../types/api";
 
-export default function splitNode(node: CodeNode): Deque<Field> {
+export default function splitNode(node: CodeNode, context: { api: Api }): Deque<Field> {
+    const { api } = context;
     const fields = new Deque<Field>();
     if (node.type == "raw") {
         return fields;
@@ -39,7 +40,11 @@ export default function splitNode(node: CodeNode): Deque<Field> {
     };
 
     function push(i: number) {
-        pushField(fields, piece, status, { ...flags.coordinate });
+        pushField(fields, piece, status, {
+            coordinate: {
+                ...flags.coordinate
+            }, api
+        });
         piece = "";
         status = "operator";
         flags.coordinate.line = line;
@@ -48,7 +53,7 @@ export default function splitNode(node: CodeNode): Deque<Field> {
 
     function stringEscape(i: number) {
         if (code[i] == null) {
-            LOGGER.error(LOG_ERROR.invalidCharacter("\\"));
+            api.loggerApi.error(LOG_ERROR.invalidCharacter("\\"), { ...flags.coordinate, line: line, column: i - lineStart });
             return;
         }
         if (code[i] == "\n") {
@@ -57,7 +62,7 @@ export default function splitNode(node: CodeNode): Deque<Field> {
         }
         let escapeResult: string | undefined = CODE_TYPES.escapes?.[code[i]];
         if (escapeResult == null) {
-            LOGGER.warning(LOG_WARNING.unknownEscape(code[i]));
+            api.loggerApi.warning(LOG_WARNING.unknownEscape(code[i]));
             escapeResult = code[i];
         }
         piece += escapeResult;
@@ -144,7 +149,7 @@ export default function splitNode(node: CodeNode): Deque<Field> {
             }
             if (code[i] == "`") {
                 if (flags.inStringR) {
-                    LOGGER.error(LOG_ERROR.templateStringInTemplateString());
+                    api.loggerApi.error(LOG_ERROR.templateStringInTemplateString(), { ...flags.coordinate, line: line, column: i - lineStart });
                 }
                 push(i - 1);
                 piece += code[i];
@@ -193,7 +198,7 @@ export default function splitNode(node: CodeNode): Deque<Field> {
                 continue;
             }
             if (code[i] == "\n") {
-                LOGGER.error(LOG_ERROR.unterminatedStringLiteral());
+                api.loggerApi.error(LOG_ERROR.unterminatedStringLiteral(), { ...flags.coordinate, line: line, column: i - lineStart });
                 continue;
             }
             if (code[i] == "'") {
@@ -212,7 +217,7 @@ export default function splitNode(node: CodeNode): Deque<Field> {
                 continue;
             }
             if (code[i] == "\n") {
-                LOGGER.error(LOG_ERROR.unterminatedStringLiteral());
+                api.loggerApi.error(LOG_ERROR.unterminatedStringLiteral(), { ...flags.coordinate, line: line, column: i - lineStart });
                 continue;
             }
             if (code[i] == "\"") {

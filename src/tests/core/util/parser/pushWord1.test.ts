@@ -2,8 +2,10 @@ import Deque from "../../../../core/util/deque";
 import Field from "../../../../core/types/parser/field";
 import pushField from "../../../../core/util/parser/pushField";
 import Coordinate from "../../../../core/types/parser/Coordinate";
+import CliApi from "../../../../cli/types/api";
 
 describe("test pushWord method normally", () => {
+    const api = new CliApi();
     const deque = new Deque<Field>();
     const coordinate: Coordinate = {
         file: "",
@@ -11,7 +13,7 @@ describe("test pushWord method normally", () => {
         column: 1
     };
     test("word to word", () => {
-        pushField(deque, "test", "word", coordinate);
+        pushField(deque, "test", "word", { coordinate, api });
         expect(deque.popFront()).toEqual({
             value: "test",
             coordinate,
@@ -19,7 +21,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("operator to operator > on char", () => {
-        pushField(deque, "+", "operator", coordinate);
+        pushField(deque, "+", "operator", { coordinate, api });
         expect(deque.popFront()).toEqual({
             value: "+",
             coordinate,
@@ -27,7 +29,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("operator to operator > multi-char", () => {
-        pushField(deque, "+=", "operator", coordinate);
+        pushField(deque, "+=", "operator", { coordinate, api });
         expect(deque.popFront()).toEqual({
             value: "+=",
             coordinate,
@@ -35,7 +37,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("comment to comment", () => {
-        pushField(deque, "//test", "comment", coordinate);
+        pushField(deque, "//test", "comment", { coordinate, api });
         expect(deque.popFront()).toEqual({
             value: "test",
             coordinate,
@@ -43,7 +45,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("longComment to comment", () => {
-        pushField(deque, "/*test*/", "longComment", coordinate);
+        pushField(deque, "/*test*/", "longComment", { coordinate, api });
         expect(deque.popFront()).toEqual({
             value: "test",
             coordinate,
@@ -51,7 +53,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("docs to docs", () => {
-        pushField(deque, "/**test*/", "docs", coordinate);
+        pushField(deque, "/**test*/", "docs", { coordinate, api });
         expect(deque.popFront()).toEqual({
             value: "/**test*/",
             coordinate,
@@ -59,7 +61,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("stringS to ' + string + '", () => {
-        pushField(deque, "\'test\'", "stringS", coordinate);
+        pushField(deque, "\'test\'", "stringS", { coordinate, api });
         expect(deque.popFront()).toEqual({
             value: "\'",
             coordinate,
@@ -83,7 +85,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("stringD to \" + string + \"", () => {
-        pushField(deque, "\"test\"", "stringD", coordinate);
+        pushField(deque, "\"test\"", "stringD", { coordinate, api });
         expect(deque.popFront()).toEqual({
             value: "\"",
             coordinate,
@@ -107,7 +109,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("stringR to string", () => {
-        pushField(deque, "test", "stringR", coordinate);
+        pushField(deque, "test", "stringR", { coordinate, api });
         expect(deque.popFront()).toEqual({
             value: "test",
             coordinate,
@@ -115,7 +117,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("stringR+L to  \` + string", () => {
-        pushField(deque, "\`test", "stringR+L", coordinate);
+        pushField(deque, "\`test", "stringR+L", { coordinate, api });
         expect(deque.popFront()).toEqual({
             value: "\`",
             coordinate,
@@ -131,7 +133,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("stringR+R to string + \`", () => {
-        pushField(deque, "test\`", "stringR+R", coordinate);
+        pushField(deque, "test\`", "stringR+R", { coordinate, api });
         expect(deque.popFront()).toEqual({
             value: "test",
             coordinate,
@@ -147,7 +149,7 @@ describe("test pushWord method normally", () => {
         });
     });
     test("stringR+LR to \` + string + \`", () => {
-        pushField(deque, "\`test\`", "stringR+LR", coordinate);
+        pushField(deque, "\`test\`", "stringR+LR", { coordinate, api });
         expect(deque.popFront()).toEqual({
             value: "\`",
             coordinate,
