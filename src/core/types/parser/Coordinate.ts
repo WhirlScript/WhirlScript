@@ -1,5 +1,6 @@
 export default interface Coordinate {
     file: string,
     line: number,
-    column: number
+    column: number,
+    chain?: Coordinate[]
 }

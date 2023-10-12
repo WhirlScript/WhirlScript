@@ -10,7 +10,14 @@ class Logger {//TODO: implement
     }
 
     error(msg: string, coordinate: Coordinate = { line: -1, column: -1, file: "none" }): never {
-        throw new Error(`${msg} in "${coordinate.file}:${coordinate.line}:${coordinate.column}"`);
+        let text = `\x1b47m\x1b[31mError\x1b[0m ${msg} in "${coordinate.file}:${coordinate.line}:${coordinate.column}"`;
+        if (coordinate.chain) {
+            text += "\nCall chain:";
+            for (const chainElement of coordinate.chain) {
+                text += `\n${chainElement.file}:${chainElement.line}:${chainElement.column}`;
+            }
+        }
+        throw text;
     }
 }
 

@@ -8,15 +8,20 @@ import LOGGER from "../../logger/logger";
 import readFile from "../api/readFile";
 import splitNode from "./splitNode";
 
-export default function mergeWord(node: CodeNode, words: Deque<Field>, pools: Pools, pref: string, api: Api) {
+export default function mergeWord(node: CodeNode, fields: Deque<Field>, context: {
+    pools: Pools,
+    pref: string,
+    api: Api
+}) {
+    const { pools, pref, api } = context;
     if (node.child == null) {
         node.child = new Deque<CodeNode>();
     }
-    while (!words.isEmpty()) {
-        let cursor = words.popFront();
+    while (!fields.isEmpty()) {
+        let cursor = fields.popFront();
         if (cursor.flag == "comment") {
             node.child.pushRear(new CodeNode({
-                line: cursor.line,
+                coordinate: cursor.coordinate,
                 type: "comment",
                 value: cursor.value
             }));
@@ -27,25 +32,35 @@ export default function mergeWord(node: CodeNode, words: Deque<Field>, pools: Po
         }
         if (cursor.flag == "word") {
             if (cursor.value == "#import") {
-                cursor = words.popFront();
+                const lineCoordinate = cursor.coordinate;
+                cursor = fields.popFront();
                 if (cursor.flag != "string") {
                     LOGGER.error(LOG_ERROR.invalidCharacter(cursor.value));
                 }
-                const file = cursor.value;
-                cursor = words.popFront();
+                const filePath = cursor.value;
+                cursor = fields.popFront();
                 if (cursor.value != ";") {
                     LOGGER.error(LOG_ERROR.invalidCharacter(cursor.value));
                 }
-                if (pools.importPool.indexOf(file) >= 0) {
+                if (pools.importPool.indexOf(filePath) >= 0) {
                     continue;
                 }
-                const wordsImported = splitNode(new CodeNode({
-                    line: 1,
+                const file = readFile(filePath, api);
+                if (!file.success) {
+                    LOGGER.error(LOG_ERROR.unknownFile(filePath));
+                }
+                const fieldsImported = splitNode(new CodeNode({
+                    coordinate: {
+                        file: file.path,
+                        line: 1,
+                        column: 1,
+                        chain: [...cursor.coordinate.chain ?? [], lineCoordinate]
+                    },
                     type: "code",
-                    value: readFile(file, api)
+                    value: file.value
                 }));
-                while (!wordsImported.isEmpty()) {
-                    words.pushFront(wordsImported.popRear());
+                while (!fieldsImported.isEmpty()) {
+                    fields.pushFront(fieldsImported.popRear());
                 }
                 continue;
             }

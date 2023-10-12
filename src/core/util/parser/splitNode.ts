@@ -33,7 +33,8 @@ export default function splitNode(node: CodeNode): Deque<Field> {
         coordinate: <Coordinate>{
             file: node.coordinate.file,
             line: node.coordinate.line,
-            column: node.coordinate.column
+            column: node.coordinate.column,
+            chain: node.coordinate.chain
         }
     };
 
