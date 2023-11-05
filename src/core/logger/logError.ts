@@ -13,8 +13,8 @@ class LogError {
         return `${this.ERROR_TYPES.SYNTAX_ERROR}: Unterminated string literal.`;
     }
 
-    invalidCharacter(c: string) {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Invalid character ${c}`;
+    invalidCharacterOrToken(c: string) {
+        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Invalid character or token ${c}`;
     }
 
     templateStringInTemplateString() {

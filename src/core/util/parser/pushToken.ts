@@ -1,4 +1,4 @@
-import Field from "../../types/parser/field";
+import Token from "../../types/parser/token";
 import Deque from "../deque";
 import WORD_TEST from "../wordTest";
 import LOG_ERROR from "../../logger/logError";
@@ -18,13 +18,13 @@ export type Status =
     | "stringR+R"// string wrapped with ` and with trailing `
     | "stringR+LR"// string wrapped with ` and with leading and trailing `
 
-export default function pushField(fields: Deque<Field>, piece: string, status: Status, context: { coordinate: Coordinate, api: Api }) {
+export default function pushToken(tokens: Deque<Token>, piece: string, status: Status, context: { coordinate: Coordinate, api: Api }) {
     const { coordinate, api } = context;
     if (piece == "") {
         return;
     }
     if (status == "word") {
-        fields.pushRear({
+        tokens.pushRear({
             value: piece,
             coordinate,
             flag: "word"
@@ -36,7 +36,7 @@ export default function pushField(fields: Deque<Field>, piece: string, status: S
         while (l < r) {
             const sub = v.substring(l, r);
             if (WORD_TEST.isOperator(sub)) {
-                fields.pushRear({
+                tokens.pushRear({
                     value: sub,
                     coordinate: {
                         ...coordinate,
@@ -49,7 +49,7 @@ export default function pushField(fields: Deque<Field>, piece: string, status: S
                 continue;
             }
             if (l == r - 1) {
-                api.loggerApi.error(LOG_ERROR.invalidCharacter(v[l]), coordinate);
+                api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(v[l]), coordinate);
                 l = r;
                 r = v.length;
                 continue;
@@ -57,30 +57,30 @@ export default function pushField(fields: Deque<Field>, piece: string, status: S
             r--;
         }
     } else if (status == "comment") {
-        fields.pushRear({
+        tokens.pushRear({
             value: piece.slice(2),// remove `//`
             coordinate,
             flag: "comment"
         });
     } else if (status == "longComment") {
-        fields.pushRear({
+        tokens.pushRear({
             value: piece.slice(2, -2),// remove `/*` and `*/`
             coordinate,
             flag: "comment"
         });
     } else if (status == "docs") {
-        fields.pushRear({
+        tokens.pushRear({
             value: piece,// keep raw as it will not be in output
             coordinate,
             flag: "docs"
         });
     } else if (status == "stringS") {
-        fields.pushRear({
+        tokens.pushRear({
             value: `'`,
             coordinate,
             flag: "operator"
         });
-        fields.pushRear({
+        tokens.pushRear({
             value: piece.slice(1, -1),
             coordinate: {
                 ...coordinate,
@@ -88,7 +88,7 @@ export default function pushField(fields: Deque<Field>, piece: string, status: S
             },
             flag: "string"
         });
-        fields.pushRear({
+        tokens.pushRear({
             value: `'`,
             coordinate: {
                 ...coordinate,
@@ -97,12 +97,12 @@ export default function pushField(fields: Deque<Field>, piece: string, status: S
             flag: "operator"
         });
     } else if (status == "stringD") {
-        fields.pushRear({
+        tokens.pushRear({
             value: `"`,
             coordinate,
             flag: "operator"
         });
-        fields.pushRear({
+        tokens.pushRear({
             value: piece.slice(1, -1),
             coordinate: {
                 ...coordinate,
@@ -110,7 +110,7 @@ export default function pushField(fields: Deque<Field>, piece: string, status: S
             },
             flag: "string"
         });
-        fields.pushRear({
+        tokens.pushRear({
             value: `"`,
             coordinate: {
                 ...coordinate,
@@ -119,18 +119,18 @@ export default function pushField(fields: Deque<Field>, piece: string, status: S
             flag: "operator"
         });
     } else if (status == "stringR") {
-        fields.pushRear({
+        tokens.pushRear({
             value: piece,
             coordinate,
             flag: "string"
         });
     } else if (status == "stringR+L") {
-        fields.pushRear({
+        tokens.pushRear({
             value: "\`",
             coordinate,
             flag: "operator"
         });
-        fields.pushRear({
+        tokens.pushRear({
             value: piece.slice(1),
             coordinate: {
                 ...coordinate,
@@ -139,12 +139,12 @@ export default function pushField(fields: Deque<Field>, piece: string, status: S
             flag: "string"
         });
     } else if (status == "stringR+R") {
-        fields.pushRear({
+        tokens.pushRear({
             value: piece.slice(0, -1),
             coordinate,
             flag: "string"
         });
-        fields.pushRear({
+        tokens.pushRear({
             value: "\`",
             coordinate: {
                 ...coordinate,
@@ -153,12 +153,12 @@ export default function pushField(fields: Deque<Field>, piece: string, status: S
             flag: "operator"
         });
     } else if (status == "stringR+LR") {
-        fields.pushRear({
+        tokens.pushRear({
             value: "\`",
             coordinate,
             flag: "operator"
         });
-        fields.pushRear({
+        tokens.pushRear({
             value: piece.slice(1, -1),
             coordinate: {
                 ...coordinate,
@@ -166,7 +166,7 @@ export default function pushField(fields: Deque<Field>, piece: string, status: S
             },
             flag: "string"
         });
-        fields.pushRear({
+        tokens.pushRear({
             value: "\`",
             coordinate: {
                 ...coordinate,

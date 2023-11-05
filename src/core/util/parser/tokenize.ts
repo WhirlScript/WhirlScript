@@ -1,7 +1,7 @@
 import CodeNode from "./codeNode";
 import Deque from "../deque";
-import Field from "../../types/parser/field";
-import pushField, { Status } from "./pushField";
+import Token from "../../types/parser/token";
+import pushToken, { Status } from "./pushToken";
 import CODE_TYPES from "../../types/parser/codeTypes";
 import CHAR_TEST from "../charTest";
 import WORD_TEST from "../wordTest";
@@ -10,11 +10,11 @@ import LOG_WARNING from "../../logger/logWarning";
 import Coordinate from "../../types/parser/Coordinate";
 import Api from "../../types/api";
 
-export default function splitNode(node: CodeNode, context: { api: Api }): Deque<Field> {
+export default function tokenize(node: CodeNode, context: { api: Api }): Deque<Token> {
     const { api } = context;
-    const fields = new Deque<Field>();
+    const tokens = new Deque<Token>();
     if (node.type == "raw") {
-        return fields;
+        return tokens;
     }
 
     let line = node.coordinate.line;
@@ -40,7 +40,7 @@ export default function splitNode(node: CodeNode, context: { api: Api }): Deque<
     };
 
     function push(i: number) {
-        pushField(fields, piece, status, {
+        pushToken(tokens, piece, status, {
             coordinate: {
                 ...flags.coordinate
             }, api
@@ -53,7 +53,7 @@ export default function splitNode(node: CodeNode, context: { api: Api }): Deque<
 
     function stringEscape(i: number) {
         if (code[i] == null) {
-            api.loggerApi.error(LOG_ERROR.invalidCharacter("\\"), { ...flags.coordinate, line: line, column: i - lineStart });
+            api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken("\\"), { ...flags.coordinate, line: line, column: i - lineStart });
             return;
         }
         if (code[i] == "\n") {
@@ -266,5 +266,5 @@ export default function splitNode(node: CodeNode, context: { api: Api }): Deque<
         }
     }
 
-    return fields;
+    return tokens;
 }

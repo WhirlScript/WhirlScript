@@ -1,11 +1,11 @@
 import * as fs from "fs";
 import CodeNode from "../../../../core/util/parser/codeNode";
-import splitNode from "../../../../core/util/parser/splitNode";
+import tokenize from "../../../../core/util/parser/tokenize";
 import Deque from "../../../../core/util/deque";
-import Field from "../../../../core/types/parser/field";
+import Token from "../../../../core/types/parser/token";
 import CliApi from "../../../../cli/types/api";
 
-describe("test splitNode method", () => {
+describe("test tokenize method", () => {
     const api = new CliApi();
     test("script expand", () => {
         const path = process.cwd() + "/src/tests/resource/splitTest.txt";
@@ -17,7 +17,7 @@ describe("test splitNode method", () => {
                 file: path
             }, type: "code", value: script
         });
-        const expectedValue = new Deque<Field>([
+        const expectedValue = new Deque<Token>([
             {
                 value: "#import", flag: "word",
                 coordinate: {
@@ -619,6 +619,6 @@ describe("test splitNode method", () => {
                 }
             }
         ]);
-        expect(splitNode(codeNode, { api })).toEqual(expectedValue);
+        expect(tokenize(codeNode, { api })).toEqual(expectedValue);
     });
 });
