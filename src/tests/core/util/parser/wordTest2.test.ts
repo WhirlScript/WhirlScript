@@ -1,22 +1,19 @@
 import WORD_TEST from "../../../../core/util/wordTest";
 
-describe("test wordTest.isNumber method", () => {
-    test("a should not be a number", () => {
-        expect(WORD_TEST.isNumber("a")).toBeFalsy();
+describe("test wordTest.isOperator method", () => {
+    test("a should not not be an operator", () => {
+        expect(WORD_TEST.isOperator("a")).toBeFalsy();
     });
-    test("@count should not be a number", () => {
-        expect(WORD_TEST.isNumber("@count")).toBeFalsy();
+    test("5 should not be an operator", () => {
+        expect(WORD_TEST.isOperator("5")).toBeFalsy();
     });
-    test("#function should not be a number", () => {
-        expect(WORD_TEST.isNumber("#function")).toBeFalsy();
+    test("150.0 should not be an operator", () => {
+        expect(WORD_TEST.isOperator("150.0")).toBeFalsy();
     });
-    test("5 should be a number", () => {
-        expect(WORD_TEST.isNumber("5")).toBeTruthy();
+    test("+ should be an operator", () => {
+        expect(WORD_TEST.isOperator("+")).toBeTruthy();
     });
-    test("150 should be a number", () => {
-        expect(WORD_TEST.isNumber("150")).toBeTruthy();
-    });
-    test("150.0 should not be a number", () => {
-        expect(WORD_TEST.isNumber("150.0")).toBeFalsy();
+    test(">= should be an operator", () => {
+        expect(WORD_TEST.isOperator(">=")).toBeTruthy();
     });
 });

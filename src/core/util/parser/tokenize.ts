@@ -4,11 +4,11 @@ import Token from "../../types/parser/token";
 import pushToken, { Status } from "./pushToken";
 import CODE_TYPES from "../../types/parser/codeTypes";
 import CHAR_TEST from "../charTest";
-import WORD_TEST from "../wordTest";
 import LOG_ERROR from "../../logger/logError";
 import LOG_WARNING from "../../logger/logWarning";
 import Coordinate from "../../types/parser/Coordinate";
 import Api from "../../types/api";
+import codeTypes from "../../types/parser/codeTypes";
 
 export default function tokenize(node: CodeNode, context: { api: Api }): Deque<Token> {
     const { api } = context;
@@ -53,7 +53,11 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
 
     function stringEscape(i: number) {
         if (code[i] == null) {
-            api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken("\\"), { ...flags.coordinate, line: line, column: i - lineStart });
+            api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken("\\"), {
+                ...flags.coordinate,
+                line: line,
+                column: i - lineStart
+            });
             return;
         }
         if (code[i] == "\n") {
@@ -69,7 +73,7 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
     }
 
     for (let i = 0; i < node.value.length; i++) {
-        // if (i > 0)
+        // if (i > 154)
         //     console.log(i, "  |  ", code[i - 1] == "\n" ? "\\n" : code[i - 1], "  |  ", status, "  |  ", piece, "  |  ", `${flags.coordinate.line}:${flags.coordinate.column}`, "  |  ", lineStart);
 
         if (code[i] == "\n") {
@@ -131,9 +135,7 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
                 }
             }
             if (piece == "") {
-                if (WORD_TEST.isWord(code[i])) {
-                    status = "word";
-                }
+                status = "word";
             }
             if (code[i] == "'") {
                 push(i - 1);
@@ -149,7 +151,11 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
             }
             if (code[i] == "`") {
                 if (flags.inStringR) {
-                    api.loggerApi.error(LOG_ERROR.templateStringInTemplateString(), { ...flags.coordinate, line: line, column: i - lineStart });
+                    api.loggerApi.error(LOG_ERROR.templateStringInTemplateString(), {
+                        ...flags.coordinate,
+                        line: line,
+                        column: i - lineStart
+                    });
                 }
                 push(i - 1);
                 piece += code[i];
@@ -158,13 +164,13 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
                 flags.stringR.l = true;
                 continue;
             }
-            if (status == "operator" && (CHAR_TEST.isNumber(code[i]) || CHAR_TEST.isAlphabet(code[i]))) {
+            if (status == "operator" && (CHAR_TEST.isNumber(code[i]) || codeTypes.operators.indexOf(code[i]) < 0)) {
                 push(i - 1);
                 status = "word";
                 piece += code[i];
                 continue;
             }
-            if (status == "word" && !WORD_TEST.isWord(piece + code[i])) {
+            if (status == "word" && codeTypes.operators.indexOf(code[i]) > -1) {
                 push(i - 1);
                 status = "operator";
                 piece += code[i];
@@ -198,7 +204,11 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
                 continue;
             }
             if (code[i] == "\n") {
-                api.loggerApi.error(LOG_ERROR.unterminatedStringLiteral(), { ...flags.coordinate, line: line, column: i - lineStart });
+                api.loggerApi.error(LOG_ERROR.unterminatedStringLiteral(), {
+                    ...flags.coordinate,
+                    line: line,
+                    column: i - lineStart
+                });
                 continue;
             }
             if (code[i] == "'") {
@@ -217,7 +227,11 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
                 continue;
             }
             if (code[i] == "\n") {
-                api.loggerApi.error(LOG_ERROR.unterminatedStringLiteral(), { ...flags.coordinate, line: line, column: i - lineStart });
+                api.loggerApi.error(LOG_ERROR.unterminatedStringLiteral(), {
+                    ...flags.coordinate,
+                    line: line,
+                    column: i - lineStart
+                });
                 continue;
             }
             if (code[i] == "\"") {

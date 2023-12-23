@@ -18,6 +18,6 @@
 
 var x=5;
 x+=2;
-const y=`a${x}`;
+const 好=`a${x}`;
 
 @count global editable v = true;

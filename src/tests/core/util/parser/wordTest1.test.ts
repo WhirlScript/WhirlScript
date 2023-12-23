@@ -1,25 +1,22 @@
 import WORD_TEST from "../../../../core/util/wordTest";
 
-describe("test wordTest.isWord method", () => {
-    test("a should be a word", () => {
-        expect(WORD_TEST.isWord("a")).toBeTruthy();
+describe("test wordTest.isNumber method", () => {
+    test("a should not be a number", () => {
+        expect(WORD_TEST.isNumber("a")).toBeFalsy();
     });
-    test("C should be a word", () => {
-        expect(WORD_TEST.isWord("C")).toBeTruthy();
+    test("@count should not be a number", () => {
+        expect(WORD_TEST.isNumber("@count")).toBeFalsy();
     });
-    test("fn should be a word", () => {
-        expect(WORD_TEST.isWord("fn")).toBeTruthy();
+    test("#function should not be a number", () => {
+        expect(WORD_TEST.isNumber("#function")).toBeFalsy();
     });
-    test("@count should be a word", () => {
-        expect(WORD_TEST.isWord("@count")).toBeTruthy();
+    test("5 should be a number", () => {
+        expect(WORD_TEST.isNumber("5")).toBeTruthy();
     });
-    test("@ should be a word", () => {
-        expect(WORD_TEST.isWord("@")).toBeTruthy();
+    test("150 should be a number", () => {
+        expect(WORD_TEST.isNumber("150")).toBeTruthy();
     });
-    test("# should be a word", () => {
-        expect(WORD_TEST.isWord("#")).toBeTruthy();
-    });
-    test("5 should not be word", () => {
-        expect(WORD_TEST.isWord("5")).toBeFalsy();
+    test("150.0 should not be a number", () => {
+        expect(WORD_TEST.isNumber("150.0")).toBeFalsy();
     });
 });

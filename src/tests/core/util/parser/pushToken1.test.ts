@@ -10,7 +10,8 @@ describe("test pushWord method normally", () => {
     const coordinate: Coordinate = {
         file: "",
         line: 1,
-        column: 1
+        column: 1,
+        chain: undefined
     };
     test("word to word", () => {
         pushToken(deque, "test", "word", { coordinate, api });

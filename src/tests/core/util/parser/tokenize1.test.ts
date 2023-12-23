@@ -14,7 +14,8 @@ describe("test tokenize method", () => {
             coordinate: {
                 line: 1,
                 column: 1,
-                file: path
+                file: path,
+                chain: undefined
             }, type: "code", value: script
         });
         const expectedValue = new Deque<Token>([
@@ -23,7 +24,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 1,
                     column: 1,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -31,7 +33,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 1,
                     column: 9,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -39,7 +42,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 1,
                     column: 13,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -47,7 +51,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 3,
                     column: 1,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -55,7 +60,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 3,
                     column: 5,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -63,7 +69,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 3,
                     column: 12,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -71,7 +78,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 3,
                     column: 13,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -79,7 +87,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 4,
                     column: 1,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -87,7 +96,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 4,
                     column: 8,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -95,7 +105,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 4,
                     column: 9,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -103,7 +114,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 4,
                     column: 10,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -111,7 +123,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 4,
                     column: 11,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -119,7 +132,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 4,
                     column: 12,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -127,7 +141,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 4,
                     column: 13,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -135,7 +150,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 5,
                     column: 1,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -143,7 +159,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 5,
                     column: 6,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -151,7 +168,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 5,
                     column: 8,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -159,7 +177,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 7,
                     column: 1,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -167,7 +186,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 10,
                     column: 1,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -175,7 +195,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 10,
                     column: 11,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -183,7 +204,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 10,
                     column: 12,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -191,7 +213,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 10,
                     column: 13,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -199,7 +222,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 10,
                     column: 14,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -207,7 +231,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 10,
                     column: 15,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -215,7 +240,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 10,
                     column: 18,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -223,7 +249,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 10,
                     column: 19,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -231,7 +258,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 10,
                     column: 20,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -239,7 +267,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 10,
                     column: 26,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -247,7 +276,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 11,
                     column: 5,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -255,7 +285,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 11,
                     column: 6,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -263,7 +294,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 11,
                     column: 7,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -271,7 +303,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 11,
                     column: 8,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -279,7 +312,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 11,
                     column: 9,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -287,7 +321,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 11,
                     column: 10,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -295,7 +330,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 11,
                     column: 11,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -303,7 +339,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 11,
                     column: 12,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -311,7 +348,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 11,
                     column: 13,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -319,7 +357,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 11,
                     column: 14,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -327,7 +366,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 11,
                     column: 15,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -335,7 +375,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 12,
                     column: 5,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -343,7 +384,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 12,
                     column: 6,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -351,7 +393,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 13,
                     column: 1,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -359,7 +402,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 15,
                     column: 1,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -367,7 +411,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 15,
                     column: 11,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -375,7 +420,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 15,
                     column: 12,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -383,7 +429,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 15,
                     column: 13,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -391,7 +438,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 15,
                     column: 14,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -399,7 +447,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 17,
                     column: 1,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -407,7 +456,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 19,
                     column: 1,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -415,7 +465,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 19,
                     column: 5,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -423,7 +474,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 19,
                     column: 6,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -431,7 +483,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 19,
                     column: 7,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -439,7 +492,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 19,
                     column: 8,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -447,7 +501,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 20,
                     column: 1,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -455,7 +510,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 20,
                     column: 2,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -463,7 +519,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 20,
                     column: 4,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -471,7 +528,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 20,
                     column: 5,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -479,15 +537,17 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 21,
                     column: 1,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
-                value: "y", flag: "word",
+                value: "好", flag: "word",
                 coordinate: {
                     line: 21,
                     column: 7,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -495,7 +555,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 21,
                     column: 8,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -503,7 +564,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 21,
                     column: 9,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -511,7 +573,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 21,
                     column: 10,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -519,7 +582,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 21,
                     column: 11,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -527,7 +591,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 21,
                     column: 13,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -535,7 +600,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 21,
                     column: 14,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -543,7 +609,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 21,
                     column: 15,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -551,7 +618,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 21,
                     column: 15,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -559,7 +627,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 21,
                     column: 16,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -567,7 +636,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 23,
                     column: 1,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -575,7 +645,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 23,
                     column: 8,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -583,7 +654,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 23,
                     column: 15,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -591,7 +663,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 23,
                     column: 24,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -599,7 +672,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 23,
                     column: 26,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -607,7 +681,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 23,
                     column: 28,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             },
             {
@@ -615,7 +690,8 @@ describe("test tokenize method", () => {
                 coordinate: {
                     line: 23,
                     column: 32,
-                    file: path
+                    file: path,
+                    chain: undefined
                 }
             }
         ]);
