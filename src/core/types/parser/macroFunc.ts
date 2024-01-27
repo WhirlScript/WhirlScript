@@ -1,5 +1,5 @@
 import { ValType } from "./codeTypes";
-import CodeNode from "../../util/parser/codeNode";
+import { Segment } from "./segment";
 
 type Args = {
     name: string,
@@ -11,10 +11,10 @@ export default class MacroFunc {
     name: string;
     args: Args;
     type: ValType;
-    body: CodeNode;
+    body: Segment.Block;
     macroConst: boolean;
 
-    constructor(name: string, type: ValType, args: Args, props: string[], body: CodeNode, macroConst: boolean) {
+    constructor(name: string, type: ValType, args: Args, props: string[], body: Segment.Block, macroConst: boolean) {
         this.name = name;
         this.type = type;
         this.args = args;

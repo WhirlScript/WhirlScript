@@ -1,18 +1,16 @@
-import CodeNode from "../../util/parser/codeNode";
 import Deque from "../../util/deque";
+import LightDeque from "../../util/lightDeque";
 import Token from "../../types/parser/token";
 import Pools from "../../util/parser/Pools";
 import Api from "../../types/api";
+import Coordinate from "../../types/parser/Coordinate";
+import { Segment } from "../../types/parser/segment";
 import LOG_ERROR from "../../logger/logError";
-import logError from "../../logger/logError";
+import CODE_TYPES from "../../types/parser/codeTypes";
+import WORD_TEST from "../../util/wordTest";
+import RawCode from "../../util/parser/rawCode";
 import readFile from "../../util/api/readFile";
 import tokenize from "../tokenize";
-import { Segment } from "../../types/parser/segment";
-import codeTypes from "../../types/parser/codeTypes";
-import WordTest from "../../util/wordTest";
-import LightDeque from "../../util/lightDeque";
-import Coordinate from "../../types/parser/Coordinate";
-import Name = Segment.Name;
 
 export default function resolve(tokens: Deque<Token>, context: {
     pools: Pools,
@@ -51,7 +49,7 @@ export default function resolve(tokens: Deque<Token>, context: {
         const expr: Deque<Segment.Value | { type: "o", value: string, level: number }> = new Deque();
         const opLevel: LightDeque<number> = new LightDeque();// Operation levels
         let hLOperation: Token | undefined;// Hanging leading operation
-        let hLAssertion: { type: Name, coordinate: Coordinate } | undefined;// Hanging leading assertion
+        let hLAssertion: { type: Segment.Name, coordinate: Coordinate } | undefined;// Hanging leading assertion
         while (cursor.value != "," && cursor.value != ";" && cursor.value != ")" && cursor.value != "}") {
             if (cursor.value == "(") {
                 if (!expr.isEmpty() && expr.peekRear()?.type != "o") {
@@ -106,7 +104,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 cursor = pop();
                 continue;
             }
-            if (WordTest.isInt(cursor.value)) {
+            if (WORD_TEST.isInt(cursor.value)) {
                 if (hLOperation) {
                     api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(hLOperation.value), hLOperation.coordinate, true);
                 }
@@ -187,14 +185,14 @@ export default function resolve(tokens: Deque<Token>, context: {
                 const inside: { [key: string]: Segment.Value } = {};
                 while (cursor.value != "}") {
                     if (end) {
-                        api.loggerApi.error(logError.missingExpectedColon(), cursor.coordinate, false);
+                        api.loggerApi.error(LOG_ERROR.missingExpectedColon(), cursor.coordinate, false);
                         reportError();
                         end = false;
                     }
                     const n1 = cursor.value;
                     cursor = pop();
                     if (cursor.value != ":") {
-                        api.loggerApi.error(logError.missingExpectedColon(), cursor.coordinate, false);
+                        api.loggerApi.error(LOG_ERROR.missingExpectedColon(), cursor.coordinate, false);
                         reportError();
                     } else {
                         cursor = pop();
@@ -223,7 +221,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 if (hLAssertion) {
                     api.loggerApi.error(LOG_ERROR.invalidAssertion(), hLAssertion.coordinate, true);
                 }
-                const level = (<{ [key: string]: number }>codeTypes.operatorPrecedence)?.[cursor.value];
+                const level = (<{ [key: string]: number }>CODE_TYPES.operatorPrecedence)?.[cursor.value];
                 if (level <= 2 && level >= 1) {
                     if (expr.isEmpty() || expr.peekRear()?.type == "o") {
                         hLOperation = cursor;
@@ -360,16 +358,16 @@ export default function resolve(tokens: Deque<Token>, context: {
     function getName(): Segment.Name {
         const s: string[] = [];
         const coo = cursor.coordinate;
-        if (cursor.flag == "operator" || WordTest.isInt(cursor.value)) {
-            api.loggerApi.error(logError.invalidCharacterOrToken(cursor.value), cursor.coordinate, true);
+        if (cursor.flag == "operator" || WORD_TEST.isInt(cursor.value)) {
+            api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate, true);
             return new Segment.Name(coo, "", []);
         }
         s.push(cursor.value);
         cursor = pop();
         while (cursor.value == "::") {
             cursor = pop();
-            if (cursor.flag == "operator" || WordTest.isInt(cursor.value)) {
-                api.loggerApi.error(logError.invalidCharacterOrToken(cursor.value), cursor.coordinate, true);
+            if (cursor.flag == "operator" || WORD_TEST.isInt(cursor.value)) {
+                api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate, true);
                 return new Segment.Name(coo, "", []);
             }
             s.push(cursor.value);
@@ -452,14 +450,13 @@ export default function resolve(tokens: Deque<Token>, context: {
                         reportError();
                         return new Segment.Empty(lineCoordinate);
                     }
-                    const tokensImported = tokenize(new CodeNode({
+                    const tokensImported = tokenize(new RawCode({
                             coordinate: {
                                 file: file.path,
                                 line: 1,
                                 column: 1,
                                 chain: [...cursor.coordinate.chain ?? [], lineCoordinate]
                             },
-                            type: "code",
                             value: file.value
                         }),
                         { api });
@@ -481,7 +478,7 @@ export default function resolve(tokens: Deque<Token>, context: {
         // Block `{...}`
         if (cursor.value == "{") {
             if (!requirements.isBlock) {
-                api.loggerApi.error(logError.unexpectedBlock(), cursor.coordinate, true);
+                api.loggerApi.error(LOG_ERROR.unexpectedBlock(), cursor.coordinate, true);
                 return new Segment.Empty(cursor.coordinate);
             }
             if (annotations.length > 0) {
@@ -493,7 +490,7 @@ export default function resolve(tokens: Deque<Token>, context: {
         // Struct `struct xxx {xxx: Xxx}`
         if (cursor.value == "struct") {
             if (!requirements.isBlock) {
-                api.loggerApi.error(logError.unexpectedBlock(), cursor.coordinate, true);
+                api.loggerApi.error(LOG_ERROR.unexpectedBlock(), cursor.coordinate, true);
                 return new Segment.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
@@ -502,14 +499,14 @@ export default function resolve(tokens: Deque<Token>, context: {
             cursor = pop();
             const n = getName();
             if (cursor.value != "{") {
-                api.loggerApi.error(logError.invalidCharacterOrToken(cursor.value), cursor.coordinate, true);
+                api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate, true);
                 return new Segment.Empty(cursor.coordinate);
             }
             cursor = pop();
             let end = false;
             while (cursor.value != "}") {
                 if (end) {
-                    api.loggerApi.error(logError.missingExpectedColon(), cursor.coordinate, false);
+                    api.loggerApi.error(LOG_ERROR.missingExpectedColon(), cursor.coordinate, false);
                     reportError();
                     valid = false;
                     end = false;
@@ -517,7 +514,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 const n1 = cursor.value;
                 cursor = pop();
                 if (cursor.value != ":") {
-                    api.loggerApi.error(logError.missingExpectedColon(), cursor.coordinate, false);
+                    api.loggerApi.error(LOG_ERROR.missingExpectedColon(), cursor.coordinate, false);
                     reportError();
                     valid = false;
                 } else {
@@ -580,7 +577,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 v = getExpression();
             }
             if (requirements.withoutSemi || cursor.value != ";") {
-                api.loggerApi.error(logError.missingExpectedSemicolon(), cursor.coordinate, false);
+                api.loggerApi.error(LOG_ERROR.missingExpectedSemicolon(), cursor.coordinate, false);
                 reportError();
             } else {
                 if (!requirements.withoutSemi) {
@@ -593,16 +590,16 @@ export default function resolve(tokens: Deque<Token>, context: {
         // Function Define `function xxx(xxx: Xxx): Xxx { xxx; }`
         if (cursor.value == "function") {
             if (!requirements.isBlock) {
-                api.loggerApi.error(logError.unexpectedBlock(), cursor.coordinate, true);
+                api.loggerApi.error(LOG_ERROR.unexpectedBlock(), cursor.coordinate, true);
                 return new Segment.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
             cursor = pop();
             const n = getName();
             const args: Segment.ValDefine[] = [];
-            let t: Name | undefined;
+            let t: Segment.Name | undefined;
             if (cursor.value != "(") {
-                api.loggerApi.error(logError.invalidCharacterOrToken(cursor.value), cursor.coordinate, true);
+                api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate, true);
                 return new Segment.Empty(coo);
             }
             cursor = pop();
@@ -619,7 +616,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                     v = getExpression();
                 }
                 if (cursor.value != "," && cursor.value != ")") {
-                    api.loggerApi.error(logError.invalidCharacterOrToken(cursor.value), cursor.coordinate, true);
+                    api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate, true);
                     return new Segment.Empty(coo);
                 }
                 if (cursor.value == ",") {
@@ -643,30 +640,30 @@ export default function resolve(tokens: Deque<Token>, context: {
 
         // if not defining...
         if (definingProps.native && nativeCoo) {
-            api.loggerApi.error(logError.invalidCharacterOrToken("native"), nativeCoo, false);
+            api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken("native"), nativeCoo, false);
             reportError();
         }
         if (definingProps.macro && macroCoo) {
-            api.loggerApi.error(logError.invalidCharacterOrToken("native"), macroCoo, false);
+            api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken("native"), macroCoo, false);
             reportError();
         }
 
         // If `if (xxx) xxx;`
         if (cursor.value == "if") {
             if (!requirements.isBlock) {
-                api.loggerApi.error(logError.unexpectedBlock(), cursor.coordinate, true);
+                api.loggerApi.error(LOG_ERROR.unexpectedBlock(), cursor.coordinate, true);
                 return new Segment.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
             cursor = pop();
             if (cursor.value != "(") {
-                api.loggerApi.error(logError.invalidCharacterOrToken(cursor.value), coo, true);
+                api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo, true);
                 return new Segment.Empty(coo);
             }
             cursor = pop();
             const condition = getExpression();
             if (cursor.value != ")") {
-                api.loggerApi.error(logError.invalidCharacterOrToken(cursor.value), coo, true);
+                api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo, true);
                 return new Segment.Empty(coo);
             }
             const statement = getStatement(context, {
@@ -681,13 +678,13 @@ export default function resolve(tokens: Deque<Token>, context: {
         // For `for (xxx; xxx; xxx) xxx;`
         if (cursor.value == "for") {
             if (!requirements.isBlock) {
-                api.loggerApi.error(logError.unexpectedBlock(), cursor.coordinate, true);
+                api.loggerApi.error(LOG_ERROR.unexpectedBlock(), cursor.coordinate, true);
                 return new Segment.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
             cursor = pop();
             if (cursor.value != "(") {
-                api.loggerApi.error(logError.invalidCharacterOrToken(cursor.value), coo, true);
+                api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo, true);
                 return new Segment.Empty(coo);
             }
             cursor = pop();
@@ -713,7 +710,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 });
             }
             if (cursor.value != ")") {
-                api.loggerApi.error(logError.invalidCharacterOrToken(cursor.value), coo, true);
+                api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo, true);
                 return new Segment.Empty(coo);
             }
             const statement = getStatement(context, {
@@ -728,19 +725,19 @@ export default function resolve(tokens: Deque<Token>, context: {
         // While `while (xxx) xxx;`
         if (cursor.value == "while") {
             if (!requirements.isBlock) {
-                api.loggerApi.error(logError.unexpectedBlock(), cursor.coordinate, true);
+                api.loggerApi.error(LOG_ERROR.unexpectedBlock(), cursor.coordinate, true);
                 return new Segment.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
             cursor = pop();
             if (cursor.value != "(") {
-                api.loggerApi.error(logError.invalidCharacterOrToken(cursor.value), coo, true);
+                api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo, true);
                 return new Segment.Empty(coo);
             }
             cursor = pop();
             const condition = getExpression();
             if (cursor.value != ")") {
-                api.loggerApi.error(logError.invalidCharacterOrToken(cursor.value), coo, true);
+                api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo, true);
                 return new Segment.Empty(coo);
             }
             const statement = getStatement(context, {
@@ -755,7 +752,7 @@ export default function resolve(tokens: Deque<Token>, context: {
         // Namespace `namespace xx { xxx; }`
         if (cursor.value == "namespace") {
             if (!requirements.isBlock) {
-                api.loggerApi.error(logError.unexpectedBlock(), cursor.coordinate, true);
+                api.loggerApi.error(LOG_ERROR.unexpectedBlock(), cursor.coordinate, true);
                 return new Segment.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
@@ -785,7 +782,7 @@ export default function resolve(tokens: Deque<Token>, context: {
             // `using xxx;`
             const n = getName();
             if (cursor.value != ";") {
-                api.loggerApi.error(logError.missingExpectedSemicolon(), cursor.coordinate, false);
+                api.loggerApi.error(LOG_ERROR.missingExpectedSemicolon(), cursor.coordinate, false);
                 reportError();
             } else {
                 cursor = pop();
@@ -796,7 +793,7 @@ export default function resolve(tokens: Deque<Token>, context: {
         // xxx;
         const expr = getExpression();
         if (cursor.value != ";") {
-            api.loggerApi.error(logError.missingExpectedSemicolon(), cursor.coordinate, false);
+            api.loggerApi.error(LOG_ERROR.missingExpectedSemicolon(), cursor.coordinate, false);
             reportError();
         } else {
             cursor = pop();

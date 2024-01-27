@@ -1,4 +1,4 @@
-import CodeNode from "../../util/parser/codeNode";
+import RawCode from "../../util/parser/rawCode";
 import Deque from "../../util/deque";
 import Token from "../../types/parser/token";
 import pushToken, { Status } from "./pushToken";
@@ -8,20 +8,16 @@ import LOG_ERROR from "../../logger/logError";
 import LOG_WARNING from "../../logger/logWarning";
 import Coordinate from "../../types/parser/Coordinate";
 import Api from "../../types/api";
-import codeTypes from "../../types/parser/codeTypes";
 
-export default function tokenize(node: CodeNode, context: { api: Api }): Deque<Token> {
+export default function tokenize(rawCode: RawCode, context: { api: Api }): Deque<Token> {
     const { api } = context;
     const tokens = new Deque<Token>();
-    if (node.type == "raw") {
-        return tokens;
-    }
 
-    let line = node.coordinate.line;
-    let lineStart = 0 - node.coordinate.column;
+    let line = rawCode.coordinate.line;
+    let lineStart = 0 - rawCode.coordinate.column;
     let piece = "";
     let status: Status = "operator";
-    const code: string = node.value.replace(/\r/g, "");
+    const code: string = rawCode.value.replace(/\r/g, "");
     const flags = {
         layerCount: 0,
         stringR: {
@@ -32,10 +28,10 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
         inStringR: false,
         inStringRFormat: false,
         coordinate: <Coordinate>{
-            file: node.coordinate.file,
-            line: node.coordinate.line,
-            column: node.coordinate.column,
-            chain: node.coordinate.chain
+            file: rawCode.coordinate.file,
+            line: rawCode.coordinate.line,
+            column: rawCode.coordinate.column,
+            chain: rawCode.coordinate.chain
         }
     };
 
@@ -72,7 +68,7 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
         piece += escapeResult;
     }
 
-    for (let i = 0; i < node.value.length; i++) {
+    for (let i = 0; i < rawCode.value.length; i++) {
         // if (i > 154)
         //     console.log(i, "  |  ", code[i - 1] == "\n" ? "\\n" : code[i - 1], "  |  ", status, "  |  ", piece, "  |  ", `${flags.coordinate.line}:${flags.coordinate.column}`, "  |  ", lineStart);
 
@@ -164,13 +160,13 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
                 flags.stringR.l = true;
                 continue;
             }
-            if (status == "operator" && (CHAR_TEST.isNumber(code[i]) || codeTypes.operators.indexOf(code[i]) < 0)) {
+            if (status == "operator" && (CHAR_TEST.isNumber(code[i]) || CODE_TYPES.operators.indexOf(code[i]) < 0)) {
                 push(i - 1);
                 status = "word";
                 piece += code[i];
                 continue;
             }
-            if (status == "word" && codeTypes.operators.indexOf(code[i]) > -1) {
+            if (status == "word" && CODE_TYPES.operators.indexOf(code[i]) > -1) {
                 push(i - 1);
                 status = "operator";
                 piece += code[i];

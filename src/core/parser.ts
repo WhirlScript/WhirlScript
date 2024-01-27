@@ -1,5 +1,5 @@
 import Index from "./types/api";
-import CodeNode from "./util/parser/codeNode";
+import RawCode from "./util/parser/rawCode";
 import Api from "./types/api";
 import LOG_ERROR from "./logger/logError";
 
@@ -23,8 +23,7 @@ export default class Parser {
                 column: 1
             }, true);
         }
-        const rootNode = new CodeNode({
-            type: "code",
+        const rootCode = new RawCode({
             value: file.value,
             coordinate: {
                 file: "#import std;\n" + file.path,

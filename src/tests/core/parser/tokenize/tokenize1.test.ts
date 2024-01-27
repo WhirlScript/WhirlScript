@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import CodeNode from "../../../../core/util/parser/codeNode";
+import RawCode from "../../../../core/util/parser/rawCode";
 import tokenize from "../../../../core/parser/tokenize";
 import Deque from "../../../../core/util/deque";
 import Token from "../../../../core/types/parser/token";
@@ -7,16 +7,16 @@ import CliApi from "../../../../cli/types/api";
 
 describe("test tokenize method", () => {
     const api = new CliApi();
-    test("script expand", () => {
+    test("script tokenize", () => {
         const path = process.cwd() + "/src/tests/resource/splitTest.txt";
         const script = fs.readFileSync(path).toString();
-        const codeNode = new CodeNode({
+        const codeNode = new RawCode({
             coordinate: {
                 line: 1,
                 column: 1,
                 file: path,
                 chain: undefined
-            }, type: "code", value: script
+            }, value: script
         });
         const expectedValue = new Deque<Token>([
             {
