@@ -1,16 +1,16 @@
-import CodeNode from "./codeNode";
-import Deque from "../deque";
+import CodeNode from "../../util/parser/codeNode";
+import Deque from "../../util/deque";
 import Token from "../../types/parser/token";
-import Pools from "./Pools";
+import Pools from "../../util/parser/Pools";
 import Api from "../../types/api";
 import LOG_ERROR from "../../logger/logError";
 import logError from "../../logger/logError";
-import readFile from "../api/readFile";
-import tokenize from "./tokenize";
+import readFile from "../../util/api/readFile";
+import tokenize from "../tokenize";
 import { Segment } from "../../types/parser/segment";
 import codeTypes from "../../types/parser/codeTypes";
-import WordTest from "../wordTest";
-import LightDeque from "../lightDeque";
+import WordTest from "../../util/wordTest";
+import LightDeque from "../../util/lightDeque";
 import Coordinate from "../../types/parser/Coordinate";
 import Name = Segment.Name;
 

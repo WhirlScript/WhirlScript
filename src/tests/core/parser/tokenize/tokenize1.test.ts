@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import CodeNode from "../../../../core/util/parser/codeNode";
-import tokenize from "../../../../core/util/parser/tokenize";
+import tokenize from "../../../../core/parser/tokenize";
 import Deque from "../../../../core/util/deque";
 import Token from "../../../../core/types/parser/token";
 import CliApi from "../../../../cli/types/api";

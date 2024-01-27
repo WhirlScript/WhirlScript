@@ -1,6 +1,6 @@
 import Deque from "../../../../core/util/deque";
 import Token from "../../../../core/types/parser/token";
-import pushToken from "../../../../core/util/parser/pushToken";
+import pushToken from "../../../../core/parser/tokenize/pushToken";
 import Coordinate from "../../../../core/types/parser/Coordinate";
 import CliApi from "../../../../cli/types/api";
 

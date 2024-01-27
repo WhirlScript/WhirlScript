@@ -1,9 +1,9 @@
-import CodeNode from "./codeNode";
-import Deque from "../deque";
+import CodeNode from "../../util/parser/codeNode";
+import Deque from "../../util/deque";
 import Token from "../../types/parser/token";
 import pushToken, { Status } from "./pushToken";
 import CODE_TYPES from "../../types/parser/codeTypes";
-import CHAR_TEST from "../charTest";
+import CHAR_TEST from "../../util/charTest";
 import LOG_ERROR from "../../logger/logError";
 import LOG_WARNING from "../../logger/logWarning";
 import Coordinate from "../../types/parser/Coordinate";
