@@ -242,7 +242,7 @@ export namespace Segment {
         constructor(coordinate: Coordinate, functionName: Name, functionType: Name | undefined, args: ValDefine[], block?: Block) {
             this.coordinate = coordinate;
             this.functionName = functionName;
-            this.functionType = functionName;
+            this.functionType = functionType;
             this.args = args;
             this.block = block;
         }
