@@ -17,6 +17,7 @@ export default interface LoggerApi {
      * log error and throw an empty error to interrupt the following parsing
      * @param msg message to log
      * @param coordinate where error occurred
+     * @param interrupt whether to throw the error
      */
-    error(msg: string, coordinate: Coordinate): never;
+    error(msg: string, coordinate: Coordinate, interrupt:boolean): never;
 }

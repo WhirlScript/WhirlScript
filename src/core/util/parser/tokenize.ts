@@ -57,7 +57,7 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
                 ...flags.coordinate,
                 line: line,
                 column: i - lineStart
-            });
+            }, true);
             return;
         }
         if (code[i] == "\n") {
@@ -155,7 +155,7 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
                         ...flags.coordinate,
                         line: line,
                         column: i - lineStart
-                    });
+                    }, true);
                 }
                 push(i - 1);
                 piece += code[i];
@@ -208,7 +208,7 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
                     ...flags.coordinate,
                     line: line,
                     column: i - lineStart
-                });
+                }, true);
                 continue;
             }
             if (code[i] == "'") {
@@ -231,7 +231,7 @@ export default function tokenize(node: CodeNode, context: { api: Api }): Deque<T
                     ...flags.coordinate,
                     line: line,
                     column: i - lineStart
-                });
+                }, true);
                 continue;
             }
             if (code[i] == "\"") {

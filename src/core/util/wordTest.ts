@@ -1,7 +1,7 @@
 import CODE_TYPES from "../types/parser/codeTypes";
 
 class WordTest {
-    isNumber(x: string): boolean {
+    isInt(x: string): boolean {
         if (x === null || x === "") {
             return false;
         }
@@ -19,6 +19,4 @@ class WordTest {
     }
 }
 
-const WORD_TEST = new WordTest();
-
-export default WORD_TEST;
+export default new WordTest();

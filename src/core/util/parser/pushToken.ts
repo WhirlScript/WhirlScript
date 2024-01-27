@@ -18,7 +18,10 @@ export type Status =
     | "stringR+R"// string wrapped with ` and with trailing `
     | "stringR+LR"// string wrapped with ` and with leading and trailing `
 
-export default function pushToken(tokens: Deque<Token>, piece: string, status: Status, context: { coordinate: Coordinate, api: Api }) {
+export default function pushToken(tokens: Deque<Token>, piece: string, status: Status, context: {
+    coordinate: Coordinate,
+    api: Api
+}) {
     const { coordinate, api } = context;
     if (piece == "") {
         return;
@@ -49,7 +52,7 @@ export default function pushToken(tokens: Deque<Token>, piece: string, status: S
                 continue;
             }
             if (l == r - 1) {
-                api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(v[l]), coordinate);
+                api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(v[l]), coordinate, true);
                 l = r;
                 r = v.length;
                 continue;

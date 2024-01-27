@@ -7,31 +7,12 @@ class CodeTypes {
         ">>", "<<",
         "<", ">", ">=", "<=",
         "!", "&&", "||",
-        "$", ".", ";", ":",
+        "$", ".", ";", ":", ",",
+        "::",
         "(", ")",
         "{", "}",
-        "${"
-    ];
-    keywords = [
-        "var", "const",
-        "#var", "#const",
-        "editable", "env", "final",
-        "string", "int", "boolean",
-        "false", "true",
-        "function", "#function",
-        "for", "while",
-        "raw", "rawln",
-        "cmd", "bash",
-        "#import"
-    ];
-    definingBuiltinPropKeywords = [
-        "editable", "env", "final"
-    ];
-    definingKeywords = [
-        "var", "const",
-        "#var", "#const",
-        "function", "#function",
-        "editable", "env", "final"
+        "${",
+        "_"
     ];
     escapes: {
         [key: string]: string
@@ -46,24 +27,34 @@ class CodeTypes {
         "\n": ""
     };
     operatorPrecedence = {
-        "!": 1,
-        "++": 2,
-        "--": 2,
-        "+": 2,
-        "-": 2,
+        "::": 0,
+        ".": 0,
+        "++": 1,
+        "--": 1,
+        "!": 2,
         "<<": 3,
         ">>": 3,
         "*": 4,
         "/": 4,
         "%": 4,
-        "<": 5,
-        ">": 5,
-        "<=": 5,
-        ">=": 5,
-        "==": 6,
-        "!=": 6,
-        "&&": 7,
-        "||": 8
+        "+": 5,
+        "-": 5,
+        "<": 6,
+        ">": 6,
+        "<=": 6,
+        ">=": 6,
+        "==": 7,
+        "!=": 7,
+        "&&": 8,
+        "||": 9,
+        "=": 10,
+        "+=": 10,
+        "-=": 10,
+        "*=": 10,
+        "/=": 10,
+        "%=": 10,
+        "<<=": 10,
+        ">>=": 10
     };
 }
 
@@ -71,4 +62,3 @@ const CODE_TYPES = new CodeTypes();
 export default CODE_TYPES;
 
 export type ValType = "boolean" | "int" | "string";
-export type MacroValType = boolean | number | string;

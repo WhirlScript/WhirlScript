@@ -21,7 +21,7 @@ export default class Parser {
                 file: "cli_args",
                 line: 1,
                 column: 1
-            });
+            }, true);
         }
         const rootNode = new CodeNode({
             type: "code",

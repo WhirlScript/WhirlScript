@@ -34,7 +34,7 @@ export default class LightDeque<T> {
         throw new Error("Peek from an empty deque");
     }
 
-    peekRear(): T | undefined {
+    peekRear(): T {
         if (this.data.length > 0) {
             return <T>this.data[this.data.length - 1];
         }
