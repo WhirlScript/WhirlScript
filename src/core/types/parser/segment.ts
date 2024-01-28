@@ -49,6 +49,7 @@ export namespace Segment {
             this.coordinate = coordinate;
         }
     }
+
     export class Annotation implements SegmentInterface {
         readonly type = "Annotation";
         readonly coordinate: Coordinate;
@@ -307,11 +308,13 @@ export namespace Segment {
 
         readonly condition: Value;
         readonly statement: SegmentInterface;
+        readonly elseStatement: SegmentInterface | undefined;
 
-        constructor(coordinate: Coordinate, condition: Value, statement: SegmentInterface) {
+        constructor(coordinate: Coordinate, condition: Value, statement: SegmentInterface, elseStatement?: SegmentInterface) {
             this.coordinate = coordinate;
             this.condition = condition;
             this.statement = statement;
+            this.elseStatement = elseStatement;
         }
     }
 
@@ -321,11 +324,11 @@ export namespace Segment {
 
         // for (st1; st2; st3) st
         readonly statement1: SegmentInterface;
-        readonly statement2: SegmentInterface;
+        readonly statement2: Value;
         readonly statement3: SegmentInterface;
         readonly statement: SegmentInterface;
 
-        constructor(coordinate: Coordinate, statement1: SegmentInterface, statement2: SegmentInterface, statement3: SegmentInterface, statement: SegmentInterface) {
+        constructor(coordinate: Coordinate, statement1: SegmentInterface, statement2: Value, statement3: SegmentInterface, statement: SegmentInterface) {
             this.coordinate = coordinate;
             this.statement1 = statement1;
             this.statement2 = statement2;

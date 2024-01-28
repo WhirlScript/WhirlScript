@@ -1,0 +1,45 @@
+namespace my {
+    struct Person {
+        id: int,
+        name: string
+    }
+}
+
+using my::Person;
+
+var me: Person = {
+    id: <int>(0 + 1 - 1),
+    name: "Bluemangoo"
+};
+
+const guest: Person = {
+    id: 1,
+    name: "Guest"
+};
+
+macro const hello = "Hello!";
+
+function sayHello(person: Person) {
+    println(`${hello} I'm ${person.name}.`);
+}
+
+native function getTime(): string;
+
+if (me.id == 0){
+    sayHello(me);
+} else {
+    sayHello(guest);
+}
+
+for (var i = 0; i <= 5; i++){
+    var j = 0;
+    while (j < i){
+        j++;
+        print("* ");
+    }
+    println("*");
+}
+
+function yell(name: string = "A guest") {
+    println(`${name} yelled`);
+}

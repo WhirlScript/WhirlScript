@@ -648,7 +648,7 @@ export default function resolve(tokens: Deque<Token>, context: {
             reportError();
         }
 
-        // If `if (xxx) xxx;`
+        // If `if (xxx) xxx;` `else xxx;`
         if (cursor.value == "if") {
             if (!requirements.isBlock) {
                 api.loggerApi.error(LOG_ERROR.unexpectedBlock(), cursor.coordinate, true);
@@ -666,13 +666,24 @@ export default function resolve(tokens: Deque<Token>, context: {
                 api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo, true);
                 return new Segment.Empty(coo);
             }
+            cursor = pop();
             const statement = getStatement(context, {
                 withBlock: true,
                 isBlock: true,
                 isSingle: true,
                 withoutSemi: false
             });
-            return new Segment.If(coo, condition, statement);
+            let elseStatement: Segment.SegmentInterface | undefined;
+            if (cursor.value == "else") {
+                cursor = pop();
+                elseStatement = getStatement(context, {
+                    withBlock: true,
+                    isBlock: true,
+                    isSingle: true,
+                    withoutSemi: false
+                });
+            }
+            return new Segment.If(coo, condition, statement, elseStatement);
         }
 
         // For `for (xxx; xxx; xxx) xxx;`
@@ -713,6 +724,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo, true);
                 return new Segment.Empty(coo);
             }
+            cursor = pop();
             const statement = getStatement(context, {
                 withBlock: true,
                 isBlock: true,
@@ -740,6 +752,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo, true);
                 return new Segment.Empty(coo);
             }
+            cursor = pop();
             const statement = getStatement(context, {
                 withBlock: true,
                 isBlock: true,
@@ -792,11 +805,13 @@ export default function resolve(tokens: Deque<Token>, context: {
 
         // xxx;
         const expr = getExpression();
-        if (cursor.value != ";") {
-            api.loggerApi.error(LOG_ERROR.missingExpectedSemicolon(), cursor.coordinate, false);
-            reportError();
-        } else {
-            cursor = pop();
+        if (!requirements.withoutSemi) {
+            if (cursor.value != ";") {
+                api.loggerApi.error(LOG_ERROR.missingExpectedSemicolon(), cursor.coordinate, false);
+                reportError();
+            } else {
+                cursor = pop();
+            }
         }
         return expr;
     }

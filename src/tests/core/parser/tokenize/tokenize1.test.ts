@@ -10,7 +10,7 @@ describe("test tokenize method", () => {
     test("script tokenize", () => {
         const path = process.cwd() + "/src/tests/resource/splitTest.txt";
         const script = fs.readFileSync(path).toString();
-        const codeNode = new RawCode({
+        const rawCode = new RawCode({
             coordinate: {
                 line: 1,
                 column: 1,
@@ -695,6 +695,6 @@ describe("test tokenize method", () => {
                 }
             }
         ]);
-        expect(tokenize(codeNode, { api })).toEqual(expectedValue);
+        expect(tokenize(rawCode, { api })).toEqual(expectedValue);
     });
 });
