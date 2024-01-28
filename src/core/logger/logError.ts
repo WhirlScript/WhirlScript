@@ -1,3 +1,5 @@
+import WhirlError from "../types/api/whirlError";
+
 class LogError {
     /// why I select such a long method name......
     readonly ERROR_TYPES = {
@@ -5,75 +7,127 @@ class LogError {
         FILE_ERROR: "File Error"
     };
 
-    unknownFile(f: string) {
-        return `${this.ERROR_TYPES.FILE_ERROR}: Unknown file ${f}`;
+    unknownFile(f: string): WhirlError {
+        return {
+            type: this.ERROR_TYPES.FILE_ERROR,
+            details: `Unknown file ${f}`
+        };
     }
 
-    unterminatedStringLiteral() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Unterminated string literal`;
+    unterminatedStringLiteral(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Unterminated string literal"
+        };
     }
 
-    unresolvedReference(f: string) {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Unresolved reference ${f}`;
+    unresolvedReference(f: string): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: `Unresolved reference ${f}`
+        };
     }
 
-    unexpectedFileEnd() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Unexpected file end`;
+    unexpectedFileEnd(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Unexpected file end"
+        };
     }
 
-    invalidCharacterOrToken(c: string) {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Invalid character or token ${c}`;
+    invalidCharacterOrToken(c: string): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: `Invalid character or token ${c}`
+        };
     }
 
-    invalidAssertion() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Invalid assertion`;
+    invalidAssertion(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Invalid assertion"
+        };
     }
 
-    templateStringInTemplateString() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Template string in template string`;
+    templateStringInTemplateString(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Template string in template string"
+        };
     }
 
-    importInBlock() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: #import in block`;
+    importInBlock(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "#import in block"
+        };
     }
 
-    nonGlobalFinalDefine() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Non-global final defining`;
+    nonGlobalFinalDefine(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Non-global final defining"
+        };
     }
 
-    notAnExpression() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR} Not an expression`;
+    notAnExpression(): WhirlError {
+        return { type: this.ERROR_TYPES.SYNTAX_ERROR, details: "Not an expression" };
     }
 
-    notAType() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR} Not a type`;
+    notAType(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: `Not a type`
+        };
     }
 
-    unexpectedBlock() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR} Unexpected block.`;
+    unexpectedBlock(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: `Unexpected block.`
+        };
     }
 
-    mismatchFunctionCall() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Mismatch function call`;
+    mismatchFunctionCall(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Mismatch function call"
+        };
     }
 
-    redefine(f: string) {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Redefine ${f} with the same scope`;
+    redefine(f: string): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: `Redefine ${f} with the same scope`
+        };
     }
 
-    reallyWeird() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: You encountered something really weird. Please report it.`;
+    reallyWeird(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: `You encountered something really weird. Please report it.`
+        };
     }
 
-    missingExpectedSemicolon() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Missing expected semicolon(;).`;
+    missingExpectedSemicolon(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: `Missing expected semicolon(;).`
+        };
     }
 
-    missingExpectedComma() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Missing expected comma(,).`;
+    missingExpectedComma(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: `Missing expected comma(,).`
+        };
     }
-    missingExpectedColon() {
-        return `${this.ERROR_TYPES.SYNTAX_ERROR}: Missing expected colon(:).`;
+
+    missingExpectedColon(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: `Missing expected colon(:).`
+        };
     }
 }
 

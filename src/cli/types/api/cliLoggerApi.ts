@@ -1,6 +1,6 @@
-import Coordinate from "../../../core/types/parser/Coordinate";
+import { Coordinate, LoggerApi, WhirlError } from "../../../whirlscript";
 
-export default class CliLoggerApi {//TODO: implement
+export default class CliLoggerApi implements LoggerApi{//TODO: implement
     info(msg: string) {
         console.log(msg);
     }
@@ -9,14 +9,15 @@ export default class CliLoggerApi {//TODO: implement
         console.warn(msg);
     }
 
-    error(msg: string, coordinate: Coordinate = { line: -1, column: -1, file: "none" }): never {
-        let text = `\x1b47m\x1b[31mError\x1b[0m ${msg} in "${coordinate.file}:${coordinate.line}:${coordinate.column}"`;
+    error(whirlError: WhirlError, coordinate: Coordinate = { line: -1, column: -1, file: "none" }): never {
+        let text = `\x1b[41;30m${whirlError.type}\x1b[0m ${whirlError.details} in "${coordinate.file}:${coordinate.line}:${coordinate.column}"`;
         if (coordinate.chain) {
             text += "\nCall chain:";
             for (const chainElement of coordinate.chain) {
-                text += `\n${chainElement.file}:${chainElement.line}:${chainElement.column}`;
+                text += `\n    at ${chainElement.file}:${chainElement.line}:${chainElement.column}`;
             }
         }
-        throw text;
+        console.error(text);
+        throw new Error();
     }
 }

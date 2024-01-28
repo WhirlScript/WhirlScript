@@ -1,4 +1,5 @@
 import Coordinate from "../parser/Coordinate";
+import WhirlError from "./whirlError";
 
 export default interface LoggerApi {
     /**
@@ -15,9 +16,9 @@ export default interface LoggerApi {
 
     /**
      * log error and throw an empty error to interrupt the following parsing
-     * @param msg message to log
+     * @param whirlError message to log
      * @param coordinate where error occurred
      * @param interrupt whether to throw the error
      */
-    error(msg: string, coordinate: Coordinate, interrupt:boolean): never;
+    error(whirlError: WhirlError, coordinate: Coordinate, interrupt:boolean): never;
 }
