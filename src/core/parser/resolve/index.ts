@@ -14,9 +14,9 @@ import tokenize from "../tokenize";
 export default function resolve(tokens: Deque<Token>, context: {
     importPool: string[],
     api: Api
-}): Deque<Segment.SegmentInterface> {
+}): Segment.SegmentInterface[] {
     const { importPool, api } = context;
-    const segments: Deque<Segment.SegmentInterface> = new Deque<Segment.SegmentInterface>();
+    const segments: Segment.SegmentInterface[] = [];
     tokens.pushRear({
         value: "",
         coordinate: {
@@ -816,7 +816,7 @@ export default function resolve(tokens: Deque<Token>, context: {
     }
 
     while (cursor.flag != "EOF") {
-        segments.pushRear(getStatement({ block: 0 }, {
+        segments.push(getStatement({ block: 0 }, {
             withBlock: true,
             isBlock: true,
             isSingle: true,
