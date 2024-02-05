@@ -1,7 +1,6 @@
 import Deque from "../../util/deque";
 import LightDeque from "../../util/lightDeque";
 import Token from "../../types/parser/token";
-import Pools from "../../util/parser/Pools";
 import Api from "../../types/api";
 import Coordinate from "../../types/parser/Coordinate";
 import { Segment } from "../../types/parser/segment";
@@ -13,10 +12,10 @@ import readFile from "../../util/api/readFile";
 import tokenize from "../tokenize";
 
 export default function resolve(tokens: Deque<Token>, context: {
-    pools: Pools,
+    importPool: string[],
     api: Api
 }): Deque<Segment.SegmentInterface> {
-    const { pools, api } = context;
+    const { importPool, api } = context;
     const segments: Deque<Segment.SegmentInterface> = new Deque<Segment.SegmentInterface>();
     tokens.pushRear({
         value: "",
@@ -440,7 +439,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 if (!requirements.withoutSemi) {
                     cursor = pop();
                 }
-                if (pools.importPool.indexOf(filePath) >= 0) {
+                if (importPool.indexOf(filePath) >= 0) {
                     valid = false;
                 }
                 if (valid) {
