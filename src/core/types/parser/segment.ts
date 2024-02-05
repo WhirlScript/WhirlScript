@@ -1,5 +1,4 @@
 import Coordinate from "./Coordinate";
-import LightDeque from "../../util/lightDeque";
 
 export namespace Segment {
     type Types =
@@ -157,10 +156,11 @@ export namespace Segment {
     export class TemplateString implements SegmentInterface, Value {
         readonly type = "TemplateString";
         readonly coordinate: Coordinate;
-        values: LightDeque<Segment.Value> = new LightDeque();
+        readonly values: Value[];
 
-        constructor(coordinate: Coordinate) {
+        constructor(coordinate: Coordinate, values:Value[]) {
             this.coordinate = coordinate;
+            this.values = values;
         }
     }
 

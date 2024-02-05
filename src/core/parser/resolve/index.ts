@@ -144,16 +144,16 @@ export default function resolve(tokens: Deque<Token>, context: {
                 if (!expr.isEmpty() && expr.peekRear()?.type != "o") {
                     api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate, true);
                 }
-                const seg = new Segment.TemplateString(cursor.coordinate);
+                const values: Segment.Value[] = [];
                 cursor = pop();
                 while (cursor.value != "`") {
                     if (cursor.flag == "string") {
-                        seg.values.pushRear(new Segment.String(cursor.coordinate, cursor.value));
+                        values.push(new Segment.String(cursor.coordinate, cursor.value));
                         cursor = pop();
                     } else {
                         if (cursor.value == "${") {
                             cursor = pop();
-                            seg.values.pushRear(getExpression());
+                            values.push(getExpression());
                             if (cursor.value == "}") {
                                 cursor = pop();
                                 continue;
@@ -162,6 +162,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                         }
                     }
                 }
+                const seg = new Segment.TemplateString(cursor.coordinate, values);
                 if (hLAssertion) {
                     expr.pushRear(new Segment.Assertion(hLAssertion.coordinate, hLAssertion.type, seg));
                     hLAssertion = undefined;
