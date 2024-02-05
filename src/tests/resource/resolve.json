@@ -375,105 +375,103 @@
           "args": [
             {
               "type": "TemplateString",
-              "values": {
-                "data": [
-                  {
-                    "type": "String",
+              "coordinate": {
+                "file": "F",
+                "line": 23,
+                "column": 42
+              },
+              "values": [
+                {
+                  "type": "String",
+                  "coordinate": {
+                    "file": "F",
+                    "line": 23,
+                    "column": 14
+                  },
+                  "value": ""
+                },
+                {
+                  "type": "ValCall",
+                  "coordinate": {
+                    "file": "F",
+                    "line": 23,
+                    "column": 21
+                  },
+                  "valName": {
+                    "type": "Name",
                     "coordinate": {
                       "file": "F",
                       "line": 23,
-                      "column": 14
+                      "column": 16
                     },
-                    "value": ""
+                    "value": "hello",
+                    "namespaces": []
+                  }
+                },
+                {
+                  "type": "String",
+                  "coordinate": {
+                    "file": "F",
+                    "line": 23,
+                    "column": 22
                   },
-                  {
+                  "value": " I'm "
+                },
+                {
+                  "type": "ExpressionSVO",
+                  "coordinate": {
+                    "file": "F",
+                    "line": 23,
+                    "column": 35
+                  },
+                  "s": {
                     "type": "ValCall",
                     "coordinate": {
                       "file": "F",
                       "line": 23,
-                      "column": 21
+                      "column": 35
                     },
                     "valName": {
                       "type": "Name",
                       "coordinate": {
                         "file": "F",
                         "line": 23,
-                        "column": 16
+                        "column": 29
                       },
-                      "value": "hello",
+                      "value": "person",
                       "namespaces": []
                     }
                   },
-                  {
-                    "type": "String",
+                  "v": ".",
+                  "o": {
+                    "type": "ValCall",
                     "coordinate": {
                       "file": "F",
                       "line": 23,
-                      "column": 22
+                      "column": 40
                     },
-                    "value": " I'm "
-                  },
-                  {
-                    "type": "ExpressionSVO",
-                    "coordinate": {
-                      "file": "F",
-                      "line": 23,
-                      "column": 35
-                    },
-                    "s": {
-                      "type": "ValCall",
+                    "valName": {
+                      "type": "Name",
                       "coordinate": {
                         "file": "F",
                         "line": 23,
-                        "column": 35
+                        "column": 36
                       },
-                      "valName": {
-                        "type": "Name",
-                        "coordinate": {
-                          "file": "F",
-                          "line": 23,
-                          "column": 29
-                        },
-                        "value": "person",
-                        "namespaces": []
-                      }
-                    },
-                    "v": ".",
-                    "o": {
-                      "type": "ValCall",
-                      "coordinate": {
-                        "file": "F",
-                        "line": 23,
-                        "column": 40
-                      },
-                      "valName": {
-                        "type": "Name",
-                        "coordinate": {
-                          "file": "F",
-                          "line": 23,
-                          "column": 36
-                        },
-                        "value": "name",
-                        "namespaces": []
-                      }
+                      "value": "name",
+                      "namespaces": []
                     }
-                  },
-                  {
-                    "type": "String",
-                    "coordinate": {
-                      "file": "F",
-                      "line": 23,
-                      "column": 41
-                    },
-                    "value": "."
                   }
-                ]
-              },
-              "coordinate": {
-                "file": "F",
-                "line": 23,
-                "column": 13
-              }
+                },
+                {
+                  "type": "String",
+                  "coordinate": {
+                    "file": "F",
+                    "line": 23,
+                    "column": 41
+                  },
+                  "value": "."
+                }
+              ]
             }
           ]
         }
@@ -1040,51 +1038,49 @@
           "args": [
             {
               "type": "TemplateString",
-              "values": {
-                "data": [
-                  {
-                    "type": "String",
-                    "coordinate": {
-                      "file": "F",
-                      "line": 44,
-                      "column": 14
-                    },
-                    "value": ""
-                  },
-                  {
-                    "type": "ValCall",
-                    "coordinate": {
-                      "file": "F",
-                      "line": 44,
-                      "column": 20
-                    },
-                    "valName": {
-                      "type": "Name",
-                      "coordinate": {
-                        "file": "F",
-                        "line": 44,
-                        "column": 16
-                      },
-                      "value": "name",
-                      "namespaces": []
-                    }
-                  },
-                  {
-                    "type": "String",
-                    "coordinate": {
-                      "file": "F",
-                      "line": 44,
-                      "column": 21
-                    },
-                    "value": " yelled"
-                  }
-                ]
-              },
               "coordinate": {
                 "file": "F",
                 "line": 44,
-                "column": 13
-              }
+                "column": 28
+              },
+              "values": [
+                {
+                  "type": "String",
+                  "coordinate": {
+                    "file": "F",
+                    "line": 44,
+                    "column": 14
+                  },
+                  "value": ""
+                },
+                {
+                  "type": "ValCall",
+                  "coordinate": {
+                    "file": "F",
+                    "line": 44,
+                    "column": 20
+                  },
+                  "valName": {
+                    "type": "Name",
+                    "coordinate": {
+                      "file": "F",
+                      "line": 44,
+                      "column": 16
+                    },
+                    "value": "name",
+                    "namespaces": []
+                  }
+                },
+                {
+                  "type": "String",
+                  "coordinate": {
+                    "file": "F",
+                    "line": 44,
+                    "column": 21
+                  },
+                  "value": " yelled"
+                }
+              ]
             }
           ]
         }
