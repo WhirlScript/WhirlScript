@@ -15,12 +15,11 @@ export default interface LoggerApi {
     warning(whirlWarning: WhirlWarning, coordinate: Coordinate): void;
 
     /**
-     * log error and throw an empty error to interrupt the following parsing
+     * log error
      * @param whirlError message to log
      * @param coordinate where the error occurred
-     * @param interrupt whether to throw the error
      */
-    error(whirlError: WhirlError, coordinate: Coordinate, interrupt:boolean): void;
+    error(whirlError: WhirlError, coordinate: Coordinate): void;
 }
 
 export interface WhirlError {

@@ -3,7 +3,7 @@ import Deque from "../../util/deque";
 import WORD_TEST from "../../util/wordTest";
 import LOG_ERROR from "../../logger/logError";
 import Coordinate from "../../types/parser/Coordinate";
-import Api from "../../types/api";
+import ApiWrapper from "../../types/api/ApiWrapper";
 
 export type Status =
     "word"
@@ -20,7 +20,7 @@ export type Status =
 
 export default function pushToken(tokens: Deque<Token>, piece: string, status: Status, context: {
     coordinate: Coordinate,
-    api: Api
+    api: ApiWrapper
 }) {
     const { coordinate, api } = context;
     if (piece == "") {
@@ -52,7 +52,7 @@ export default function pushToken(tokens: Deque<Token>, piece: string, status: S
                 continue;
             }
             if (l == r - 1) {
-                api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken(v[l]), coordinate, true);
+                api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(v[l]), coordinate);
                 l = r;
                 r = v.length;
                 continue;

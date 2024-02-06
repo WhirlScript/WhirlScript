@@ -7,9 +7,9 @@ import CHAR_TEST from "../../util/charTest";
 import LOG_ERROR from "../../logger/logError";
 import LOG_WARNING from "../../logger/logWarning";
 import Coordinate from "../../types/parser/Coordinate";
-import Api from "../../types/api";
+import ApiWrapper from "../../types/api/ApiWrapper";
 
-export default function tokenize(rawCode: RawCode, context: { api: Api }): Deque<Token> {
+export default function tokenize(rawCode: RawCode, context: { api: ApiWrapper }): Deque<Token> {
     const { api } = context;
     const tokens = new Deque<Token>();
 
@@ -49,11 +49,11 @@ export default function tokenize(rawCode: RawCode, context: { api: Api }): Deque
 
     function stringEscape(i: number) {
         if (code[i] == null) {
-            api.loggerApi.error(LOG_ERROR.invalidCharacterOrToken("\\"), {
+            api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken("\\"), {
                 ...flags.coordinate,
                 line: line,
                 column: i - lineStart
-            }, true);
+            });
             return;
         }
         if (code[i] == "\n") {
@@ -62,7 +62,7 @@ export default function tokenize(rawCode: RawCode, context: { api: Api }): Deque
         }
         let escapeResult: string | undefined = CODE_TYPES.escapes?.[code[i]];
         if (escapeResult == null) {
-            api.loggerApi.warning(LOG_WARNING.unknownEscape(code[i]), {
+            api.logger.warning(LOG_WARNING.unknownEscape(code[i]), {
                 ...flags.coordinate,
                 line: line,
                 column: i - lineStart
@@ -151,11 +151,11 @@ export default function tokenize(rawCode: RawCode, context: { api: Api }): Deque
             }
             if (code[i] == "`") {
                 if (flags.inStringR) {
-                    api.loggerApi.error(LOG_ERROR.templateStringInTemplateString(), {
+                    api.logger.errorInterrupt(LOG_ERROR.templateStringInTemplateString(), {
                         ...flags.coordinate,
                         line: line,
                         column: i - lineStart
-                    }, true);
+                    });
                 }
                 push(i - 1);
                 piece += code[i];
@@ -204,11 +204,11 @@ export default function tokenize(rawCode: RawCode, context: { api: Api }): Deque
                 continue;
             }
             if (code[i] == "\n") {
-                api.loggerApi.error(LOG_ERROR.unterminatedStringLiteral(), {
+                api.logger.errorInterrupt(LOG_ERROR.unterminatedStringLiteral(), {
                     ...flags.coordinate,
                     line: line,
                     column: i - lineStart
-                }, true);
+                });
                 continue;
             }
             if (code[i] == "'") {
@@ -227,11 +227,11 @@ export default function tokenize(rawCode: RawCode, context: { api: Api }): Deque
                 continue;
             }
             if (code[i] == "\n") {
-                api.loggerApi.error(LOG_ERROR.unterminatedStringLiteral(), {
+                api.logger.errorInterrupt(LOG_ERROR.unterminatedStringLiteral(), {
                     ...flags.coordinate,
                     line: line,
                     column: i - lineStart
-                }, true);
+                });
                 continue;
             }
             if (code[i] == "\"") {

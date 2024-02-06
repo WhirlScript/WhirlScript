@@ -1,32 +1,31 @@
-import Index from "./types/api";
 import RawCode from "./util/parser/rawCode";
-import Api from "./types/api";
+import ApiWrapper from "./types/api/ApiWrapper";
 import LOG_ERROR from "./logger/logError";
 
 export default class Parser {
     protected file: string;
-    protected api: Index;
+    protected api: ApiWrapper;
     protected type: "bat" | "sh";
 
-    constructor(file: string, api: Api, type: "bat" | "sh") {
+    constructor(file: string, api: ApiWrapper, type: "bat" | "sh") {
         this.file = file;
         this.api = api;
         this.type = type;
     }
 
     parse() {
-        const file = this.api.fileApi.getFile(this.file);
+        const file = this.api.file.getFile(this.file);
         if (!file.success) {
-            this.api.loggerApi.error(LOG_ERROR.unknownFile(this.file), {
+            this.api.logger.errorInterrupt(LOG_ERROR.unknownFile(this.file), {
                 file: "cli_args",
                 line: 1,
                 column: 1
-            }, true);
+            });
         }
         const rootCode = new RawCode({
             value: file.value,
             coordinate: {
-                file: "#import std;\n" + file.path,
+                file: "import 'std';\n" + file.path,
                 line: 0,
                 column: 1
             }

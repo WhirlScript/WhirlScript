@@ -3,9 +3,10 @@ import Token from "../../../../core/types/parser/token";
 import pushToken from "../../../../core/parser/tokenize/pushToken";
 import Coordinate from "../../../../core/types/parser/Coordinate";
 import CliApi from "../../../../cli/types/api";
+import ApiWrapper from "../../../../core/types/api/ApiWrapper";
 
 describe("test pushWord method with empty value", () => {
-    const api = new CliApi();
+    const api = new ApiWrapper(new CliApi());
     const deque = new Deque<Token>();
     const coordinate: Coordinate = {
         file: "",

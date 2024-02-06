@@ -5,7 +5,7 @@ export default class CliLoggerApi implements LoggerApi {//TODO: implement
         console.log(msg);
     }
 
-    warning(whirlWarning: WhirlWarning, coordinate: Coordinate = { line: -1, column: -1, file: "none" }): void {
+    warning(whirlWarning: WhirlWarning, coordinate: Coordinate): void {
         let text = `\x1b[43;30m${whirlWarning.type}\x1b[0m ${whirlWarning.details} in "${coordinate.file}:${coordinate.line}:${coordinate.column}"`;
         if (coordinate.chain) {
             text += "\nCall chain:";
@@ -16,11 +16,7 @@ export default class CliLoggerApi implements LoggerApi {//TODO: implement
         console.warn(text);
     }
 
-    error(whirlError: WhirlError, coordinate: Coordinate = {
-        line: -1,
-        column: -1,
-        file: "none"
-    }, interrupt: boolean): void {
+    error(whirlError: WhirlError, coordinate: Coordinate): void {
         let text = `\x1b[41;30m${whirlError.type}\x1b[0m ${whirlError.details} in "${coordinate.file}:${coordinate.line}:${coordinate.column}"`;
         if (coordinate.chain) {
             text += "\nCall chain:";
@@ -28,10 +24,6 @@ export default class CliLoggerApi implements LoggerApi {//TODO: implement
                 text += `\n    at ${chainElement.file}:${chainElement.line}:${chainElement.column}`;
             }
         }
-        if (interrupt) {
-            throw new Error(text);
-        } else {
-            console.error(text);
-        }
+        console.error(text);
     }
 }

@@ -4,9 +4,10 @@ import tokenize from "../../../../core/parser/tokenize";
 import Deque from "../../../../core/util/deque";
 import Token from "../../../../core/types/parser/token";
 import CliApi from "../../../../cli/types/api";
+import ApiWrapper from "../../../../core/types/api/ApiWrapper";
 
 describe("test tokenize method", () => {
-    const api = new CliApi();
+    const api = new ApiWrapper(new CliApi());
     test("script tokenize", () => {
         const path = process.cwd() + "/src/tests/resource/splitTest.txt";
         const script = fs.readFileSync(path).toString();
