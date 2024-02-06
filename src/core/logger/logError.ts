@@ -1,4 +1,4 @@
-import WhirlError from "../types/api/whirlError";
+import { WhirlError } from "../types/api/loggerApi";
 
 class LogError {
     /// why I select such a long method name......

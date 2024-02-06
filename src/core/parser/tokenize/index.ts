@@ -62,7 +62,11 @@ export default function tokenize(rawCode: RawCode, context: { api: Api }): Deque
         }
         let escapeResult: string | undefined = CODE_TYPES.escapes?.[code[i]];
         if (escapeResult == null) {
-            api.loggerApi.warning(LOG_WARNING.unknownEscape(code[i]));
+            api.loggerApi.warning(LOG_WARNING.unknownEscape(code[i]), {
+                ...flags.coordinate,
+                line: line,
+                column: i - lineStart
+            });
             escapeResult = code[i];
         }
         piece += escapeResult;

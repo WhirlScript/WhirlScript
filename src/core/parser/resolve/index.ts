@@ -803,6 +803,33 @@ export default function resolve(tokens: Deque<Token>, context: {
             return new Segment.Using(coo, n);
         }
 
+        // Return `return xxx`;
+        if (cursor.value == "return") {
+            const coo = cursor.coordinate;
+            cursor = pop();
+            if (cursor.value == "," || cursor.value == ";" || cursor.value == ")" || cursor.value == "}") {
+                if (!requirements.withoutSemi) {
+                    if (cursor.value != ";") {
+                        api.loggerApi.error(LOG_ERROR.missingExpectedSemicolon(), cursor.coordinate, false);
+                        reportError();
+                    } else {
+                        cursor = pop();
+                    }
+                }
+                return new Segment.Return(coo);
+            }
+            const expr = getExpression();
+            if (!requirements.withoutSemi) {
+                if (cursor.value != ";") {
+                    api.loggerApi.error(LOG_ERROR.missingExpectedSemicolon(), cursor.coordinate, false);
+                    reportError();
+                } else {
+                    cursor = pop();
+                }
+            }
+            return new Segment.Return(coo, expr);
+        }
+
         // xxx;
         const expr = getExpression();
         if (!requirements.withoutSemi) {

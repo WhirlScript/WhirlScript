@@ -1,6 +1,22 @@
+import { WhirlWarning } from "../types/api/loggerApi";
+
 class LogWarning {
-    unknownEscape(c:string){
-        return `Unknown escape \\${c}`
+    readonly WARNING_TYPES = {
+        WARNING: "Warning"
+    };
+
+    unknownEscape(c: string): WhirlWarning {
+        return {
+            type: this.WARNING_TYPES.WARNING,
+            details: `Unknown escape \\${c}`
+        };
+    }
+
+    deprecated(r: string): WhirlWarning {
+        return {
+            type: this.WARNING_TYPES.WARNING,
+            details: `${r} is deprecated`
+        };
     }
 }
 

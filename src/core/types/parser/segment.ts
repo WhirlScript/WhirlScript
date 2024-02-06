@@ -5,7 +5,6 @@ export namespace Segment {
         "Empty"
         | "Annotation"
         | "AnnotationSegment"
-        | "Assignment"
         | "ExpressionSVO"
         | "ExpressionSV"
         | "ExpressionVO"
@@ -17,7 +16,6 @@ export namespace Segment {
         | "Name"
         | "ValCall"
         | "FunctionCall"
-        | "MacroFunctionCall"
         | "ValDefine"
         | "FunctionDefine"
         | "Block"
@@ -29,7 +27,8 @@ export namespace Segment {
         | "While"
         | "Namespace"
         | "Using"
-        | "UsingNamespace";
+        | "UsingNamespace"
+        | "Return";
 
     export interface SegmentInterface {
         type: Types;
@@ -158,7 +157,7 @@ export namespace Segment {
         readonly coordinate: Coordinate;
         readonly values: Value[];
 
-        constructor(coordinate: Coordinate, values:Value[]) {
+        constructor(coordinate: Coordinate, values: Value[]) {
             this.coordinate = coordinate;
             this.values = values;
         }
@@ -262,7 +261,7 @@ export namespace Segment {
     }
 
 
-    export class StructBlock implements SegmentInterface {
+    export class StructBlock implements SegmentInterface, Value {
         readonly type = "StructBlock";
         readonly coordinate: Coordinate;
 
@@ -386,6 +385,18 @@ export namespace Segment {
         constructor(coordinate: Coordinate, namespaceName: Name) {
             this.coordinate = coordinate;
             this.namespaceName = namespaceName;
+        }
+    }
+
+    export class Return implements SegmentInterface {
+        readonly type = "Return";
+        readonly coordinate: Coordinate;
+
+        readonly value: Value | undefined;
+
+        constructor(coordinate: Coordinate, value?: Value) {
+            this.coordinate = coordinate;
+            this.value = value;
         }
     }
 }
