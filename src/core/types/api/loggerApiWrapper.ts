@@ -1,5 +1,6 @@
 import LoggerApi, { WhirlError, WhirlWarning } from "./loggerApi";
 import { Coordinate } from "../../../whirlscript";
+import { BUILTIN_COORDINATE } from "../parser/coordinate";
 
 export class LoggerApiWrapper {
     private loggerApi: LoggerApi;
@@ -12,15 +13,11 @@ export class LoggerApiWrapper {
         this.loggerApi.info(msg);
     }
 
-    warning(whirlWarning: WhirlWarning, coordinate: Coordinate = { line: -1, column: -1, file: "none" }): void {
+    warning(whirlWarning: WhirlWarning, coordinate: Coordinate = BUILTIN_COORDINATE): void {
         this.loggerApi.warning(whirlWarning, coordinate);
     }
 
-    error(whirlError: WhirlError, coordinate: Coordinate = {
-        line: -1,
-        column: -1,
-        file: "none"
-    }): void {
+    error(whirlError: WhirlError, coordinate: Coordinate = BUILTIN_COORDINATE): void {
         this.loggerApi.error(whirlError, coordinate);
     }
 

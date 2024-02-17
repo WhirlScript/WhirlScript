@@ -3,7 +3,7 @@ import RawCode from "../../../../core/util/parser/rawCode";
 import tokenize from "../../../../core/parser/tokenize";
 import CliApi from "../../../../cli/types/api";
 import resolve from "../../../../core/parser/resolve";
-import ApiWrapper from "../../../../core/types/api/ApiWrapper";
+import ApiWrapper from "../../../../core/types/api/apiWrapper";
 
 describe("test tokenize method", () => {
     const api = new ApiWrapper(new CliApi());

@@ -6,8 +6,8 @@ import CODE_TYPES from "../../types/parser/codeTypes";
 import CHAR_TEST from "../../util/charTest";
 import LOG_ERROR from "../../logger/logError";
 import LOG_WARNING from "../../logger/logWarning";
-import Coordinate from "../../types/parser/Coordinate";
-import ApiWrapper from "../../types/api/ApiWrapper";
+import Coordinate from "../../types/parser/coordinate";
+import ApiWrapper from "../../types/api/apiWrapper";
 
 export default function tokenize(rawCode: RawCode, context: { api: ApiWrapper }): Deque<Token> {
     const { api } = context;

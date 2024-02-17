@@ -1,4 +1,4 @@
-import Coordinate from "../parser/Coordinate";
+import Coordinate from "../parser/coordinate";
 
 export default interface LoggerApi {
     /**

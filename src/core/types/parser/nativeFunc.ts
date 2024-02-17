@@ -1,28 +1,24 @@
-import { Segment } from "./segment";
 import Type from "./type";
 import { RSegment } from "./rSegment";
 
 type Args = {
     name: string,
     type: Type,
-    isMacro: boolean,
     defaultValue?: RSegment.Value
 }[];
 
-type MacroFunctionProp = {
-    hasScope: boolean,
-    isConstexpr: boolean,
+type NativeFunctionProp = {
     deprecated: boolean
 }
 
-export default class MacroFunc {
+export default class NativeFunc {
     readonly name: string;
     readonly args: Args;
     readonly type: Type;
-    readonly body: Segment.Block;
-    readonly prop: MacroFunctionProp;
+    readonly body: Function;
+    readonly prop: NativeFunctionProp;
 
-    constructor(name: string, type: Type, args: Args, body: Segment.Block, prop: MacroFunctionProp) {
+    constructor(name: string, type: Type, args: Args, body: Function, prop: NativeFunctionProp) {
         this.name = name;
         this.type = type;
         this.args = args;

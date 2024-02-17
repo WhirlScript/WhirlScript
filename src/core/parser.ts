@@ -1,5 +1,5 @@
 import RawCode from "./util/parser/rawCode";
-import ApiWrapper from "./types/api/ApiWrapper";
+import ApiWrapper from "./types/api/apiWrapper";
 import LOG_ERROR from "./logger/logError";
 
 export default class Parser {

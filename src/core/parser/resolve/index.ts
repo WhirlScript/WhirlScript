@@ -1,8 +1,8 @@
 import Deque from "../../util/deque";
 import LightDeque from "../../util/lightDeque";
 import Token from "../../types/parser/token";
-import ApiWrapper from "../../types/api/ApiWrapper";
-import Coordinate from "../../types/parser/Coordinate";
+import ApiWrapper from "../../types/api/apiWrapper";
+import Coordinate from "../../types/parser/coordinate";
 import { Segment } from "../../types/parser/segment";
 import LOG_ERROR from "../../logger/logError";
 import CODE_TYPES from "../../types/parser/codeTypes";

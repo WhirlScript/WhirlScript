@@ -1,38 +1,86 @@
-import { ValType } from "./codeTypes";
+import Type from "./type";
+import { RSegment } from "./rSegment";
+import ApiWrapper from "../api/apiWrapper";
+import LOG_ERROR from "../../logger/logError";
+import ValueWrapper = RSegment.ValueWrapper;
 
-export default class MacroVal<T> {
-    protected props: string[];
-    protected name: string;
-    protected type: ValType;
-    protected _isConst: boolean;
-    value: T | undefined;
-    protected init: boolean = false;
+type MacroValProp = {
+    isConst: boolean
+    deprecated: boolean
+}
+export default class MacroVal {
+    readonly type: Type;
+    readonly prop: MacroValProp;
+    value: RSegment.Value | undefined;
 
-    constructor(name: string, type: ValType, isConst: boolean, props: string[]) {
-        this.name = name;
+    constructor(type: Type, prop: MacroValProp, value?: RSegment.Value) {
         this.type = type;
-        this._isConst = isConst;
-        this.props = props;
+        this.prop = prop;
+        this.value = value;
     }
 
-    hasProp(prop: string): boolean {
-        return this.props.indexOf(prop) >= 0;
-    }
-
-    setInit(): void {
-        this.init = true;
-    }
-
-    getName(): string {
-        return this.name;
-    }
-
-    getType(): ValType {
-        return this.type;
-    }
-
-    isConst(): boolean {
-        return this._isConst;
+    static fromValue(
+        seg: RSegment.Value,
+        isConst: boolean,
+        context: {
+            api: ApiWrapper
+        }
+    ): { val: MacroVal, wrapper?: RSegment.ValueWrapper } {
+        if (!seg.isMacro) {
+            context.api.logger.errorInterrupt(LOG_ERROR.notMacro(), seg.coordinate);
+        }
+        const codes: RSegment.ValueWrapper[] = [];
+        let v = seg;
+        if (seg.type == "ValueWrapper") {
+            codes.push(<RSegment.ValueWrapper>seg);
+            v = <RSegment.Value>(<RSegment.ValueWrapper>seg).value;
+        }
+        if (seg.valueType.type == "base") {
+            return {
+                val: new MacroVal(
+                    seg.valueType,
+                    {
+                        isConst,
+                        deprecated: false
+                    },
+                    v
+                ),
+                wrapper: codes.length == 0 ? undefined : codes[0]
+            };
+        } else {
+            const sb = <RSegment.StructBlock>seg;
+            const inside: { [key: string]: RSegment.MacroValCall } = {};
+            for (const key in seg.valueType.struct.def) {
+                const child = this.fromValue(sb.inside[key], isConst, context);
+                if (child.wrapper) {
+                    codes.push(child.wrapper);
+                }
+                inside[key] = new RSegment.MacroValCall(sb.inside[key].coordinate, child.val);
+            }
+            return {
+                val: new MacroVal(
+                    seg.valueType,
+                    {
+                        isConst,
+                        deprecated: false
+                    },
+                    new RSegment.StructBlock(
+                        seg.coordinate,
+                        inside,
+                        seg.valueType
+                    )
+                ),
+                wrapper: codes.length == 0 ? undefined : codes.length == 1 ? codes[0] : new ValueWrapper(
+                    seg.coordinate,
+                    seg.valueType,
+                    codes,
+                    {
+                        isMacro: false,
+                        hasScope: false
+                    }
+                )
+            };
+        }
     }
 
 }

@@ -1,29 +1,42 @@
-import { ValType } from "./codeTypes";
-import { Segment } from "./segment";
+import Type from "./type";
+import { RSegment } from "./rSegment";
+import Val from "./val";
 
 type Args = {
     name: string,
-    type: ValType,
-    default?: number | boolean | string
+    type: Type,
+    isMacro: boolean,
+    optional: boolean,
+    defaultValue?: RSegment.Value
 }[];
 
-export default class Func {
-    protected props: string[];
-    name: string;
-    args: Args;
-    type: ValType;
-    body: Segment.Block;
+type FunctionProp = {
+    deprecated: boolean
+}
 
-    constructor(name: string, type: ValType, args: Args, props: string[], body: Segment.Block) {
+export default class Func {
+    readonly name: string;
+    readonly args: Args;
+    readonly type: Type;
+    readonly body: RSegment.Block;
+    readonly prop: FunctionProp;
+    usingList: (Func | Val)[] = [];
+    used: boolean = false;
+    flag: string | undefined;
+
+    constructor(name: string, type: Type, args: Args, body: RSegment.Block, prop: FunctionProp) {
         this.name = name;
         this.type = type;
         this.args = args;
-        this.props = props;
         this.body = body;
+        this.prop = prop;
     }
 
-    hasProp(prop: string): boolean {
-        return this.props.indexOf(prop) >= 0;
+    use() {
+        for (const usingListElement of this.usingList) {
+            usingListElement.use();
+        }
+        this.used = true;
     }
 
 }

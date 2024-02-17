@@ -1,4 +1,4 @@
-import Coordinate from "./Coordinate";
+import Coordinate from "./coordinate";
 
 export default interface Token {
     value: string,

@@ -4,7 +4,9 @@ class LogError {
     /// why I select such a long method name......
     readonly ERROR_TYPES = {
         SYNTAX_ERROR: "Syntax Error",
-        FILE_ERROR: "File Error"
+        FILE_ERROR: "File Error",
+        REFERENCE_ERROR: "Reference Error",
+        MACRO_ERROR: "Macro Error"
     };
 
     unknownFile(f: string): WhirlError {
@@ -23,7 +25,7 @@ class LogError {
 
     unresolvedReference(f: string): WhirlError {
         return {
-            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            type: this.ERROR_TYPES.REFERENCE_ERROR,
             details: `Unresolved reference ${f}`
         };
     }
@@ -59,7 +61,7 @@ class LogError {
     importInBlock(): WhirlError {
         return {
             type: this.ERROR_TYPES.SYNTAX_ERROR,
-            details: "#import in block"
+            details: "Import in block"
         };
     }
 
@@ -71,20 +73,44 @@ class LogError {
     }
 
     notAnExpression(): WhirlError {
-        return { type: this.ERROR_TYPES.SYNTAX_ERROR, details: "Not an expression" };
-    }
-
-    notAType(): WhirlError {
         return {
             type: this.ERROR_TYPES.SYNTAX_ERROR,
-            details: `Not a type`
+            details: "Not an expression"
+        };
+    }
+
+    notAType(n: string): WhirlError {
+        return {
+            type: this.ERROR_TYPES.REFERENCE_ERROR,
+            details: `${n} is not a type`
+        };
+    }
+
+    notANamespace(n: string): WhirlError {
+        return {
+            type: this.ERROR_TYPES.REFERENCE_ERROR,
+            details: `${n} is not a namespace`
+        };
+    }
+
+    notAVal(n: string): WhirlError {
+        return {
+            type: this.ERROR_TYPES.REFERENCE_ERROR,
+            details: `${n} is not a val`
+        };
+    }
+
+    notAFunction(n: string): WhirlError {
+        return {
+            type: this.ERROR_TYPES.REFERENCE_ERROR,
+            details: `${n} is not a function`
         };
     }
 
     unexpectedBlock(): WhirlError {
         return {
             type: this.ERROR_TYPES.SYNTAX_ERROR,
-            details: `Unexpected block.`
+            details: "Unexpected block."
         };
     }
 
@@ -112,21 +138,119 @@ class LogError {
     missingExpectedSemicolon(): WhirlError {
         return {
             type: this.ERROR_TYPES.SYNTAX_ERROR,
-            details: `Missing expected semicolon(;).`
+            details: "Missing expected semicolon(;)"
         };
     }
 
     missingExpectedComma(): WhirlError {
         return {
             type: this.ERROR_TYPES.SYNTAX_ERROR,
-            details: `Missing expected comma(,).`
+            details: "Missing expected comma(,)"
         };
     }
 
     missingExpectedColon(): WhirlError {
         return {
             type: this.ERROR_TYPES.SYNTAX_ERROR,
-            details: `Missing expected colon(:).`
+            details: "Missing expected colon(:)"
+        };
+    }
+
+    missingInitialValue(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Missing initial value"
+        };
+    }
+
+    nativeVal(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Val cannot be native. Only functions can be native"
+        };
+    }
+
+    notMacro(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.REFERENCE_ERROR,
+            details: "Not a macro value"
+        };
+    }
+
+    notAVar(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.REFERENCE_ERROR,
+            details: "Not a var"
+        };
+    }
+
+    notAnAnnotation(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.REFERENCE_ERROR,
+            details: "Not an annotation"
+        };
+    }
+
+    missingType(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Missing type define"
+        };
+    }
+
+    voidVal(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Void value"
+        };
+    }
+
+    useBeforeInit(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.REFERENCE_ERROR,
+            details: "Use before init it"
+        };
+    }
+
+    nativeError(e: unknown): WhirlError {
+        return {
+            type: this.ERROR_TYPES.MACRO_ERROR,
+            details: `Native function error:\n${e}`
+        };
+    }
+
+    nativeValueError(v: any): WhirlError {
+        return {
+            type: this.ERROR_TYPES.MACRO_ERROR,
+            details: `${v} Cannot be convert to a WhirlScript value`
+        };
+    }
+
+    baseTypeProperty(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.REFERENCE_ERROR,
+            details: "Base types do not have properties"
+        };
+    }
+
+    noProperty(p: string): WhirlError {
+        return {
+            type: this.ERROR_TYPES.REFERENCE_ERROR,
+            details: `Cannot find property ${p}`
+        };
+    }
+
+    cannotStringify(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.MACRO_ERROR,
+            details: `Cannot stringify`
+        };
+    }
+
+    mismatchingType(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.REFERENCE_ERROR,
+            details: "Mismatching type"
         };
     }
 }

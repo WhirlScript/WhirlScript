@@ -2,8 +2,8 @@ import Token from "../../types/parser/token";
 import Deque from "../../util/deque";
 import WORD_TEST from "../../util/wordTest";
 import LOG_ERROR from "../../logger/logError";
-import Coordinate from "../../types/parser/Coordinate";
-import ApiWrapper from "../../types/api/ApiWrapper";
+import Coordinate from "../../types/parser/coordinate";
+import ApiWrapper from "../../types/api/apiWrapper";
 
 export type Status =
     "word"

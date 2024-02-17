@@ -4,7 +4,7 @@ import tokenize from "../../../../core/parser/tokenize";
 import Deque from "../../../../core/util/deque";
 import Token from "../../../../core/types/parser/token";
 import CliApi from "../../../../cli/types/api";
-import ApiWrapper from "../../../../core/types/api/ApiWrapper";
+import ApiWrapper from "../../../../core/types/api/apiWrapper";
 
 describe("test tokenize method", () => {
     const api = new ApiWrapper(new CliApi());

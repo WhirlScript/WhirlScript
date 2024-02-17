@@ -1,5 +1,5 @@
 import Deque from "../deque";
-import Coordinate from "../../types/parser/Coordinate";
+import Coordinate from "../../types/parser/coordinate";
 
 export default class RawCode {
     value: string;

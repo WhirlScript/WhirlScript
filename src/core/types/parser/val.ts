@@ -1,37 +1,27 @@
-import { ValType } from "./codeTypes";
-import Annotation from "./annotation";
+import Type from "./type";
+
+
+type ValProp = {
+    isConst: boolean,
+    deprecated: boolean,
+    optional: boolean
+}
 
 export default class Val {
-    protected props: string[];
     readonly name: string;
-    readonly type: ValType;
-    protected _isConst: boolean;
-    protected init: boolean = false;
+    readonly type: Type;
+    readonly prop: ValProp;
+    isInit: boolean = false;
+    used: boolean = false;
 
-    readonly annotations: Annotation[];
 
-    constructor(name: string, type: ValType, isConst: boolean, props: string[], annotations: Annotation[] = []) {
+    constructor(name: string, type: Type, prop: ValProp) {
         this.name = name;
         this.type = type;
-        this._isConst = isConst;
-        this.props = props;
-        this.annotations = annotations;
+        this.prop = prop;
     }
 
-    hasProp(prop: string): boolean {
-        return this.props.indexOf(prop) >= 0;
+    use() {
+        this.used = true;
     }
-
-    setInit(): void {
-        this.init = true;
-    }
-
-    isInit(): boolean {
-        return this.init;
-    }
-
-    isConst(): boolean {
-        return this._isConst;
-    }
-
 }

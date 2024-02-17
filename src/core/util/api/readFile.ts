@@ -1,6 +1,6 @@
 import LOG_ERROR from "../../logger/logError";
-import Coordinate from "../../types/parser/Coordinate";
-import ApiWrapper from "../../types/api/ApiWrapper";
+import Coordinate from "../../types/parser/coordinate";
+import ApiWrapper from "../../types/api/apiWrapper";
 
 export default function readFile(path: string, context: { coordinate: Coordinate, api: ApiWrapper }) {
     const { coordinate, api } = context;
