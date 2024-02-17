@@ -36,7 +36,8 @@
   ],
   "scripts": {
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "cli": "ts-node src/cli"
   },
   "devDependencies": {
     "@types/jest": "^29.5.5",
