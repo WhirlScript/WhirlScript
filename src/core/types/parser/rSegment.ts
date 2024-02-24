@@ -385,7 +385,7 @@ export namespace RSegment {
         readonly hasReturnValue: boolean;
         readonly macroReturnValue: Value | undefined;
 
-        hasScope:boolean = true;
+        hasScope: boolean = true;
 
         constructor(coordinate: Coordinate, inside: SegmentInterface[], macroReturnValue: Value | undefined) {
             this.coordinate = coordinate;
@@ -398,6 +398,11 @@ export namespace RSegment {
                 }
             }
             this.hasReturnValue = hasReturnValue;
+        }
+
+        noScope() {
+            this.hasScope = false;
+            return this;
         }
     }
 
@@ -510,9 +515,9 @@ export namespace RSegment {
         readonly valueWrapper: ValueWrapper | undefined;
 
         readonly hasReturnValue: boolean;
-        readonly macroReturnValue: undefined;
+        readonly macroReturnValue: Value | undefined;
 
-        constructor(coordinate: Coordinate, value?: Value) {
+        constructor(coordinate: Coordinate, value: Value | undefined, macroReturn: boolean) {
             this.coordinate = coordinate;
             this.value = value;
             if (value?.isMacro && value?.type == "ValueWrapper") {
@@ -528,8 +533,15 @@ export namespace RSegment {
                     },
                     vw.value
                 );
+            } else if (value?.type == "MacroValCall") {
+                const mvc = <MacroValCall>value;
+                this.value = mvc.val.value;
             }
+
             this.hasReturnValue = !!value;
+            if (macroReturn) {
+                this.macroReturnValue = value;
+            }
         }
     }
 }

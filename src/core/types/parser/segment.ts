@@ -212,6 +212,10 @@ export namespace Segment {
         var: boolean
     }
 
+    interface FunctionProps {
+        macro: boolean;
+    }
+
     export class ValDefine implements SegmentInterface {
         readonly type = "ValDefine";
         readonly coordinate: Coordinate;
@@ -236,13 +240,15 @@ export namespace Segment {
 
         readonly functionName: Name;
         readonly functionType: Name | undefined;
+        readonly props: FunctionProps;
         readonly args: ValDefine[];
         readonly block: Block | undefined;
 
-        constructor(coordinate: Coordinate, functionName: Name, functionType: Name | undefined, args: ValDefine[], block?: Block) {
+        constructor(coordinate: Coordinate, functionName: Name, functionType: Name | undefined, props: FunctionProps, args: ValDefine[], block: Block | undefined) {
             this.coordinate = coordinate;
             this.functionName = functionName;
             this.functionType = functionType;
+            this.props = props;
             this.args = args;
             this.block = block;
         }

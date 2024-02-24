@@ -6,12 +6,12 @@ type Args = {
     name: string,
     type: Type,
     isMacro: boolean,
-    optional: boolean,
     defaultValue?: RSegment.Value
 }[];
 
 type FunctionProp = {
     deprecated: boolean
+    optional: boolean,
 }
 
 export default class Func {

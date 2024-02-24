@@ -631,10 +631,14 @@ export default function resolve(tokens: Deque<Token>, context: {
             }
             if (cursor.value == ";") {
                 cursor = pop();
-                return new Segment.FunctionDefine(coo, n, t, args);
+                return new Segment.FunctionDefine(coo, n, t, {
+                    macro: definingProps.macro
+                }, args, undefined);
             } else {
                 const block = getBlock({ block: context.block + 1 });
-                return new Segment.FunctionDefine(coo, n, t, args, block);
+                return new Segment.FunctionDefine(coo, n, t, {
+                    macro: definingProps.macro
+                }, args, block);
             }
         }
 

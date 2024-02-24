@@ -18,6 +18,13 @@ class LogWarning {
             details: `${r} is deprecated`
         };
     }
+
+    macroArgInRuntimeFunction(): WhirlWarning {
+        return {
+            type: this.WARNING_TYPES.WARNING,
+            details: "Macro argument in runtime function makes no sense. It will be ignored"
+        };
+    }
 }
 
 const LOG_WARNING = new LogWarning();

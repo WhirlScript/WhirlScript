@@ -312,6 +312,9 @@
       "value": "sayHello",
       "namespaces": []
     },
+    "props": {
+      "macro": false
+    },
     "args": [
       {
         "type": "ValDefine",
@@ -504,6 +507,9 @@
       },
       "value": "string",
       "namespaces": []
+    },
+    "props": {
+      "macro": false
     },
     "args": []
   },
@@ -965,6 +971,9 @@
       },
       "value": "yell",
       "namespaces": []
+    },
+    "props": {
+      "macro": false
     },
     "args": [
       {
