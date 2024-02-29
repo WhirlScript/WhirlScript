@@ -15,6 +15,7 @@ import preprocessValue from "./preprocessValue";
 import LOG_WARNING from "../../logger/logWarning";
 import MacroFunc from "../../types/parser/macroFunc";
 import Func from "../../types/parser/func";
+import Name = Segment.Name;
 
 export default function preprocessSegment(
     segmentRaw: Segment.SegmentInterface,
@@ -38,7 +39,7 @@ export default function preprocessSegment(
         context.hasError.v = true;
     }
 
-    let noPreprocess = false;
+    let constStatement = false;
     let deprecated = false;
     let optional = false;
     if (segment.type == "AnnotationSegment") {
@@ -64,8 +65,8 @@ export default function preprocessSegment(
             if (<Annotation>symbol == BUILTIN_ANNOTATIONS["@sh"]) {
                 sh = true;
             }
-            if (<Annotation>symbol == BUILTIN_ANNOTATIONS["@noPreprocess"]) {
-                noPreprocess = true;
+            if (<Annotation>symbol == BUILTIN_ANNOTATIONS["@const"]) {
+                constStatement = true;
             }
             if (<Annotation>symbol == BUILTIN_ANNOTATIONS["@deprecated"]) {
                 deprecated = true;
@@ -221,6 +222,7 @@ export default function preprocessSegment(
                     },
                     v.val.value
                 );
+                pools.pushSymbol("MacroVal", seg.valName, val, namespace);
 
                 if (v.wrapper) {
                     v.wrapper.valueType = val.type;
@@ -295,6 +297,7 @@ export default function preprocessSegment(
             pools.pushSymbol("Val", seg.valName, val, namespace);
 
             if (i) {
+                val.isInit = true;
                 return new RSegment.ExpressionSVO(seg.coordinate, new RSegment.ValCall(seg.coordinate, val), "=", i, type);
             } else {
                 return new RSegment.Empty(seg.coordinate);
@@ -304,6 +307,15 @@ export default function preprocessSegment(
     }
     if (segment.type == "FunctionDefine") {
         const seg = <Segment.FunctionDefine>segment;
+        if (pools.flags.defineFunction) {
+            api.logger.errorInterrupt(LOG_ERROR.functionInFunction(), {
+                ...seg.coordinate,
+                chain: coordinateChain
+            });
+            reportError();
+            return new RSegment.Empty(seg.coordinate);
+        }
+        pools.flags.defineFunction = true;
         type Arg = {
             name: string,
             type: Type,
@@ -319,6 +331,7 @@ export default function preprocessSegment(
                     chain: coordinateChain
                 });
                 reportError();
+                pools.flags.defineFunction = false;
                 return new RSegment.Empty(seg.coordinate);
             }
             let isMacro = arg.props.macro;
@@ -334,6 +347,7 @@ export default function preprocessSegment(
                 let i = preprocessValue(arg.initialValue, coordinateChain, requirement, context);
                 if (i.type == "EmptyValue") {
                     reportError();
+                    pools.flags.defineFunction = false;
                     return new RSegment.Empty(seg.coordinate);
                 }
 
@@ -343,6 +357,7 @@ export default function preprocessSegment(
                         chain: coordinateChain
                     });
                     reportError();
+                    pools.flags.defineFunction = false;
                     return new RSegment.Empty(seg.coordinate);
                 }
                 if (i.isMacro) {
@@ -365,6 +380,7 @@ export default function preprocessSegment(
                                 chain: coordinateChain
                             });
                             reportError();
+                            pools.flags.defineFunction = false;
                             return new RSegment.Empty(seg.coordinate);
                         }
                         if (!typeCalc.equalsTo(t, i.valueType)) {
@@ -410,6 +426,7 @@ export default function preprocessSegment(
                             chain: coordinateChain
                         });
                         reportError();
+                        pools.flags.defineFunction = false;
                         return new RSegment.Empty(seg.coordinate);
                     }
                 }
@@ -435,6 +452,7 @@ export default function preprocessSegment(
                         chain: coordinateChain
                     });
                     reportError();
+                    pools.flags.defineFunction = false;
                     return new RSegment.Empty(seg.coordinate);
                 }
                 type = typeCalc.getTypeWithName(arg.valType, context);
@@ -447,15 +465,17 @@ export default function preprocessSegment(
         }
         const returnType = seg.functionType ? typeCalc.getTypeWithName(seg.functionType, context) : BASE_TYPES.void;
         if (!seg.block) {
+            pools.flags.defineFunction = false;
             return new RSegment.Empty(seg.coordinate);
-            //TODO native function
+            //TODO-implement native function
         }
         if (seg.props.macro) {
+            pools.flags.defineFunction = false;
             const func = new MacroFunc(seg.functionName.value, returnType, args, seg.block, {
                 deprecated,
                 hasScope: !(annotations.indexOf(BUILTIN_ANNOTATIONS["@noScope"]) >= 0),
-                isConstexpr: !(annotations.indexOf(BUILTIN_ANNOTATIONS["@constexpr"]) >= 0)
-            });
+                isConstexpr: annotations.indexOf(BUILTIN_ANNOTATIONS["@constexpr"]) >= 0
+            }, pools.symbolTable.length);
             pools.pushSymbol("MacroFunction", seg.functionName, func, namespace);
             if (codes.length == 0) {
                 return new RSegment.Empty(seg.coordinate);
@@ -465,13 +485,25 @@ export default function preprocessSegment(
             }
             return new RSegment.Block(seg.coordinate, codes, undefined).noScope();
         }
+        pools.symbolTable.push(SYMBOL_SEPARATOR.scope);
+        for (const arg of args) {
+            const val = new Val(arg.name, arg.type, {
+                isConst: false,
+                optional: false,
+                deprecated: false
+            });
+            val.isInit = true;
+            pools.pushSymbol("Val", new Name(seg.coordinate, arg.name), val, []);
+        }
         const body = preprocessSegment(seg.block, coordinateChain, requirement, context);
+        pools.popScope();
         const func = new Func(seg.functionName.value, returnType, args,
             body.type == "Block" ? <RSegment.Block>body : new RSegment.Block(seg.coordinate, [body], undefined), {
                 deprecated,
                 optional
             });
         pools.pushSymbol("Function", seg.functionName, func, namespace);
+        pools.flags.defineFunction = false;
         return new RSegment.Empty(seg.coordinate);
         //TODO
         // return value: unwrap, check, ?
@@ -527,7 +559,7 @@ export default function preprocessSegment(
             reportError();
             return new RSegment.Empty(seg.coordinate);
         }
-        if (!noPreprocess && condition.isMacro) {
+        if (constStatement && condition.isMacro) {
             let c1 = condition;
             if (c1.type == "ValueWrapper") {
                 if ((<RSegment.ValueWrapper>c1).codes) {
@@ -556,31 +588,12 @@ export default function preprocessSegment(
                     c1 = <RSegment.Value>(<RSegment.ValueWrapper>c1).value;
                 }
             }
-            if (c1.type == "MacroValCall") {
-                if ((<RSegment.MacroValCall>condition).val.value) {
-                    c1 = <RSegment.Value>(<RSegment.MacroValCall>condition).val.value;
-                } else {
-                    api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), {
-                        ...condition.coordinate,
-                        chain: coordinateChain
-                    });
-                }
-            }
-            if (!typeCalc.equalsTo(c1.valueType, BASE_TYPES.boolean)) {
-                const str = (<RSegment.MacroBase>c1).toStr().value;
-                if (str == "1") {
-                    c1 = new RSegment.Bool(c1.coordinate, true);
-                }
-                if (str == "0") {
-                    c1 = new RSegment.Bool(c1.coordinate, false);
-                }
-                api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
-                    ...c1.coordinate,
-                    chain: coordinateChain
-                });
-            }
+            let va = typeCalc.valueToObj(c1, {
+                ...c1.coordinate,
+                chain: coordinateChain
+            }, { api });
             let statement: RSegment.SegmentInterface;
-            if ((<RSegment.Bool>c1).value) {
+            if (va) {
                 statement = preprocessSegment(seg.statement, coordinateChain, requirement, context);
             } else {
                 if (seg.elseStatement) {
@@ -607,6 +620,12 @@ export default function preprocessSegment(
                 return statement;
             }
         } else {
+            if (constStatement) {
+                api.logger.warning(LOG_WARNING.notExpandable(), {
+                    ...seg.coordinate,
+                    chain: coordinateChain
+                });
+            }
             pools.symbolTable.push(SYMBOL_SEPARATOR.macro);
             const statement = preprocessSegment(seg.statement, coordinateChain, requirement, context);
             const elseStatement = seg.elseStatement ? preprocessSegment(seg.elseStatement, coordinateChain, requirement, context) : undefined;
@@ -634,7 +653,7 @@ export default function preprocessSegment(
             pools.popScope();
             return new RSegment.Empty(seg.coordinate);
         }
-        if (!noPreprocess && statement1.type == "Empty") {
+        if (constStatement && condition.isMacro) {
             let c1 = condition;
             const getCondition = (): boolean => {
                 if (c1.type == "ValueWrapper") {
@@ -664,31 +683,10 @@ export default function preprocessSegment(
                         c1 = <RSegment.Value>(<RSegment.ValueWrapper>c1).value;
                     }
                 }
-                if (c1.type == "MacroValCall") {
-                    if ((<RSegment.MacroValCall>condition).val.value) {
-                        c1 = <RSegment.Value>(<RSegment.MacroValCall>condition).val.value;
-                    } else {
-                        api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), {
-                            ...condition.coordinate,
-                            chain: coordinateChain
-                        });
-                    }
-                }
-                if (!typeCalc.equalsTo(c1.valueType, BASE_TYPES.boolean)) {
-                    const str = (<RSegment.MacroBase>c1).toStr().value;
-                    if (str == "1") {
-                        c1 = new RSegment.Bool(c1.coordinate, true);
-                    }
-                    if (str == "0") {
-                        c1 = new RSegment.Bool(c1.coordinate, false);
-                    }
-                    api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
-                        ...c1.coordinate,
-                        chain: coordinateChain
-                    });
-                }
-                pools.popScope();
-                return (<RSegment.Bool>c1).value;
+                return typeCalc.valueToObj(c1, {
+                    ...c1.coordinate,
+                    chain: coordinateChain
+                }, { api });
             };
             let macroReturnValue: RSegment.Value | undefined;
             while (getCondition()) {
@@ -709,6 +707,12 @@ export default function preprocessSegment(
             pools.popScope();
             return new RSegment.Block(seg.coordinate, codes, macroReturnValue);
         } else {
+            if (constStatement) {
+                api.logger.warning(LOG_WARNING.notExpandable(), {
+                    ...seg.coordinate,
+                    chain: coordinateChain
+                });
+            }
             pools.symbolTable.push(SYMBOL_SEPARATOR.macro);
             const statement3 = preprocessSegment(seg.statement3, coordinateChain, requirement, context);
             const statement = preprocessSegment(seg.statement, coordinateChain, requirement, context);
@@ -733,7 +737,7 @@ export default function preprocessSegment(
             reportError();
             return new RSegment.Empty(seg.coordinate);
         }
-        if (!noPreprocess && condition.isMacro) {
+        if (constStatement && condition.isMacro) {
             let c1 = condition;
             const getCondition = (): boolean => {
                 if (c1.type == "ValueWrapper") {
@@ -763,30 +767,11 @@ export default function preprocessSegment(
                         c1 = <RSegment.Value>(<RSegment.ValueWrapper>c1).value;
                     }
                 }
-                if (c1.type == "MacroValCall") {
-                    if ((<RSegment.MacroValCall>condition).val.value) {
-                        c1 = <RSegment.Value>(<RSegment.MacroValCall>condition).val.value;
-                    } else {
-                        api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), {
-                            ...condition.coordinate,
-                            chain: coordinateChain
-                        });
-                    }
-                }
-                if (!typeCalc.equalsTo(c1.valueType, BASE_TYPES.boolean)) {
-                    const str = (<RSegment.MacroBase>c1).toStr().value;
-                    if (str == "1") {
-                        c1 = new RSegment.Bool(c1.coordinate, true);
-                    }
-                    if (str == "0") {
-                        c1 = new RSegment.Bool(c1.coordinate, false);
-                    }
-                    api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
-                        ...c1.coordinate,
-                        chain: coordinateChain
-                    });
-                }
-                return (<RSegment.Bool>c1).value;
+
+                return typeCalc.valueToObj(c1, {
+                    ...c1.coordinate,
+                    chain: coordinateChain
+                }, { api });
             };
             let macroReturnValue: RSegment.Value | undefined;
             while (getCondition()) {
@@ -802,6 +787,12 @@ export default function preprocessSegment(
             }
             return new RSegment.Block(seg.coordinate, codes, macroReturnValue);
         } else {
+            if (constStatement) {
+                api.logger.warning(LOG_WARNING.notExpandable(), {
+                    ...seg.coordinate,
+                    chain: coordinateChain
+                });
+            }
             pools.symbolTable.push(SYMBOL_SEPARATOR.macro);
             const statement = preprocessSegment(seg.statement, coordinateChain, requirement, context);
             pools.popMacroScope();
@@ -846,6 +837,7 @@ export default function preprocessSegment(
             ...symbol,
             name: seg.definingName.value
         });
+        return new RSegment.Empty(seg.coordinate);
     }
     if (segment.type == "UsingNamespace") {
         const seg = <Segment.UsingNamespace>segment;
@@ -858,6 +850,7 @@ export default function preprocessSegment(
                 });
             }
         }
+        return new RSegment.Empty(seg.coordinate);
     }
     if (segment.type == "Return") {
         const seg = <Segment.Return>segment;

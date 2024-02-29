@@ -96,12 +96,42 @@ class TypeCalcC {
             context.api.logger.errorInterrupt(LOG_ERROR.notMacro(), coordinate);
         }
         let va = value;
+        const t = va.valueType;
         if (va.type == "ValueWrapper") {
             const r = (<RSegment.ValueWrapper>va).value;
             if (r) {
                 va = r;
             } else {
                 context.api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), coordinate);
+            }
+        }
+        if (va.type == "MacroValCall") {
+            const val = (<RSegment.MacroValCall>va).val;
+            if (!val.value) {
+                context.api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), coordinate);
+            }
+            va = val.value;
+        }
+        if (!this.equalsTo(t, va.valueType)) {
+            if (t.type != va.valueType.type) {
+                context.api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), value.coordinate);
+            }
+            if (this.equalsTo(t, BASE_TYPES.boolean)) {
+                const str = (<RSegment.MacroBase>va).toStr().value;
+                if (str == "1") {
+                    return true;
+                }
+                if (str == "0") {
+                    return false;
+                }
+                context.api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), value.coordinate);
+            }
+            if (this.equalsTo(t, BASE_TYPES.int)) {
+                const num = Number((<RSegment.MacroBase>va).toStr().value);
+                if (isNaN(num)) {
+                    context.api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), value.coordinate);
+                }
+                return num;
             }
         }
         if (va.type == "StructBlock") {

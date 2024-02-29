@@ -25,6 +25,13 @@ class LogWarning {
             details: "Macro argument in runtime function makes no sense. It will be ignored"
         };
     }
+
+    notExpandable(): WhirlWarning {
+        return {
+            type: this.WARNING_TYPES.WARNING,
+            details: "The statement is not expandable"
+        };
+    }
 }
 
 const LOG_WARNING = new LogWarning();

@@ -26,7 +26,6 @@ export default function resolve(tokens: Deque<Token>, context: {
         },
         flag: "EOF"
     });
-    let cursor = tokens.peekFront();
     let hasError = false;
 
     function reportError() {
@@ -44,12 +43,14 @@ export default function resolve(tokens: Deque<Token>, context: {
         return a;
     }
 
+    let cursor = pop();
+
     function getExpression(): Segment.Value {
         const expr: Deque<Segment.Value | { type: "o", value: string, level: number }> = new Deque();
         const opLevel: LightDeque<number> = new LightDeque();// Operation levels
         let hLOperation: Token | undefined;// Hanging leading operation
         let hLAssertion: { type: Segment.Name, coordinate: Coordinate } | undefined;// Hanging leading assertion
-        while (cursor.value != "," && cursor.value != ";" && cursor.value != ")" && cursor.value != "}") {
+        while (cursor.value != "," && cursor.value != ";" && cursor.value != ")" && cursor.value != "}" && cursor.flag != "EOF") {
             if (cursor.value == "(") {
                 if (!expr.isEmpty() && expr.peekRear()?.type != "o") {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
@@ -222,7 +223,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                     api.logger.errorInterrupt(LOG_ERROR.invalidAssertion(), hLAssertion.coordinate);
                 }
                 const level = (<{ [key: string]: number }>CODE_TYPES.operatorPrecedence)?.[cursor.value];
-                if (level <= 2 && level >= 1) {
+                if (level == 1 || level == 2) {
                     if (expr.isEmpty() || expr.peekRear()?.type == "o") {
                         hLOperation = cursor;
                     } else {
@@ -331,26 +332,15 @@ export default function resolve(tokens: Deque<Token>, context: {
                 expr.pushRear(exp);
             }
         }
-        while (opLevel.size() >= 1) {
-            const temp: Deque<Segment.Value | { type: "o", value: string, level: number }> = new Deque();
-            const levelPref = opLevel.peekRear();
-            temp.pushFront(expr.popRear());
-            while (opLevel.size() > 0 && opLevel.peekRear() == levelPref) {
-                temp.pushFront(expr.popRear());
-                temp.pushFront(expr.popRear());
-                opLevel.popRear();
-            }
-            while (temp.size() > 1) {
-                temp.pushFront(
-                    new Segment.ExpressionSVO(
-                        (<Segment.Value>temp.peekFront()).coordinate,
-                        <Segment.Value>temp.popFront(),
-                        (<{ type: "o", value: string, level: number }>temp.popFront()).value,
-                        <Segment.Value>temp.popFront()
-                    )
-                );
-            }
-            expr.pushRear(<Segment.Value>temp.peekFront());
+        while (expr.size() > 1) {
+            expr.pushFront(
+                new Segment.ExpressionSVO(
+                    (<Segment.Value>expr.peekFront()).coordinate,
+                    <Segment.Value>expr.popFront(),
+                    (<{ type: "o", value: string, level: number }>expr.popFront()).value,
+                    <Segment.Value>expr.popFront()
+                )
+            );
         }
         return <Segment.Value>expr.peekFront();
     }
@@ -403,12 +393,13 @@ export default function resolve(tokens: Deque<Token>, context: {
 
         // Empty `;`
         if (cursor.value == ";") {
+            const coo = cursor.coordinate;
             if (!requirements.isSingle) {
                 api.logger.errorInterrupt(LOG_ERROR.reallyWeird(), cursor.coordinate);
                 return new Segment.Empty(cursor.coordinate);
             }
             cursor = pop();
-            return new Segment.Empty(cursor.coordinate);
+            return new Segment.Empty(coo);
         }
 
         // Import `import "xxx";`
@@ -472,7 +463,6 @@ export default function resolve(tokens: Deque<Token>, context: {
         while (cursor.value.startsWith("@")) {
             const coo = cursor.coordinate;
             annotations.push(new Segment.Annotation(coo, getName()));
-            cursor = pop();
         }
 
         // Block `{...}`
@@ -775,7 +765,6 @@ export default function resolve(tokens: Deque<Token>, context: {
             const coo = cursor.coordinate;
             cursor = pop();
             const n = getName();
-            cursor = pop();
             const block = getBlock(context);
             return new Segment.Namespace(coo, n, block);
         }

@@ -1,0 +1,67 @@
+/**
+ * This will print things to console.
+ */
+macro function print(x: string){
+    if(x != ""){
+        @bat litln(`echo |set /p =${x}`);
+        @sh litln(`echo -n ${x}`);
+    }
+}
+
+/**
+ * This will print things to console, and end with a new line.
+ */
+macro function println(x: string){
+    if(x == ""){
+        @bat litln(`echo.`);
+        @sh litln(`echo`);
+    } else {
+        litln(`echo ${x}`);
+    }
+}
+
+namespace my {
+    struct Person {
+        id: int,
+        name: string
+    }
+}
+
+using my::Person;
+
+var me: Person = {
+    id: <int>(0 + 1 - 1),
+    name: "Bluemangoo"
+};
+
+const guest: Person = {
+    id: 1,
+    name: "Guest"
+};
+
+macro const hello = "Hello!";
+
+function sayHello(person: Person) {
+    println(`${hello} I'm ${person.name}.`);
+}
+
+if (me.id == 0){
+    sayHello(me);
+} else {
+    sayHello(guest);
+}
+
+@const
+for (macro var i = 0; i <= 5; i++){
+    macro var j = 0;
+    @const
+    while (j < i){
+        j++;
+        print("* ");
+    }
+    println("*");
+}
+
+function yell(name: string = "A guest") {
+    println(`${name} yelled`);
+}

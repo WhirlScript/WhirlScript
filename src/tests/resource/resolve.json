@@ -11,9 +11,9 @@
       "coordinate": {
         "file": "F",
         "line": 1,
-        "column": 1
+        "column": 11
       },
-      "value": "namespace",
+      "value": "my",
       "namespaces": []
     },
     "block": {
@@ -528,41 +528,59 @@
         "column": 7
       },
       "s": {
-        "type": "ValCall",
+        "type": "ExpressionSVO",
         "coordinate": {
           "file": "F",
           "line": 28,
           "column": 7
         },
-        "valName": {
-          "type": "Name",
+        "s": {
+          "type": "ValCall",
           "coordinate": {
             "file": "F",
             "line": 28,
-            "column": 5
+            "column": 7
           },
-          "value": "me",
-          "namespaces": []
+          "valName": {
+            "type": "Name",
+            "coordinate": {
+              "file": "F",
+              "line": 28,
+              "column": 5
+            },
+            "value": "me",
+            "namespaces": []
+          }
+        },
+        "v": ".",
+        "o": {
+          "type": "ValCall",
+          "coordinate": {
+            "file": "F",
+            "line": 28,
+            "column": 11
+          },
+          "valName": {
+            "type": "Name",
+            "coordinate": {
+              "file": "F",
+              "line": 28,
+              "column": 8
+            },
+            "value": "id",
+            "namespaces": []
+          }
         }
       },
-      "v": ".",
+      "v": "==",
       "o": {
-        "type": "ValCall",
+        "type": "Int",
         "coordinate": {
           "file": "F",
           "line": 28,
-          "column": 11
+          "column": 14
         },
-        "valName": {
-          "type": "Name",
-          "coordinate": {
-            "file": "F",
-            "line": 28,
-            "column": 8
-          },
-          "value": "id",
-          "namespaces": []
-        }
+        "value": 0
       }
     },
     "statement": {

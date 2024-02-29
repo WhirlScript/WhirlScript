@@ -17,7 +17,7 @@ export default function tokenize(rawCode: RawCode, context: { api: ApiWrapper })
     let lineStart = 0 - rawCode.coordinate.column;
     let piece = "";
     let status: Status = "operator";
-    const code: string = rawCode.value.replace(/\r/g, "");
+    const code: string = rawCode.value.replace(/\r/g, "") + " "; // One more space to push the end token
     const flags = {
         layerCount: 0,
         stringR: {
@@ -72,7 +72,7 @@ export default function tokenize(rawCode: RawCode, context: { api: ApiWrapper })
         piece += escapeResult;
     }
 
-    for (let i = 0; i < rawCode.value.length; i++) {
+    for (let i = 0; i < code.length; i++) {
         // if (i > 154)
         //     console.log(i, "  |  ", code[i - 1] == "\n" ? "\\n" : code[i - 1], "  |  ", status, "  |  ", piece, "  |  ", `${flags.coordinate.line}:${flags.coordinate.column}`, "  |  ", lineStart);
 

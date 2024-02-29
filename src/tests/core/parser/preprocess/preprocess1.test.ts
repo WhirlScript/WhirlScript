@@ -4,12 +4,13 @@ import tokenize from "../../../../core/parser/tokenize";
 import CliApi from "../../../../cli/types/api";
 import resolve from "../../../../core/parser/resolve";
 import ApiWrapper from "../../../../core/types/api/apiWrapper";
+import preprocess from "../../../../core/parser/preprocess";
 
-describe("test resolve method", () => {
+describe("test preprocess method", () => {
     const api = new ApiWrapper(new CliApi());
-    test("script resolve", () => {
-        const srcPath = process.cwd() + "/src/tests/resource/resolve.wrs";
-        const valuePath = process.cwd() + "/src/tests/resource/resolve.json";
+    test("script preprocess", () => {
+        const srcPath = process.cwd() + "/src/tests/resource/preprocess.wrs";
+        const valuePath = process.cwd() + "/src/tests/resource/preprocess.json";
         const script = fs.readFileSync(srcPath).toString();
         const rawCode = new RawCode({
             coordinate: {
@@ -20,6 +21,7 @@ describe("test resolve method", () => {
             }, value: script
         });
         const expectedValue = JSON.parse(fs.readFileSync(valuePath).toString());
-        expect(resolve(tokenize(rawCode, { api }), { api, importPool: [] })).toEqual(expectedValue);
+        const s = resolve(tokenize(rawCode, { api }), { api, importPool: [] });
+        expect(preprocess(s, { target: "sh" }, { api })).toEqual(expectedValue);
     });
 });

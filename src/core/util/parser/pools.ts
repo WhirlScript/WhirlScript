@@ -21,7 +21,14 @@ export default class Pools {
     // macroValPool: MacroVal[] = [];
     // constPool: Val[] = [];
     // macroFunctionPool: MacroFunc[] = [];
-    constructor() {
+    constructor(pools?: Pools) {
+        if (pools != undefined) {
+            this.renamePool = pools.renamePool;
+            this.functionPool = pools.functionPool;
+            this.symbolTable = pools.symbolTable;
+            this.flags = pools.flags;
+            return;
+        }
         for (const builtinAnnotationsKey in BUILTIN_ANNOTATIONS) {
             this.symbolTable.push({
                 type: "Annotation",
@@ -39,6 +46,10 @@ export default class Pools {
 
         this.symbolTable.push(SYMBOL_SEPARATOR.scope);
     }
+
+    flags = {
+        defineFunction: false
+    };
 
     renamePool: (Val | Func)[] = [];
     functionPool: Func[] = [];
@@ -63,7 +74,11 @@ export default class Pools {
         let getMacro = true;
         for (let i = this.symbolTable.length - 1; i >= 0; i--) {
             if (names.indexOf(this.symbolTable[i].name) >= 0) {
-                if (this.symbolTable[i].type != "MacroVal" || getMacro) {
+                if (this.symbolTable[i].type == "MacroVal" && getMacro) {
+                    const pref = this.symbolTable[i].value as MacroVal;
+                    const val = new MacroVal(pref.type, { ...pref.prop, isConst: true }, pref.value);
+                    return { ...this.symbolTable[i], value: val };
+                } else {
                     return this.symbolTable[i];
                 }
             }
@@ -78,8 +93,8 @@ export default class Pools {
                symbol: Segment.Name,
                value: Val | Func | MacroVal | MacroFunc | NativeFunc | Struct | Annotation | "",
                namespace: string[]) {
-        const name = (namespace.length == 0 ? symbol.value : namespace.join("_")) +
-            (symbol.namespaces.length == 0 ? symbol.value : symbol.namespaces.join("_")) + "_" + symbol.value;
+        const name = (namespace.length == 0 ? "" : namespace.join("_") + "_") +
+            (symbol.namespaces.length == 0 ? "" : symbol.namespaces.join("_") + "_") + symbol.value;
         this.symbolTable.push({
             name,
             type,

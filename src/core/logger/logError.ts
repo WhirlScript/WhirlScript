@@ -253,6 +253,13 @@ class LogError {
             details: "Mismatching type"
         };
     }
+
+    functionInFunction(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Function in function"
+        };
+    }
 }
 
 const LOG_ERROR = new LogError();

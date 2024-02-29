@@ -10,7 +10,7 @@ const BUILTIN_ANNOTATIONS: { [key: string]: Annotation } = {
     "@optional": new Annotation("@optional"),
     "@noScope": new Annotation("@noScope"),
     "@constexpr": new Annotation("@constexpr"),
-    "@noPreprocess": new Annotation("@noPreprocess")
+    "@const": new Annotation("@const")
 };
 
 export { BUILTIN_ANNOTATIONS };

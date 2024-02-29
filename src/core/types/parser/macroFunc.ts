@@ -21,12 +21,14 @@ export default class MacroFunc {
     readonly type: Type;
     readonly body: Segment.Block;
     readonly prop: MacroFunctionProp;
+    readonly symbolTableLength: number;
 
-    constructor(name: string, type: Type, args: Args, body: Segment.Block, prop: MacroFunctionProp) {
+    constructor(name: string, type: Type, args: Args, body: Segment.Block, prop: MacroFunctionProp, symbolTableLength: number) {
         this.name = name;
         this.type = type;
         this.args = args;
         this.body = body;
         this.prop = prop;
+        this.symbolTableLength = symbolTableLength;
     }
 }
