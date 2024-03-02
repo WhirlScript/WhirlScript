@@ -100,12 +100,22 @@ export default function preprocessValue(
             }
             if (r.type == "MacroValCall") {
                 if (!(<RSegment.MacroValCall>r).val.value) {
-                    api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), r.coordinate);
+                    api.logger.error(LOG_ERROR.useBeforeInit(), {
+                        ...r.coordinate,
+                        chain: coordinateChain
+                    });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
                 r = <RSegment.Value>(<RSegment.MacroValCall>r).val.value;
             }
             if (r.valueType.type == "struct") {
-                api.logger.errorInterrupt(LOG_ERROR.cannotStringify(), r.coordinate);
+                api.logger.error(LOG_ERROR.cannotStringify(), {
+                    ...r.coordinate,
+                    chain: coordinateChain
+                });
+                reportError();
+                return new RSegment.EmptyValue(seg.coordinate);
             }
             if (values.length == 0) {
                 if (r.type == "Bool" || r.type == "Int") {
@@ -161,7 +171,12 @@ export default function preprocessValue(
                 if (v) {
                     inside[key] = v;
                 } else {
-                    api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), inside[key].coordinate);
+                    api.logger.error(LOG_ERROR.useBeforeInit(), {
+                        ...inside[key].coordinate
+                        , chain: coordinateChain
+                    });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
             }
             def[key] = inside[key].valueType;
@@ -190,10 +205,12 @@ export default function preprocessValue(
             { api, namespace }
         );
         if (symbol.type != "Val" && symbol.type != "MacroVal") {
-            api.logger.errorInterrupt(LOG_ERROR.notAVal(symbol.name), {
+            api.logger.error(LOG_ERROR.notAVal(symbol.name), {
                 ...seg.coordinate,
                 chain: coordinateChain
             });
+            reportError();
+            return new RSegment.EmptyValue(seg.coordinate);
         }
         if (symbol.type == "MacroVal") {
             const val = <MacroVal>symbol.value;
@@ -204,10 +221,12 @@ export default function preprocessValue(
                 });
             }
             if (!val.value) {
-                api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), {
+                api.logger.error(LOG_ERROR.useBeforeInit(), {
                     ...seg.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
+                return new RSegment.EmptyValue(seg.coordinate);
             }
             return new RSegment.MacroValCall(seg.coordinate, val);
         }
@@ -220,10 +239,11 @@ export default function preprocessValue(
                 });
             }
             if (!val.isInit) {
-                api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), {
+                api.logger.error(LOG_ERROR.useBeforeInit(), {
                     ...seg.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
             }
             return new RSegment.ValCall(
                 {
@@ -261,24 +281,30 @@ export default function preprocessValue(
                         return new RSegment.EmptyValue(seg.coordinate);
                     }
                     if (!typeCalc.contains(a.valueType, func.args[i].type)) {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), {
+                        api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
                             ...seg.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                     if (func.args[i].isMacro && !a.isMacro) {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), {
+                        api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
                             ...seg.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                     args.push(a);
                 } else {
                     if (!func.args[i].defaultValue) {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), {
+                        api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
                             ...seg.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                     args.push(<RSegment.Value>func.args[i].defaultValue);
                 }
@@ -326,20 +352,29 @@ export default function preprocessValue(
                         if (v) {
                             a = v;
                         } else {
-                            api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), a.coordinate);
+                            api.logger.error(LOG_ERROR.useBeforeInit(), {
+                                ...a.coordinate,
+                                chain: coordinateChain
+                            });
+                            reportError();
+                            return new RSegment.EmptyValue(seg.coordinate);
                         }
                     }
                     if (!typeCalc.contains(a.valueType, func.args[i].type)) {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), {
+                        api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
                             ...seg.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                     if (func.args[i].isMacro && !a.isMacro) {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), {
+                        api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
                             ...seg.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                     if (a.isMacro) {
                         p.symbolTable.push({
@@ -385,10 +420,12 @@ export default function preprocessValue(
                     }
                 } else {
                     if (!func.args[i].defaultValue) {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), {
+                        api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
                             ...seg.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                     if (func.args[i].isMacro) {
                         p.symbolTable.push({
@@ -451,10 +488,12 @@ export default function preprocessValue(
                 if (s.macroReturnValue) {
                     macroReturnValue = s.macroReturnValue;
                     if (!typeCalc.contains(macroReturnValue.valueType, func.type)) {
-                        api.logger.errorInterrupt(
-                            LOG_ERROR.mismatchingType(),
-                            macroReturnValue.coordinate
-                        );
+                        api.logger.error(LOG_ERROR.mismatchingType(), {
+                            ...macroReturnValue.coordinate,
+                            chain: coordinateChain
+                        });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                     if (macroReturnValue.type == "ValueWrapper") {
                         const vw = <RSegment.ValueWrapper>macroReturnValue;
@@ -514,23 +553,29 @@ export default function preprocessValue(
                         if (v) {
                             a = v;
                         } else {
-                            api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), {
+                            api.logger.error(LOG_ERROR.useBeforeInit(), {
                                 ...a.coordinate,
                                 chain: coordinateChain
                             });
+                            reportError();
+                            return new RSegment.EmptyValue(seg.coordinate);
                         }
                     }
                     if (!typeCalc.contains(a.valueType, func.args[i].type)) {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), {
+                        api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
                             ...seg.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                     if (!a.isMacro) {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), {
+                        api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
                             ...seg.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                     try {
                         args.push(
@@ -544,17 +589,21 @@ export default function preprocessValue(
                             )
                         );
                     } catch (e) {
-                        api.logger.errorInterrupt(LOG_ERROR.nativeError(e), {
+                        api.logger.error(LOG_ERROR.nativeError(e), {
                             ...a.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                 } else {
                     if (!func.args[i].defaultValue) {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), {
+                        api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
                             ...seg.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                     args.push(
                         typeCalc.valueToObj(
@@ -572,10 +621,12 @@ export default function preprocessValue(
             try {
                 o = func.body(...args);
             } catch (e) {
-                api.logger.errorInterrupt(LOG_ERROR.nativeError(e), {
+                api.logger.error(LOG_ERROR.nativeError(e), {
                     ...seg.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
+                return new RSegment.EmptyValue(seg.coordinate);
             }
             return typeCalc.objToValue(
                 o,
@@ -586,10 +637,12 @@ export default function preprocessValue(
                 { api }
             );
         }
-        api.logger.errorInterrupt(LOG_ERROR.notAFunction(symbol.name), {
+        api.logger.error(LOG_ERROR.notAFunction(symbol.name), {
             ...seg.coordinate,
             chain: coordinateChain
         });
+        reportError();
+        return new RSegment.EmptyValue(seg.coordinate);
     }
     if (segmentRaw.type == "ExpressionSVO") {
         const seg = <Segment.ExpressionSVO>segmentRaw;
@@ -600,32 +653,40 @@ export default function preprocessValue(
         }
         if (seg.v == ".") {
             if (seg.o.type != "ValCall") {
-                api.logger.errorInterrupt(LOG_ERROR.unresolvedReference(""), {
+                api.logger.error(LOG_ERROR.unresolvedReference(""), {
                     ...seg.o.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
+                return new RSegment.EmptyValue(seg.coordinate);
             }
             if ((<Segment.ValCall>seg.o).valName.namespaces.length != 0) {
-                api.logger.errorInterrupt(LOG_ERROR.unresolvedReference(""), {
+                api.logger.error(LOG_ERROR.unresolvedReference(""), {
                     ...seg.o.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
+                return new RSegment.EmptyValue(seg.coordinate);
             }
             const o = (<Segment.ValCall>seg.o).valName.value;
             if (s.valueType.type == "base") {
-                api.logger.errorInterrupt(LOG_ERROR.baseTypeProperty(), {
+                api.logger.error(LOG_ERROR.baseTypeProperty(), {
                     ...s.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
+                return new RSegment.EmptyValue(seg.coordinate);
             } else {
                 if (s.valueType.struct.def[o]) {
                     if (s.type == "ValueWrapper") {
                         const vw = <RSegment.ValueWrapper>s;
                         if (!vw.value) {
-                            api.logger.errorInterrupt(LOG_ERROR.unresolvedReference("null"), {
+                            api.logger.error(LOG_ERROR.unresolvedReference("null"), {
                                 ...seg.coordinate,
                                 chain: coordinateChain
                             });
+                            reportError();
+                            return new RSegment.EmptyValue(seg.coordinate);
                         }
                         if (vw.isMacro) {
                             return new RSegment.ValueWrapper(
@@ -662,10 +723,12 @@ export default function preprocessValue(
                         if (v) {
                             s1 = v;
                         } else {
-                            api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), {
+                            api.logger.error(LOG_ERROR.useBeforeInit(), {
                                 ...s1.coordinate,
                                 chain: coordinateChain
                             });
+                            reportError();
+                            return new RSegment.EmptyValue(seg.coordinate);
                         }
                     }
                     if (s1.type == "StructBlock") {
@@ -699,15 +762,19 @@ export default function preprocessValue(
                             (<RSegment.GetProperty>s1).valObj
                         );
                     }
-                    api.logger.errorInterrupt(LOG_ERROR.reallyWeird(), {
+                    api.logger.error(LOG_ERROR.reallyWeird(), {
                         ...seg.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
-                api.logger.errorInterrupt(LOG_ERROR.noProperty(o), {
+                api.logger.error(LOG_ERROR.noProperty(o), {
                     ...seg.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
+                return new RSegment.EmptyValue(seg.coordinate);
             }
         }
         let v = seg.v;
@@ -763,57 +830,71 @@ export default function preprocessValue(
 
         if (typeCalc.equalsTo(s.valueType, BASE_TYPES.void) ||
             typeCalc.equalsTo(o.valueType, BASE_TYPES.void)) {
-            api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+            api.logger.error(LOG_ERROR.mismatchingType(), {
                 ...seg.coordinate,
                 chain: coordinateChain
             });
+            reportError();
+            return new RSegment.EmptyValue(seg.coordinate);
         }
         if (v == "=") {
             if (s.type == "ValCall") {
                 if ((<RSegment.ValCall>s).val.prop.isConst) {
-                    api.logger.errorInterrupt(LOG_ERROR.notAVar(), {
+                    api.logger.error(LOG_ERROR.notAVar(), {
                         ...s.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
                 if (typeCalc.contains(o.valueType, s.valueType)) {
                     (<RSegment.ValCall>s).val.isInit = true;
                     return new RSegment.ExpressionSVO(seg.coordinate, s, seg.v, o, s.valueType);
                 } else {
-                    api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                    api.logger.error(LOG_ERROR.mismatchingType(), {
                         ...seg.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
             } else if (s.type == "GetProperty") {
                 if ((<RSegment.GetProperty>s).valObj) {
                     if (typeCalc.contains(o.valueType, s.valueType)) {
                         return new RSegment.ExpressionSVO(seg.coordinate, s, seg.v, o, s.valueType);
                     } else {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                        api.logger.error(LOG_ERROR.mismatchingType(), {
                             ...seg.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                 } else {
-                    api.logger.errorInterrupt(LOG_ERROR.notAVar(), {
+                    api.logger.error(LOG_ERROR.notAVar(), {
                         ...s.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
             } else if (s.type == "MacroValCall") {
                 const val = (<RSegment.MacroValCall>s).val;
                 if (!o.isMacro) {
-                    api.logger.errorInterrupt(LOG_ERROR.notMacro(), {
+                    api.logger.error(LOG_ERROR.notMacro(), {
                         ...o.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
                 if (!typeCalc.contains(o.valueType, s.valueType)) {
-                    api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                    api.logger.error(LOG_ERROR.mismatchingType(), {
                         ...seg.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
                 let o1 = o;
                 let type = o1.valueType;
@@ -821,25 +902,31 @@ export default function preprocessValue(
                     if ((<RSegment.ValueWrapper>o1).codes) {
                         const vw = <RSegment.ValueWrapper>o1;
                         if (!vw.value) {
-                            api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                            api.logger.error(LOG_ERROR.mismatchingType(), {
                                 ...o1.coordinate,
                                 chain: coordinateChain
                             });
+                            reportError();
+                            return new RSegment.EmptyValue(seg.coordinate);
                         }
                         if (!typeCalc.contains(type, val.type)) {
-                            api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                            api.logger.error(LOG_ERROR.mismatchingType(), {
                                 ...o1.coordinate,
                                 chain: coordinateChain
                             });
+                            reportError();
+                            return new RSegment.EmptyValue(seg.coordinate);
                         }
                         val.value = vw.value;
                         return o1;
                     } else {
                         if (!(<RSegment.ValueWrapper>o1).value) {
-                            api.logger.errorInterrupt(LOG_ERROR.missingType(), {
+                            api.logger.error(LOG_ERROR.missingType(), {
                                 ...o1.coordinate,
                                 chain: coordinateChain
                             });
+                            reportError();
+                            return new RSegment.EmptyValue(seg.coordinate);
                         }
                         o1 = <RSegment.Value>(<RSegment.ValueWrapper>o1).value;
                     }
@@ -848,10 +935,12 @@ export default function preprocessValue(
                     if ((<RSegment.MacroValCall>o).val.value) {
                         o1 = <RSegment.Value>(<RSegment.MacroValCall>o).val.value;
                     } else {
-                        api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), {
+                        api.logger.error(LOG_ERROR.useBeforeInit(), {
                             ...o.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                 }
                 const v = MacroVal.fromValue(o1, val.prop.isConst, { api });
@@ -864,23 +953,29 @@ export default function preprocessValue(
                 if (val.value) {
                     return val.value;
                 } else {
-                    api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                    api.logger.error(LOG_ERROR.mismatchingType(), {
                         ...seg.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
             } else {
-                api.logger.errorInterrupt(LOG_ERROR.notAVar(), {
+                api.logger.error(LOG_ERROR.notAVar(), {
                     ...s.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
+                return new RSegment.EmptyValue(seg.coordinate);
             }
         }
         if (s.valueType.type == "struct" || o.valueType.type == "struct") {
-            api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+            api.logger.error(LOG_ERROR.mismatchingType(), {
                 ...seg.coordinate,
                 chain: coordinateChain
             });
+            reportError();
+            return new RSegment.EmptyValue(seg.coordinate);
         }
         if (s.isMacro && o.isMacro) {
             const codes: RSegment.ValueWrapper[] = [];
@@ -927,10 +1022,12 @@ export default function preprocessValue(
                 if (val.value) {
                     s = val.value;
                 } else {
-                    api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), {
+                    api.logger.error(LOG_ERROR.useBeforeInit(), {
                         ...s.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
             }
             if (o.type == "MacroValCall") {
@@ -938,10 +1035,12 @@ export default function preprocessValue(
                 if (val.value) {
                     o = val.value;
                 } else {
-                    api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), {
+                    api.logger.error(LOG_ERROR.useBeforeInit(), {
                         ...o.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
             }
             if (!typeCalc.equalsTo(sType, s.valueType)) {
@@ -949,22 +1048,26 @@ export default function preprocessValue(
                     const str = (<RSegment.MacroBase>s).toStr().value;
                     if (str == "1") {
                         s = new RSegment.Bool(s.coordinate, true);
-                    }
-                    if (str == "0") {
+                    } else if (str == "0") {
                         s = new RSegment.Bool(s.coordinate, false);
+                    } else {
+                        api.logger.error(LOG_ERROR.mismatchingType(), {
+                            ...s.coordinate,
+                            chain: coordinateChain
+                        });
+                        reportError();
+                        s = new RSegment.Bool(s.coordinate, true);
                     }
-                    api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
-                        ...s.coordinate,
-                        chain: coordinateChain
-                    });
                 }
                 if (typeCalc.equalsTo(sType, BASE_TYPES.int)) {
                     const num = Number((<RSegment.MacroBase>s).toStr().value);
                     if (isNaN(num)) {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                        api.logger.error(LOG_ERROR.mismatchingType(), {
                             ...s.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                     s = new RSegment.Int(s.coordinate, num);
                 }
@@ -974,22 +1077,26 @@ export default function preprocessValue(
                     const str = (<RSegment.MacroBase>o).toStr().value;
                     if (str == "1") {
                         o = new RSegment.Bool(o.coordinate, true);
-                    }
-                    if (str == "0") {
+                    } else if (str == "0") {
                         o = new RSegment.Bool(o.coordinate, false);
+                    } else {
+                        api.logger.error(LOG_ERROR.mismatchingType(), {
+                            ...o.coordinate,
+                            chain: coordinateChain
+                        });
+                        reportError();
+                        o = new RSegment.Bool(o.coordinate, true);
                     }
-                    api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
-                        ...o.coordinate,
-                        chain: coordinateChain
-                    });
                 }
                 if (typeCalc.equalsTo(oType, BASE_TYPES.int)) {
                     const num = Number((<RSegment.MacroBase>o).toStr().value);
                     if (isNaN(num)) {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                        api.logger.error(LOG_ERROR.mismatchingType(), {
                             ...o.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                     o = new RSegment.Int(o.coordinate, num);
                 }
@@ -1002,10 +1109,12 @@ export default function preprocessValue(
                 }
             } else if (v == "==" || v == "!=") {
                 if (!(sType.type == "base") || !(oType.type == "base")) {
-                    api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                    api.logger.error(LOG_ERROR.mismatchingType(), {
                         ...seg.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
                 if (v == "==") {
                     return wrap(new RSegment.Bool(seg.coordinate, (<RSegment.MacroBase>s).value == (<RSegment.MacroBase>o).value));
@@ -1015,10 +1124,12 @@ export default function preprocessValue(
             } else {
                 if (typeCalc.equalsTo(sType, BASE_TYPES.string) ||
                     typeCalc.equalsTo(oType, BASE_TYPES.string)) {
-                    api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                    api.logger.error(LOG_ERROR.mismatchingType(), {
                         ...seg.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
             }
             if (["+", "-", "*", "/", "%", ">>", "<<"].indexOf(v) >= 0) {
@@ -1048,10 +1159,12 @@ export default function preprocessValue(
                         return wrap(new RSegment.Bool(seg.coordinate, (<RSegment.Bool>s).value || (<RSegment.Bool>o).value));
                     }
                 }
-                api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                api.logger.error(LOG_ERROR.mismatchingType(), {
                     ...seg.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
+                return new RSegment.EmptyValue(seg.coordinate);
             }
         } else {
             const codes: RSegment.ValueWrapper[] = [];
@@ -1085,11 +1198,12 @@ export default function preprocessValue(
             } else {
                 if (typeCalc.equalsTo(sType, BASE_TYPES.string) ||
                     typeCalc.equalsTo(oType, BASE_TYPES.string)) {
-                    api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                    api.logger.error(LOG_ERROR.mismatchingType(), {
                         ...seg.coordinate,
                         chain: coordinateChain
                     });
-                    type = BASE_TYPES.void;
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 } else if (["-", "*", "/", "%", ">>", "<<"].indexOf(v) >= 0) {
                     type = BASE_TYPES.int;
                 } else if (["<", ">", ">=", "<="].indexOf(v) >= 0) {
@@ -1098,18 +1212,20 @@ export default function preprocessValue(
                     if (typeCalc.equalsTo(sType, BASE_TYPES.boolean) && typeCalc.equalsTo(oType, BASE_TYPES.boolean)) {
                         type = BASE_TYPES.boolean;
                     } else {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                        api.logger.error(LOG_ERROR.mismatchingType(), {
                             ...seg.coordinate,
                             chain: coordinateChain
                         });
-                        type = BASE_TYPES.void;
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                 } else {
-                    api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(v), {
+                    api.logger.error(LOG_ERROR.invalidCharacterOrToken(v), {
                         ...seg.coordinate,
                         chain: coordinateChain
                     });
-                    type = BASE_TYPES.void;
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
             }
             const value = new RSegment.ExpressionSVO(seg.coordinate, s, v, o, type);
@@ -1145,10 +1261,12 @@ export default function preprocessValue(
         let v = seg.v;
 
         if (!typeCalc.equalsTo(s.valueType, BASE_TYPES.int)) {
-            api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+            api.logger.error(LOG_ERROR.mismatchingType(), {
                 ...seg.coordinate,
                 chain: coordinateChain
             });
+            reportError();
+            return new RSegment.EmptyValue(seg.coordinate);
         }
 
         if (s.type == "MacroValCall") {
@@ -1166,12 +1284,14 @@ export default function preprocessValue(
                     }
                 }
                 if (typeCalc.equalsTo(val.type, BASE_TYPES.string)) {
-                    const num = Number((<RSegment.String>val.value).value);
+                    let num = Number((<RSegment.String>val.value).value);
                     if (isNaN(num)) {
-                        api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                        api.logger.error(LOG_ERROR.mismatchingType(), {
                             ...s.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        num = 0;
                     }
                     const ret = new RSegment.Int(seg.coordinate, num);
                     if (v == "++") {
@@ -1183,23 +1303,28 @@ export default function preprocessValue(
                         return ret;
                     }
                 }
-                api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(v), {
+                api.logger.error(LOG_ERROR.invalidCharacterOrToken(v), {
                     ...seg.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
+                return new RSegment.EmptyValue(seg.coordinate);
             } else {
-                api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), {
+                api.logger.error(LOG_ERROR.useBeforeInit(), {
                     ...s.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
+                return new RSegment.EmptyValue(seg.coordinate);
             }
         }
         if (s.type == "ValCall") {
             if ((<RSegment.ValCall>s).val.prop.isConst) {
-                api.logger.errorInterrupt(LOG_ERROR.notAVar(), {
+                api.logger.error(LOG_ERROR.assignToConst(), {
                     ...s.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
             }
             return new RSegment.ExpressionSV(seg.coordinate, s, seg.v, s.valueType);
         }
@@ -1207,10 +1332,12 @@ export default function preprocessValue(
             if ((<RSegment.GetProperty>s).valObj && (!(<RSegment.GetProperty>s).valObj?.prop.isConst)) {
                 return new RSegment.ExpressionSV(seg.coordinate, s, seg.v, s.valueType);
             } else {
-                api.logger.errorInterrupt(LOG_ERROR.notAVar(), {
+                api.logger.error(LOG_ERROR.notAVar(), {
                     ...s.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
+                return new RSegment.EmptyValue(seg.coordinate);
             }
         }
     }
@@ -1226,15 +1353,13 @@ export default function preprocessValue(
 
         if (v == "!") {
             if (!typeCalc.equalsTo(o.valueType, BASE_TYPES.boolean)) {
-                api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                api.logger.error(LOG_ERROR.mismatchingType(), {
                     ...seg.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
+                return new RSegment.Bool(seg.coordinate, false);
             }
-            api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
-                ...seg.coordinate,
-                chain: coordinateChain
-            });
             if (o.isMacro) {
                 let vw: RSegment.ValueWrapper | undefined;
                 if (o.type == "ValueWrapper") {
@@ -1248,24 +1373,28 @@ export default function preprocessValue(
                     if (val.value) {
                         o = val.value;
                     } else {
-                        api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), {
+                        api.logger.error(LOG_ERROR.useBeforeInit(), {
                             ...o.coordinate,
                             chain: coordinateChain
                         });
+                        reportError();
+                        return new RSegment.EmptyValue(seg.coordinate);
                     }
                 }
                 if (!typeCalc.equalsTo(o.valueType, BASE_TYPES.boolean)) {
                     const str = (<RSegment.MacroBase>o).toStr().value;
                     if (str == "1") {
                         o = new RSegment.Bool(o.coordinate, true);
-                    }
-                    if (str == "0") {
+                    } else if (str == "0") {
                         o = new RSegment.Bool(o.coordinate, false);
+                    } else {
+                        api.logger.error(LOG_ERROR.mismatchingType(), {
+                            ...o.coordinate,
+                            chain: coordinateChain
+                        });
+                        reportError();
+                        o = new RSegment.Bool(o.coordinate, true);
                     }
-                    api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
-                        ...o.coordinate,
-                        chain: coordinateChain
-                    });
                 }
                 if (vw) {
                     vw.value = new RSegment.Bool(seg.coordinate, !(<RSegment.Bool>o).value);
@@ -1284,26 +1413,30 @@ export default function preprocessValue(
                     o = <RSegment.Value>(<RSegment.ValueWrapper>o).value;
                 }
                 if (typeCalc.equalsTo(oType, BASE_TYPES.string)) {
-                    api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                    api.logger.error(LOG_ERROR.mismatchingType(), {
                         ...seg.coordinate,
                         chain: coordinateChain
                     });
-                    const value = new RSegment.ExpressionVO(seg.coordinate, v, o, BASE_TYPES.boolean);
-                    if (vw) {
-                        vw.value = value;
-                        return vw;
-                    } else {
-                        return value;
-                    }
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
+                }
+                const value = new RSegment.ExpressionVO(seg.coordinate, v, o, BASE_TYPES.boolean);
+                if (vw) {
+                    vw.value = value;
+                    return vw;
+                } else {
+                    return value;
                 }
             }
         }
         if (v == "++" || v == "--") {
             if (!typeCalc.equalsTo(o.valueType, BASE_TYPES.int)) {
-                api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                api.logger.error(LOG_ERROR.mismatchingType(), {
                     ...seg.coordinate,
                     chain: coordinateChain
                 });
+                reportError();
+                return new RSegment.EmptyValue(seg.coordinate);
             }
             if (o.type == "MacroValCall") {
                 const val = (<RSegment.MacroValCall>o).val;
@@ -1320,12 +1453,14 @@ export default function preprocessValue(
                         }
                     }
                     if (typeCalc.equalsTo(val.type, BASE_TYPES.string)) {
-                        const num = Number((<RSegment.String>val.value).value);
+                        let num = Number((<RSegment.String>val.value).value);
                         if (isNaN(num)) {
-                            api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                            api.logger.error(LOG_ERROR.mismatchingType(), {
                                 ...o.coordinate,
                                 chain: coordinateChain
                             });
+                            reportError();
+                            num = 0;
                         }
                         if (v == "++") {
                             val.value = new RSegment.String(seg.coordinate, (num + 1).toString());
@@ -1336,23 +1471,29 @@ export default function preprocessValue(
                             return val.value;
                         }
                     }
-                    api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(v), {
+                    api.logger.error(LOG_ERROR.invalidCharacterOrToken(v), {
                         ...seg.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 } else {
-                    api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), {
+                    api.logger.error(LOG_ERROR.useBeforeInit(), {
                         ...o.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
             }
             if (o.type == "ValCall") {
                 if ((<RSegment.ValCall>o).val.prop.isConst) {
-                    api.logger.errorInterrupt(LOG_ERROR.notAVar(), {
+                    api.logger.error(LOG_ERROR.notAVar(), {
                         ...o.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
                 return new RSegment.ExpressionSV(seg.coordinate, o, seg.v, o.valueType);
             }
@@ -1360,14 +1501,19 @@ export default function preprocessValue(
                 if ((<RSegment.GetProperty>o).valObj && (!(<RSegment.GetProperty>o).valObj?.prop.isConst)) {
                     return new RSegment.ExpressionSV(seg.coordinate, o, seg.v, o.valueType);
                 } else {
-                    api.logger.errorInterrupt(LOG_ERROR.notAVar(), {
+                    api.logger.error(LOG_ERROR.notAVar(), {
                         ...o.coordinate,
                         chain: coordinateChain
                     });
+                    reportError();
+                    return new RSegment.EmptyValue(seg.coordinate);
                 }
             }
         }
     }
-    api.logger.errorInterrupt(LOG_ERROR.reallyWeird(), segmentRaw.coordinate);
+    api.logger.errorInterrupt(LOG_ERROR.reallyWeird(), {
+        ...segmentRaw.coordinate,
+        chain: coordinateChain
+    });
     return <RSegment.Value>{};
 }

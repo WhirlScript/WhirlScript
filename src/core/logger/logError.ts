@@ -260,6 +260,13 @@ class LogError {
             details: "Function in function"
         };
     }
+
+    assignToConst(): WhirlError {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Assign to const"
+        };
+    }
 }
 
 const LOG_ERROR = new LogError();
