@@ -267,6 +267,13 @@ class LogError {
             details: "Assign to const"
         };
     }
+
+    infiniteLoop() {
+        return {
+            type: this.ERROR_TYPES.MACRO_ERROR,
+            details: "Infinite loop"
+        };
+    }
 }
 
 const LOG_ERROR = new LogError();

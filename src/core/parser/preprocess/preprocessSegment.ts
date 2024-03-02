@@ -681,7 +681,15 @@ export default function preprocessSegment(
         if (constStatement && condition.isMacro) {
             let c1 = condition;
             let macroReturnValue: RSegment.Value | undefined;
+            let whileCount = 0;
             while (true) {
+                whileCount++;
+                if (whileCount > 9999) {
+                    api.logger.errorInterrupt(LOG_ERROR.infiniteLoop(), {
+                        ...seg.coordinate,
+                        chain: coordinateChain
+                    });
+                }
                 if (c1.type == "ValueWrapper") {
                     if ((<RSegment.ValueWrapper>c1).codes) {
                         const vw = <RSegment.ValueWrapper>c1;
@@ -774,7 +782,15 @@ export default function preprocessSegment(
         if (constStatement && condition.isMacro) {
             let c1 = condition;
             let macroReturnValue: RSegment.Value | undefined;
+            let whileCount = 0;
             while (true) {
+                whileCount++;
+                if (whileCount > 9999) {
+                    api.logger.errorInterrupt(LOG_ERROR.infiniteLoop(), {
+                        ...seg.coordinate,
+                        chain: coordinateChain
+                    });
+                }
                 if (c1.type == "ValueWrapper") {
                     if ((<RSegment.ValueWrapper>c1).codes) {
                         const vw = <RSegment.ValueWrapper>c1;
