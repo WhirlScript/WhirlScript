@@ -74,7 +74,7 @@ export default class Pools {
         let getMacro = true;
         for (let i = this.symbolTable.length - 1; i >= 0; i--) {
             if (names.indexOf(this.symbolTable[i].name) >= 0) {
-                if (this.symbolTable[i].type == "MacroVal" && getMacro) {
+                if (this.symbolTable[i].type == "MacroVal" && !getMacro) {
                     const pref = this.symbolTable[i].value as MacroVal;
                     const val = new MacroVal(pref.type, { ...pref.prop, isConst: true }, pref.value);
                     return { ...this.symbolTable[i], value: val };

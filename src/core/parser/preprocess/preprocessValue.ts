@@ -341,7 +341,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                     }
-                    if (func.args[i].isMacro) {
+                    if (a.isMacro) {
                         p.symbolTable.push({
                             name: func.args[i].name,
                             type: "MacroVal",
@@ -999,6 +999,18 @@ export default function preprocessValue(
                     typeCalc.equalsTo(oType, BASE_TYPES.string)) {
                     return wrap(new RSegment.String(seg.coordinate,
                         (<RSegment.MacroBase>s).toStr().value + (<RSegment.MacroBase>o).toStr().value));
+                }
+            } else if (v == "==" || v == "!=") {
+                if (!(sType.type == "base") || !(oType.type == "base")) {
+                    api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), {
+                        ...seg.coordinate,
+                        chain: coordinateChain
+                    });
+                }
+                if (v == "==") {
+                    return wrap(new RSegment.Bool(seg.coordinate, (<RSegment.MacroBase>s).value == (<RSegment.MacroBase>o).value));
+                } else {
+                    return wrap(new RSegment.Bool(seg.coordinate, (<RSegment.MacroBase>s).value != (<RSegment.MacroBase>o).value));
                 }
             } else {
                 if (typeCalc.equalsTo(sType, BASE_TYPES.string) ||

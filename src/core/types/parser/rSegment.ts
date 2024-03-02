@@ -459,18 +459,18 @@ export namespace RSegment {
         readonly coordinate: Coordinate;
 
         // for (st1; st2; st3) st
-        readonly statement1: SegmentInterface;
+        readonly statement1: SegmentInterface | undefined;
         readonly statement2: Value;
-        readonly statement3: SegmentInterface;
+        readonly statement3: SegmentInterface | undefined;
         readonly statement: SegmentInterface;
 
         readonly hasReturnValue: boolean;
         readonly macroReturnValue: Value | undefined;
 
         constructor(coordinate: Coordinate,
-                    statement1: SegmentInterface,
+                    statement1: SegmentInterface | undefined,
                     statement2: Value,
-                    statement3: SegmentInterface,
+                    statement3: SegmentInterface | undefined,
                     statement: SegmentInterface,
                     macroReturnValue: Value | undefined) {
             this.coordinate = coordinate;

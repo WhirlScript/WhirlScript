@@ -59,19 +59,19 @@ export default function preprocessSegment(
                 continue;
             }
             annotations.push(<Annotation>symbol);
-            if (<Annotation>symbol == BUILTIN_ANNOTATIONS["@bat"]) {
+            if (symbol.value == BUILTIN_ANNOTATIONS["@bat"]) {
                 bat = true;
             }
-            if (<Annotation>symbol == BUILTIN_ANNOTATIONS["@sh"]) {
+            if (symbol.value == BUILTIN_ANNOTATIONS["@sh"]) {
                 sh = true;
             }
-            if (<Annotation>symbol == BUILTIN_ANNOTATIONS["@const"]) {
+            if (symbol.value == BUILTIN_ANNOTATIONS["@const"]) {
                 constStatement = true;
             }
-            if (<Annotation>symbol == BUILTIN_ANNOTATIONS["@deprecated"]) {
+            if (symbol.value == BUILTIN_ANNOTATIONS["@deprecated"]) {
                 deprecated = true;
             }
-            if (<Annotation>symbol == BUILTIN_ANNOTATIONS["@optional"]) {
+            if (symbol.value == BUILTIN_ANNOTATIONS["@optional"]) {
                 optional = true;
             }
         }
@@ -84,6 +84,7 @@ export default function preprocessSegment(
                 chain: coordinateChain
             });
         }
+        segment = seg.value;
     }
     if (segment.type == "Empty") {
         return new RSegment.Empty({
@@ -559,7 +560,7 @@ export default function preprocessSegment(
             reportError();
             return new RSegment.Empty(seg.coordinate);
         }
-        if (constStatement && condition.isMacro) {
+        if (condition.isMacro) {
             let c1 = condition;
             if (c1.type == "ValueWrapper") {
                 if ((<RSegment.ValueWrapper>c1).codes) {
@@ -699,9 +700,9 @@ export default function preprocessSegment(
                     break;
                 }
                 c1 = preprocessValue(seg.statement2, coordinateChain, requirement, context);
-                const statement2 = preprocessSegment(seg.statement3, coordinateChain, requirement, context);
-                if (statement2.type != "Empty") {
-                    codes.push(statement2);
+                const statement3 = preprocessSegment(seg.statement3, coordinateChain, requirement, context);
+                if (statement3.type != "Empty") {
+                    codes.push(statement3);
                 }
             }
             pools.popScope();
@@ -718,7 +719,12 @@ export default function preprocessSegment(
             const statement = preprocessSegment(seg.statement, coordinateChain, requirement, context);
             pools.popMacroScope();
             pools.popScope();
-            return new RSegment.For(seg.coordinate, statement1, condition, statement3, statement, undefined);
+            return new RSegment.For(seg.coordinate,
+                statement1.type == "Empty" || statement1.type == "EmptyValue" ? undefined : statement1,
+                condition,
+                statement3.type == "Empty" || statement3.type == "EmptyValue" ? undefined : statement3,
+                statement,
+                undefined);
         }
     }
     if (segment.type == "While") {

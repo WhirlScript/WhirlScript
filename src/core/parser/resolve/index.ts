@@ -389,7 +389,6 @@ export default function resolve(tokens: Deque<Token>, context: {
         withoutSemi: boolean
     }): Segment.SegmentInterface {
         const { block } = context;
-        const annotations: Segment.Annotation[] = [];
 
         // Empty `;`
         if (cursor.value == ";") {
@@ -460,9 +459,13 @@ export default function resolve(tokens: Deque<Token>, context: {
         }
 
         // Annotation `@xxx`
-        while (cursor.value.startsWith("@")) {
-            const coo = cursor.coordinate;
-            annotations.push(new Segment.Annotation(coo, getName()));
+        if (cursor.value.startsWith("@")) {
+            const annotations: Segment.Annotation[] = [];
+            while (cursor.value.startsWith("@")) {
+                const coo = cursor.coordinate;
+                annotations.push(new Segment.Annotation(coo, getName()));
+            }
+            return new Segment.AnnotationSegment(annotations, getStatement(context, requirements));
         }
 
         // Block `{...}`
@@ -470,9 +473,6 @@ export default function resolve(tokens: Deque<Token>, context: {
             if (!requirements.isBlock) {
                 api.logger.errorInterrupt(LOG_ERROR.unexpectedBlock(), cursor.coordinate);
                 return new Segment.Empty(cursor.coordinate);
-            }
-            if (annotations.length > 0) {
-                return new Segment.AnnotationSegment(annotations, getBlock(context));
             }
             return getBlock(context);
         }

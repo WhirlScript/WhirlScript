@@ -18,21 +18,41 @@ export default function preprocess(
     const pools = new Pools();
     const result: RSegment.SegmentInterface[] = [];
     const hasError = { v: false };
+
+    function push(segment: RSegment.SegmentInterface) {
+        if (segment.type == "Empty" || segment.type == "EmptyValue") {
+            return;
+        }
+        if (segment.type == "Block" && !(<RSegment.Block>segment).hasScope) {
+            for (const s of (<RSegment.Block>segment).inside) {
+                push(s);
+            }
+        }
+        if (segment.type == "ValueWrapper" && (<RSegment.ValueWrapper>segment).codes.length != 0) {
+            const seg = <RSegment.ValueWrapper>segment;
+            for (const s of seg.codes) {
+                push(s);
+            }
+            if (seg.value) {
+                push(seg.value);
+            }
+        }
+        if (segment.type == "Int" || segment.type == "Bool" || segment.type == "String") {
+            return;
+        }
+        result.push(segment);
+    }
+
     for (const segment of segments) {
-        const r = preprocessSegment(segment, coordinateChain, requirement, {
+        push(preprocessSegment(segment, coordinateChain, requirement, {
             api,
             hasError,
             namespace: [],
             pools
-        });
-        if (r.type == "Empty" || r.type == "EmptyValue") {
-            continue;
-        }
-        if (r.type == "Block" && !(<RSegment.Block>r).hasScope) {
-            result.push(...(<RSegment.Block>r).inside);
-        } else {
-            result.push(r);
-        }
+        }));
+    }
+    if (hasError.v) {
+        throw new Error();
     }
     return result;
 }

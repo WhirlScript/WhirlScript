@@ -758,103 +758,70 @@
                     }
                   },
                   "statement": {
-                    "type": "Block",
-                    "hasScope": false,
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
                     "coordinate": {
                       "file": "F",
-                      "line": 15,
-                      "column": 16
-                    },
-                    "inside": [
-                      {
-                        "type": "FunctionCall",
-                        "isMacro": false,
-                        "hasReturnValue": false,
-                        "coordinate": {
+                      "line": 17,
+                      "column": 13,
+                      "chain": [
+                        {
                           "file": "F",
-                          "line": 16,
-                          "column": 14,
-                          "chain": [
-                            {
-                              "file": "F",
-                              "line": 45,
-                              "column": 5
-                            }
-                          ]
-                        },
-                        "func": {
-                          "usingList": [],
-                          "used": false,
-                          "name": "raw",
+                          "line": 45,
+                          "column": 5
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
                           "type": {
                             "type": "base",
-                            "base": "void"
+                            "base": "string"
                           },
-                          "args": [
-                            {
-                              "name": "code",
-                              "type": {
-                                "type": "base",
-                                "base": "string"
-                              },
-                              "isMacro": false,
-                              "optional": false
-                            }
-                          ],
-                          "body": {
-                            "type": "Block",
-                            "hasScope": true,
-                            "coordinate": {
-                              "line": -1,
-                              "column": -1,
-                              "file": "none"
-                            },
-                            "inside": [],
-                            "hasReturnValue": false
-                          },
-                          "prop": {
-                            "deprecated": false,
-                            "optional": false
-                          },
-                          "flag": "raw"
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
                         },
-                        "args": [
-                          {
-                            "type": "String",
-                            "isMacro": true,
-                            "valueType": {
-                              "type": "base",
-                              "base": "string"
-                            },
-                            "hasReturnValue": false,
-                            "coordinate": {
-                              "file": "F",
-                              "line": 16,
-                              "column": 21,
-                              "chain": [
-                                {
-                                  "file": "F",
-                                  "line": 45,
-                                  "column": 5
-                                }
-                              ]
-                            },
-                            "value": "echo."
-                          }
-                        ],
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
                         "valueType": {
                           "type": "base",
-                          "base": "void"
-                        }
-                      },
-                      {
-                        "type": "FunctionCall",
-                        "isMacro": false,
+                          "base": "string"
+                        },
                         "hasReturnValue": false,
                         "coordinate": {
                           "file": "F",
                           "line": 17,
-                          "column": 13,
+                          "column": 20,
                           "chain": [
                             {
                               "file": "F",
@@ -863,73 +830,13 @@
                             }
                           ]
                         },
-                        "func": {
-                          "usingList": [],
-                          "used": false,
-                          "name": "raw",
-                          "type": {
-                            "type": "base",
-                            "base": "void"
-                          },
-                          "args": [
-                            {
-                              "name": "code",
-                              "type": {
-                                "type": "base",
-                                "base": "string"
-                              },
-                              "isMacro": false,
-                              "optional": false
-                            }
-                          ],
-                          "body": {
-                            "type": "Block",
-                            "hasScope": true,
-                            "coordinate": {
-                              "line": -1,
-                              "column": -1,
-                              "file": "none"
-                            },
-                            "inside": [],
-                            "hasReturnValue": false
-                          },
-                          "prop": {
-                            "deprecated": false,
-                            "optional": false
-                          },
-                          "flag": "raw"
-                        },
-                        "args": [
-                          {
-                            "type": "String",
-                            "isMacro": true,
-                            "valueType": {
-                              "type": "base",
-                              "base": "string"
-                            },
-                            "hasReturnValue": false,
-                            "coordinate": {
-                              "file": "F",
-                              "line": 17,
-                              "column": 20,
-                              "chain": [
-                                {
-                                  "file": "F",
-                                  "line": 45,
-                                  "column": 5
-                                }
-                              ]
-                            },
-                            "value": "echo"
-                          }
-                        ],
-                        "valueType": {
-                          "type": "base",
-                          "base": "void"
-                        }
+                        "value": "echo"
                       }
                     ],
-                    "hasReturnValue": false
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
                   },
                   "elseStatement": {
                     "type": "FunctionCall",
@@ -1497,103 +1404,70 @@
                     }
                   },
                   "statement": {
-                    "type": "Block",
-                    "hasScope": false,
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
                     "coordinate": {
                       "file": "F",
-                      "line": 15,
-                      "column": 16
-                    },
-                    "inside": [
-                      {
-                        "type": "FunctionCall",
-                        "isMacro": false,
-                        "hasReturnValue": false,
-                        "coordinate": {
+                      "line": 17,
+                      "column": 13,
+                      "chain": [
+                        {
                           "file": "F",
-                          "line": 16,
-                          "column": 14,
-                          "chain": [
-                            {
-                              "file": "F",
-                              "line": 45,
-                              "column": 5
-                            }
-                          ]
-                        },
-                        "func": {
-                          "usingList": [],
-                          "used": false,
-                          "name": "raw",
+                          "line": 45,
+                          "column": 5
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
                           "type": {
                             "type": "base",
-                            "base": "void"
+                            "base": "string"
                           },
-                          "args": [
-                            {
-                              "name": "code",
-                              "type": {
-                                "type": "base",
-                                "base": "string"
-                              },
-                              "isMacro": false,
-                              "optional": false
-                            }
-                          ],
-                          "body": {
-                            "type": "Block",
-                            "hasScope": true,
-                            "coordinate": {
-                              "line": -1,
-                              "column": -1,
-                              "file": "none"
-                            },
-                            "inside": [],
-                            "hasReturnValue": false
-                          },
-                          "prop": {
-                            "deprecated": false,
-                            "optional": false
-                          },
-                          "flag": "raw"
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
                         },
-                        "args": [
-                          {
-                            "type": "String",
-                            "isMacro": true,
-                            "valueType": {
-                              "type": "base",
-                              "base": "string"
-                            },
-                            "hasReturnValue": false,
-                            "coordinate": {
-                              "file": "F",
-                              "line": 16,
-                              "column": 21,
-                              "chain": [
-                                {
-                                  "file": "F",
-                                  "line": 45,
-                                  "column": 5
-                                }
-                              ]
-                            },
-                            "value": "echo."
-                          }
-                        ],
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
                         "valueType": {
                           "type": "base",
-                          "base": "void"
-                        }
-                      },
-                      {
-                        "type": "FunctionCall",
-                        "isMacro": false,
+                          "base": "string"
+                        },
                         "hasReturnValue": false,
                         "coordinate": {
                           "file": "F",
                           "line": 17,
-                          "column": 13,
+                          "column": 20,
                           "chain": [
                             {
                               "file": "F",
@@ -1602,73 +1476,13 @@
                             }
                           ]
                         },
-                        "func": {
-                          "usingList": [],
-                          "used": false,
-                          "name": "raw",
-                          "type": {
-                            "type": "base",
-                            "base": "void"
-                          },
-                          "args": [
-                            {
-                              "name": "code",
-                              "type": {
-                                "type": "base",
-                                "base": "string"
-                              },
-                              "isMacro": false,
-                              "optional": false
-                            }
-                          ],
-                          "body": {
-                            "type": "Block",
-                            "hasScope": true,
-                            "coordinate": {
-                              "line": -1,
-                              "column": -1,
-                              "file": "none"
-                            },
-                            "inside": [],
-                            "hasReturnValue": false
-                          },
-                          "prop": {
-                            "deprecated": false,
-                            "optional": false
-                          },
-                          "flag": "raw"
-                        },
-                        "args": [
-                          {
-                            "type": "String",
-                            "isMacro": true,
-                            "valueType": {
-                              "type": "base",
-                              "base": "string"
-                            },
-                            "hasReturnValue": false,
-                            "coordinate": {
-                              "file": "F",
-                              "line": 17,
-                              "column": 20,
-                              "chain": [
-                                {
-                                  "file": "F",
-                                  "line": 45,
-                                  "column": 5
-                                }
-                              ]
-                            },
-                            "value": "echo"
-                          }
-                        ],
-                        "valueType": {
-                          "type": "base",
-                          "base": "void"
-                        }
+                        "value": "echo"
                       }
                     ],
-                    "hasReturnValue": false
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
                   },
                   "elseStatement": {
                     "type": "FunctionCall",
@@ -1908,83 +1722,41 @@
     "hasReturnValue": false
   },
   {
-    "type": "For",
+    "type": "Block",
+    "hasScope": true,
     "coordinate": {
       "file": "F",
       "line": 55,
       "column": 1
     },
-    "statement1": {
-      "type": "Empty",
-      "hasReturnValue": false,
-      "coordinate": {
-        "file": "F",
-        "line": 55,
-        "column": 12
-      }
-    },
-    "statement2": {
-      "type": "Bool",
-      "isMacro": true,
-      "valueType": {
-        "type": "base",
-        "base": "boolean"
-      },
-      "hasReturnValue": false,
-      "coordinate": {
-        "file": "F",
-        "line": 55,
-        "column": 25
-      },
-      "value": true
-    },
-    "statement3": {
-      "type": "Empty",
-      "hasReturnValue": false,
-      "coordinate": {
-        "file": "F",
-        "line": 55,
-        "column": 32
-      }
-    },
-    "statement": {
-      "type": "Block",
-      "hasScope": false,
-      "coordinate": {
-        "file": "F",
-        "line": 55,
-        "column": 35
-      },
-      "inside": [
-        {
-          "type": "While",
-          "coordinate": {
-            "file": "F",
-            "line": 58,
-            "column": 5
-          },
-          "condition": {
-            "type": "Bool",
-            "isMacro": true,
-            "valueType": {
-              "type": "base",
-              "base": "boolean"
-            },
-            "hasReturnValue": false,
+    "inside": [
+      {
+        "type": "Block",
+        "hasScope": false,
+        "coordinate": {
+          "file": "F",
+          "line": 55,
+          "column": 35
+        },
+        "inside": [
+          {
+            "type": "Block",
+            "hasScope": true,
             "coordinate": {
               "file": "F",
               "line": 58,
-              "column": 14
+              "column": 5
             },
-            "value": true
+            "inside": [],
+            "hasReturnValue": false
           },
-          "statement": {
+          {
             "type": "ValueWrapper",
             "hasReturnValue": false,
             "coordinate": {
               "file": "F",
-              "line": 60,
-              "column": 9,
+              "line": 62,
+              "column": 5,
               "chain": []
             },
             "valueType": {
@@ -1993,816 +1765,6 @@
             },
             "codes": [
               {
-                "type": "ExpressionSVO",
-                "isMacro": false,
-                "hasReturnValue": false,
-                "coordinate": {
-                  "file": "F",
-                  "line": 60,
-                  "column": 9,
-                  "chain": []
-                },
-                "s": {
-                  "type": "ValCall",
-                  "isMacro": false,
-                  "hasReturnValue": false,
-                  "coordinate": {
-                    "file": "F",
-                    "line": 60,
-                    "column": 9,
-                    "chain": []
-                  },
-                  "val": {
-                    "isInit": true,
-                    "used": false,
-                    "name": "x",
-                    "type": {
-                      "type": "base",
-                      "base": "string"
-                    },
-                    "prop": {
-                      "deprecated": false,
-                      "isConst": false,
-                      "optional": false
-                    }
-                  },
-                  "valueType": {
-                    "type": "base",
-                    "base": "string"
-                  }
-                },
-                "v": "=",
-                "o": {
-                  "type": "String",
-                  "isMacro": true,
-                  "valueType": {
-                    "type": "base",
-                    "base": "string"
-                  },
-                  "hasReturnValue": false,
-                  "coordinate": {
-                    "file": "F",
-                    "line": 60,
-                    "column": 16,
-                    "chain": []
-                  },
-                  "value": "* "
-                },
-                "valueType": {
-                  "type": "base",
-                  "base": "string"
-                }
-              },
-              {
-                "type": "If",
-                "coordinate": {
-                  "file": "F",
-                  "line": 5,
-                  "column": 5
-                },
-                "condition": {
-                  "type": "ExpressionSVO",
-                  "isMacro": false,
-                  "hasReturnValue": false,
-                  "coordinate": {
-                    "file": "F",
-                    "line": 5,
-                    "column": 10
-                  },
-                  "s": {
-                    "type": "ValCall",
-                    "isMacro": false,
-                    "hasReturnValue": false,
-                    "coordinate": {
-                      "file": "F",
-                      "line": 5,
-                      "column": 10,
-                      "chain": [
-                        {
-                          "file": "F",
-                          "line": 60,
-                          "column": 9
-                        }
-                      ]
-                    },
-                    "val": {
-                      "isInit": true,
-                      "used": false,
-                      "name": "x",
-                      "type": {
-                        "type": "base",
-                        "base": "string"
-                      },
-                      "prop": {
-                        "deprecated": false,
-                        "isConst": false,
-                        "optional": false
-                      }
-                    },
-                    "valueType": {
-                      "type": "base",
-                      "base": "string"
-                    }
-                  },
-                  "v": "!=",
-                  "o": {
-                    "type": "String",
-                    "isMacro": true,
-                    "valueType": {
-                      "type": "base",
-                      "base": "string"
-                    },
-                    "hasReturnValue": false,
-                    "coordinate": {
-                      "file": "F",
-                      "line": 5,
-                      "column": 14,
-                      "chain": [
-                        {
-                          "file": "F",
-                          "line": 60,
-                          "column": 9
-                        }
-                      ]
-                    },
-                    "value": ""
-                  },
-                  "valueType": {
-                    "type": "base",
-                    "base": "boolean"
-                  }
-                },
-                "statement": {
-                  "type": "Block",
-                  "hasScope": false,
-                  "coordinate": {
-                    "file": "F",
-                    "line": 5,
-                    "column": 16
-                  },
-                  "inside": [
-                    {
-                      "type": "FunctionCall",
-                      "isMacro": false,
-                      "hasReturnValue": false,
-                      "coordinate": {
-                        "file": "F",
-                        "line": 6,
-                        "column": 14,
-                        "chain": [
-                          {
-                            "file": "F",
-                            "line": 60,
-                            "column": 9
-                          }
-                        ]
-                      },
-                      "func": {
-                        "usingList": [],
-                        "used": false,
-                        "name": "raw",
-                        "type": {
-                          "type": "base",
-                          "base": "void"
-                        },
-                        "args": [
-                          {
-                            "name": "code",
-                            "type": {
-                              "type": "base",
-                              "base": "string"
-                            },
-                            "isMacro": false,
-                            "optional": false
-                          }
-                        ],
-                        "body": {
-                          "type": "Block",
-                          "hasScope": true,
-                          "coordinate": {
-                            "line": -1,
-                            "column": -1,
-                            "file": "none"
-                          },
-                          "inside": [],
-                          "hasReturnValue": false
-                        },
-                        "prop": {
-                          "deprecated": false,
-                          "optional": false
-                        },
-                        "flag": "raw"
-                      },
-                      "args": [
-                        {
-                          "type": "TemplateString",
-                          "isMacro": false,
-                          "valueType": {
-                            "type": "base",
-                            "base": "string"
-                          },
-                          "hasReturnValue": false,
-                          "coordinate": {
-                            "file": "F",
-                            "line": 6,
-                            "column": 39,
-                            "chain": [
-                              {
-                                "file": "F",
-                                "line": 60,
-                                "column": 9
-                              }
-                            ]
-                          },
-                          "values": [
-                            {
-                              "type": "String",
-                              "isMacro": true,
-                              "valueType": {
-                                "type": "base",
-                                "base": "string"
-                              },
-                              "hasReturnValue": false,
-                              "coordinate": {
-                                "file": "F",
-                                "line": 6,
-                                "column": 21,
-                                "chain": [
-                                  {
-                                    "file": "F",
-                                    "line": 60,
-                                    "column": 9
-                                  }
-                                ]
-                              },
-                              "value": "echo |set /p ="
-                            },
-                            {
-                              "type": "ValCall",
-                              "isMacro": false,
-                              "hasReturnValue": false,
-                              "coordinate": {
-                                "file": "F",
-                                "line": 6,
-                                "column": 38,
-                                "chain": [
-                                  {
-                                    "file": "F",
-                                    "line": 60,
-                                    "column": 9
-                                  }
-                                ]
-                              },
-                              "val": {
-                                "isInit": true,
-                                "used": false,
-                                "name": "x",
-                                "type": {
-                                  "type": "base",
-                                  "base": "string"
-                                },
-                                "prop": {
-                                  "deprecated": false,
-                                  "isConst": false,
-                                  "optional": false
-                                }
-                              },
-                              "valueType": {
-                                "type": "base",
-                                "base": "string"
-                              }
-                            },
-                            {
-                              "type": "String",
-                              "isMacro": true,
-                              "valueType": {
-                                "type": "base",
-                                "base": "string"
-                              },
-                              "hasReturnValue": false,
-                              "coordinate": {
-                                "file": "F",
-                                "line": 6,
-                                "column": 39,
-                                "chain": [
-                                  {
-                                    "file": "F",
-                                    "line": 60,
-                                    "column": 9
-                                  }
-                                ]
-                              },
-                              "value": ""
-                            }
-                          ]
-                        }
-                      ],
-                      "valueType": {
-                        "type": "base",
-                        "base": "void"
-                      }
-                    },
-                    {
-                      "type": "FunctionCall",
-                      "isMacro": false,
-                      "hasReturnValue": false,
-                      "coordinate": {
-                        "file": "F",
-                        "line": 7,
-                        "column": 13,
-                        "chain": [
-                          {
-                            "file": "F",
-                            "line": 60,
-                            "column": 9
-                          }
-                        ]
-                      },
-                      "func": {
-                        "usingList": [],
-                        "used": false,
-                        "name": "raw",
-                        "type": {
-                          "type": "base",
-                          "base": "void"
-                        },
-                        "args": [
-                          {
-                            "name": "code",
-                            "type": {
-                              "type": "base",
-                              "base": "string"
-                            },
-                            "isMacro": false,
-                            "optional": false
-                          }
-                        ],
-                        "body": {
-                          "type": "Block",
-                          "hasScope": true,
-                          "coordinate": {
-                            "line": -1,
-                            "column": -1,
-                            "file": "none"
-                          },
-                          "inside": [],
-                          "hasReturnValue": false
-                        },
-                        "prop": {
-                          "deprecated": false,
-                          "optional": false
-                        },
-                        "flag": "raw"
-                      },
-                      "args": [
-                        {
-                          "type": "TemplateString",
-                          "isMacro": false,
-                          "valueType": {
-                            "type": "base",
-                            "base": "string"
-                          },
-                          "hasReturnValue": false,
-                          "coordinate": {
-                            "file": "F",
-                            "line": 7,
-                            "column": 32,
-                            "chain": [
-                              {
-                                "file": "F",
-                                "line": 60,
-                                "column": 9
-                              }
-                            ]
-                          },
-                          "values": [
-                            {
-                              "type": "String",
-                              "isMacro": true,
-                              "valueType": {
-                                "type": "base",
-                                "base": "string"
-                              },
-                              "hasReturnValue": false,
-                              "coordinate": {
-                                "file": "F",
-                                "line": 7,
-                                "column": 20,
-                                "chain": [
-                                  {
-                                    "file": "F",
-                                    "line": 60,
-                                    "column": 9
-                                  }
-                                ]
-                              },
-                              "value": "echo -n "
-                            },
-                            {
-                              "type": "ValCall",
-                              "isMacro": false,
-                              "hasReturnValue": false,
-                              "coordinate": {
-                                "file": "F",
-                                "line": 7,
-                                "column": 31,
-                                "chain": [
-                                  {
-                                    "file": "F",
-                                    "line": 60,
-                                    "column": 9
-                                  }
-                                ]
-                              },
-                              "val": {
-                                "isInit": true,
-                                "used": false,
-                                "name": "x",
-                                "type": {
-                                  "type": "base",
-                                  "base": "string"
-                                },
-                                "prop": {
-                                  "deprecated": false,
-                                  "isConst": false,
-                                  "optional": false
-                                }
-                              },
-                              "valueType": {
-                                "type": "base",
-                                "base": "string"
-                              }
-                            },
-                            {
-                              "type": "String",
-                              "isMacro": true,
-                              "valueType": {
-                                "type": "base",
-                                "base": "string"
-                              },
-                              "hasReturnValue": false,
-                              "coordinate": {
-                                "file": "F",
-                                "line": 7,
-                                "column": 32,
-                                "chain": [
-                                  {
-                                    "file": "F",
-                                    "line": 60,
-                                    "column": 9
-                                  }
-                                ]
-                              },
-                              "value": ""
-                            }
-                          ]
-                        }
-                      ],
-                      "valueType": {
-                        "type": "base",
-                        "base": "void"
-                      }
-                    }
-                  ],
-                  "hasReturnValue": false
-                },
-                "hasReturnValue": false
-              }
-            ],
-            "isMacro": false,
-            "hasScope": true
-          },
-          "hasReturnValue": false
-        },
-        {
-          "type": "ValueWrapper",
-          "hasReturnValue": false,
-          "coordinate": {
-            "file": "F",
-            "line": 62,
-            "column": 5,
-            "chain": []
-          },
-          "valueType": {
-            "type": "base",
-            "base": "void"
-          },
-          "codes": [
-            {
-              "type": "ExpressionSVO",
-              "isMacro": false,
-              "hasReturnValue": false,
-              "coordinate": {
-                "file": "F",
-                "line": 62,
-                "column": 5,
-                "chain": []
-              },
-              "s": {
-                "type": "ValCall",
-                "isMacro": false,
-                "hasReturnValue": false,
-                "coordinate": {
-                  "file": "F",
-                  "line": 62,
-                  "column": 5,
-                  "chain": []
-                },
-                "val": {
-                  "isInit": true,
-                  "used": false,
-                  "name": "x",
-                  "type": {
-                    "type": "base",
-                    "base": "string"
-                  },
-                  "prop": {
-                    "deprecated": false,
-                    "isConst": false,
-                    "optional": false
-                  }
-                },
-                "valueType": {
-                  "type": "base",
-                  "base": "string"
-                }
-              },
-              "v": "=",
-              "o": {
-                "type": "String",
-                "isMacro": true,
-                "valueType": {
-                  "type": "base",
-                  "base": "string"
-                },
-                "hasReturnValue": false,
-                "coordinate": {
-                  "file": "F",
-                  "line": 62,
-                  "column": 14,
-                  "chain": []
-                },
-                "value": "*"
-              },
-              "valueType": {
-                "type": "base",
-                "base": "string"
-              }
-            },
-            {
-              "type": "If",
-              "coordinate": {
-                "file": "F",
-                "line": 15,
-                "column": 5
-              },
-              "condition": {
-                "type": "ExpressionSVO",
-                "isMacro": false,
-                "hasReturnValue": false,
-                "coordinate": {
-                  "file": "F",
-                  "line": 15,
-                  "column": 10
-                },
-                "s": {
-                  "type": "ValCall",
-                  "isMacro": false,
-                  "hasReturnValue": false,
-                  "coordinate": {
-                    "file": "F",
-                    "line": 15,
-                    "column": 10,
-                    "chain": [
-                      {
-                        "file": "F",
-                        "line": 62,
-                        "column": 5
-                      }
-                    ]
-                  },
-                  "val": {
-                    "isInit": true,
-                    "used": false,
-                    "name": "x",
-                    "type": {
-                      "type": "base",
-                      "base": "string"
-                    },
-                    "prop": {
-                      "deprecated": false,
-                      "isConst": false,
-                      "optional": false
-                    }
-                  },
-                  "valueType": {
-                    "type": "base",
-                    "base": "string"
-                  }
-                },
-                "v": "==",
-                "o": {
-                  "type": "String",
-                  "isMacro": true,
-                  "valueType": {
-                    "type": "base",
-                    "base": "string"
-                  },
-                  "hasReturnValue": false,
-                  "coordinate": {
-                    "file": "F",
-                    "line": 15,
-                    "column": 14,
-                    "chain": [
-                      {
-                        "file": "F",
-                        "line": 62,
-                        "column": 5
-                      }
-                    ]
-                  },
-                  "value": ""
-                },
-                "valueType": {
-                  "type": "base",
-                  "base": "boolean"
-                }
-              },
-              "statement": {
-                "type": "Block",
-                "hasScope": false,
-                "coordinate": {
-                  "file": "F",
-                  "line": 15,
-                  "column": 16
-                },
-                "inside": [
-                  {
-                    "type": "FunctionCall",
-                    "isMacro": false,
-                    "hasReturnValue": false,
-                    "coordinate": {
-                      "file": "F",
-                      "line": 16,
-                      "column": 14,
-                      "chain": [
-                        {
-                          "file": "F",
-                          "line": 62,
-                          "column": 5
-                        }
-                      ]
-                    },
-                    "func": {
-                      "usingList": [],
-                      "used": false,
-                      "name": "raw",
-                      "type": {
-                        "type": "base",
-                        "base": "void"
-                      },
-                      "args": [
-                        {
-                          "name": "code",
-                          "type": {
-                            "type": "base",
-                            "base": "string"
-                          },
-                          "isMacro": false,
-                          "optional": false
-                        }
-                      ],
-                      "body": {
-                        "type": "Block",
-                        "hasScope": true,
-                        "coordinate": {
-                          "line": -1,
-                          "column": -1,
-                          "file": "none"
-                        },
-                        "inside": [],
-                        "hasReturnValue": false
-                      },
-                      "prop": {
-                        "deprecated": false,
-                        "optional": false
-                      },
-                      "flag": "raw"
-                    },
-                    "args": [
-                      {
-                        "type": "String",
-                        "isMacro": true,
-                        "valueType": {
-                          "type": "base",
-                          "base": "string"
-                        },
-                        "hasReturnValue": false,
-                        "coordinate": {
-                          "file": "F",
-                          "line": 16,
-                          "column": 21,
-                          "chain": [
-                            {
-                              "file": "F",
-                              "line": 62,
-                              "column": 5
-                            }
-                          ]
-                        },
-                        "value": "echo."
-                      }
-                    ],
-                    "valueType": {
-                      "type": "base",
-                      "base": "void"
-                    }
-                  },
-                  {
-                    "type": "FunctionCall",
-                    "isMacro": false,
-                    "hasReturnValue": false,
-                    "coordinate": {
-                      "file": "F",
-                      "line": 17,
-                      "column": 13,
-                      "chain": [
-                        {
-                          "file": "F",
-                          "line": 62,
-                          "column": 5
-                        }
-                      ]
-                    },
-                    "func": {
-                      "usingList": [],
-                      "used": false,
-                      "name": "raw",
-                      "type": {
-                        "type": "base",
-                        "base": "void"
-                      },
-                      "args": [
-                        {
-                          "name": "code",
-                          "type": {
-                            "type": "base",
-                            "base": "string"
-                          },
-                          "isMacro": false,
-                          "optional": false
-                        }
-                      ],
-                      "body": {
-                        "type": "Block",
-                        "hasScope": true,
-                        "coordinate": {
-                          "line": -1,
-                          "column": -1,
-                          "file": "none"
-                        },
-                        "inside": [],
-                        "hasReturnValue": false
-                      },
-                      "prop": {
-                        "deprecated": false,
-                        "optional": false
-                      },
-                      "flag": "raw"
-                    },
-                    "args": [
-                      {
-                        "type": "String",
-                        "isMacro": true,
-                        "valueType": {
-                          "type": "base",
-                          "base": "string"
-                        },
-                        "hasReturnValue": false,
-                        "coordinate": {
-                          "file": "F",
-                          "line": 17,
-                          "column": 20,
-                          "chain": [
-                            {
-                              "file": "F",
-                              "line": 62,
-                              "column": 5
-                            }
-                          ]
-                        },
-                        "value": "echo"
-                      }
-                    ],
-                    "valueType": {
-                      "type": "base",
-                      "base": "void"
-                    }
-                  }
-                ],
-                "hasReturnValue": false
-              },
-              "elseStatement": {
                 "type": "FunctionCall",
                 "isMacro": false,
                 "hasReturnValue": false,
@@ -2856,8 +1818,8 @@
                 },
                 "args": [
                   {
-                    "type": "TemplateString",
-                    "isMacro": false,
+                    "type": "String",
+                    "isMacro": true,
                     "valueType": {
                       "type": "base",
                       "base": "string"
@@ -2866,7 +1828,7 @@
                     "coordinate": {
                       "file": "F",
                       "line": 19,
-                      "column": 25,
+                      "column": 16,
                       "chain": [
                         {
                           "file": "F",
@@ -2875,103 +1837,2839 @@
                         }
                       ]
                     },
-                    "values": [
-                      {
-                        "type": "String",
-                        "isMacro": true,
-                        "valueType": {
-                          "type": "base",
-                          "base": "string"
-                        },
-                        "hasReturnValue": false,
-                        "coordinate": {
-                          "file": "F",
-                          "line": 19,
-                          "column": 16,
-                          "chain": [
-                            {
-                              "file": "F",
-                              "line": 62,
-                              "column": 5
-                            }
-                          ]
-                        },
-                        "value": "echo "
-                      },
-                      {
-                        "type": "ValCall",
-                        "isMacro": false,
-                        "hasReturnValue": false,
-                        "coordinate": {
-                          "file": "F",
-                          "line": 19,
-                          "column": 24,
-                          "chain": [
-                            {
-                              "file": "F",
-                              "line": 62,
-                              "column": 5
-                            }
-                          ]
-                        },
-                        "val": {
-                          "isInit": true,
-                          "used": false,
-                          "name": "x",
-                          "type": {
-                            "type": "base",
-                            "base": "string"
-                          },
-                          "prop": {
-                            "deprecated": false,
-                            "isConst": false,
-                            "optional": false
-                          }
-                        },
-                        "valueType": {
-                          "type": "base",
-                          "base": "string"
-                        }
-                      },
-                      {
-                        "type": "String",
-                        "isMacro": true,
-                        "valueType": {
-                          "type": "base",
-                          "base": "string"
-                        },
-                        "hasReturnValue": false,
-                        "coordinate": {
-                          "file": "F",
-                          "line": 19,
-                          "column": 25,
-                          "chain": [
-                            {
-                              "file": "F",
-                              "line": 62,
-                              "column": 5
-                            }
-                          ]
-                        },
-                        "value": ""
-                      }
-                    ]
+                    "value": "echo *"
                   }
                 ],
                 "valueType": {
                   "type": "base",
                   "base": "void"
                 }
+              }
+            ],
+            "isMacro": false,
+            "hasScope": true
+          }
+        ],
+        "hasReturnValue": false
+      },
+      {
+        "type": "Block",
+        "hasScope": false,
+        "coordinate": {
+          "file": "F",
+          "line": 55,
+          "column": 35
+        },
+        "inside": [
+          {
+            "type": "Block",
+            "hasScope": true,
+            "coordinate": {
+              "file": "F",
+              "line": 58,
+              "column": 5
+            },
+            "inside": [
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              }
+            ],
+            "hasReturnValue": false
+          },
+          {
+            "type": "ValueWrapper",
+            "hasReturnValue": false,
+            "coordinate": {
+              "file": "F",
+              "line": 62,
+              "column": 5,
+              "chain": []
+            },
+            "valueType": {
+              "type": "base",
+              "base": "void"
+            },
+            "codes": [
+              {
+                "type": "FunctionCall",
+                "isMacro": false,
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 19,
+                  "column": 9,
+                  "chain": [
+                    {
+                      "file": "F",
+                      "line": 62,
+                      "column": 5
+                    }
+                  ]
+                },
+                "func": {
+                  "usingList": [],
+                  "used": false,
+                  "name": "raw",
+                  "type": {
+                    "type": "base",
+                    "base": "void"
+                  },
+                  "args": [
+                    {
+                      "name": "code",
+                      "type": {
+                        "type": "base",
+                        "base": "string"
+                      },
+                      "isMacro": false,
+                      "optional": false
+                    }
+                  ],
+                  "body": {
+                    "type": "Block",
+                    "hasScope": true,
+                    "coordinate": {
+                      "line": -1,
+                      "column": -1,
+                      "file": "none"
+                    },
+                    "inside": [],
+                    "hasReturnValue": false
+                  },
+                  "prop": {
+                    "deprecated": false,
+                    "optional": false
+                  },
+                  "flag": "raw"
+                },
+                "args": [
+                  {
+                    "type": "String",
+                    "isMacro": true,
+                    "valueType": {
+                      "type": "base",
+                      "base": "string"
+                    },
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 19,
+                      "column": 16,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 62,
+                          "column": 5
+                        }
+                      ]
+                    },
+                    "value": "echo *"
+                  }
+                ],
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                }
+              }
+            ],
+            "isMacro": false,
+            "hasScope": true
+          }
+        ],
+        "hasReturnValue": false
+      },
+      {
+        "type": "Block",
+        "hasScope": false,
+        "coordinate": {
+          "file": "F",
+          "line": 55,
+          "column": 35
+        },
+        "inside": [
+          {
+            "type": "Block",
+            "hasScope": true,
+            "coordinate": {
+              "file": "F",
+              "line": 58,
+              "column": 5
+            },
+            "inside": [
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
               },
-              "hasReturnValue": false
-            }
-          ],
-          "isMacro": false,
-          "hasScope": true
-        }
-      ],
-      "hasReturnValue": false
-    },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              }
+            ],
+            "hasReturnValue": false
+          },
+          {
+            "type": "ValueWrapper",
+            "hasReturnValue": false,
+            "coordinate": {
+              "file": "F",
+              "line": 62,
+              "column": 5,
+              "chain": []
+            },
+            "valueType": {
+              "type": "base",
+              "base": "void"
+            },
+            "codes": [
+              {
+                "type": "FunctionCall",
+                "isMacro": false,
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 19,
+                  "column": 9,
+                  "chain": [
+                    {
+                      "file": "F",
+                      "line": 62,
+                      "column": 5
+                    }
+                  ]
+                },
+                "func": {
+                  "usingList": [],
+                  "used": false,
+                  "name": "raw",
+                  "type": {
+                    "type": "base",
+                    "base": "void"
+                  },
+                  "args": [
+                    {
+                      "name": "code",
+                      "type": {
+                        "type": "base",
+                        "base": "string"
+                      },
+                      "isMacro": false,
+                      "optional": false
+                    }
+                  ],
+                  "body": {
+                    "type": "Block",
+                    "hasScope": true,
+                    "coordinate": {
+                      "line": -1,
+                      "column": -1,
+                      "file": "none"
+                    },
+                    "inside": [],
+                    "hasReturnValue": false
+                  },
+                  "prop": {
+                    "deprecated": false,
+                    "optional": false
+                  },
+                  "flag": "raw"
+                },
+                "args": [
+                  {
+                    "type": "String",
+                    "isMacro": true,
+                    "valueType": {
+                      "type": "base",
+                      "base": "string"
+                    },
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 19,
+                      "column": 16,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 62,
+                          "column": 5
+                        }
+                      ]
+                    },
+                    "value": "echo *"
+                  }
+                ],
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                }
+              }
+            ],
+            "isMacro": false,
+            "hasScope": true
+          }
+        ],
+        "hasReturnValue": false
+      },
+      {
+        "type": "Block",
+        "hasScope": false,
+        "coordinate": {
+          "file": "F",
+          "line": 55,
+          "column": 35
+        },
+        "inside": [
+          {
+            "type": "Block",
+            "hasScope": true,
+            "coordinate": {
+              "file": "F",
+              "line": 58,
+              "column": 5
+            },
+            "inside": [
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              }
+            ],
+            "hasReturnValue": false
+          },
+          {
+            "type": "ValueWrapper",
+            "hasReturnValue": false,
+            "coordinate": {
+              "file": "F",
+              "line": 62,
+              "column": 5,
+              "chain": []
+            },
+            "valueType": {
+              "type": "base",
+              "base": "void"
+            },
+            "codes": [
+              {
+                "type": "FunctionCall",
+                "isMacro": false,
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 19,
+                  "column": 9,
+                  "chain": [
+                    {
+                      "file": "F",
+                      "line": 62,
+                      "column": 5
+                    }
+                  ]
+                },
+                "func": {
+                  "usingList": [],
+                  "used": false,
+                  "name": "raw",
+                  "type": {
+                    "type": "base",
+                    "base": "void"
+                  },
+                  "args": [
+                    {
+                      "name": "code",
+                      "type": {
+                        "type": "base",
+                        "base": "string"
+                      },
+                      "isMacro": false,
+                      "optional": false
+                    }
+                  ],
+                  "body": {
+                    "type": "Block",
+                    "hasScope": true,
+                    "coordinate": {
+                      "line": -1,
+                      "column": -1,
+                      "file": "none"
+                    },
+                    "inside": [],
+                    "hasReturnValue": false
+                  },
+                  "prop": {
+                    "deprecated": false,
+                    "optional": false
+                  },
+                  "flag": "raw"
+                },
+                "args": [
+                  {
+                    "type": "String",
+                    "isMacro": true,
+                    "valueType": {
+                      "type": "base",
+                      "base": "string"
+                    },
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 19,
+                      "column": 16,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 62,
+                          "column": 5
+                        }
+                      ]
+                    },
+                    "value": "echo *"
+                  }
+                ],
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                }
+              }
+            ],
+            "isMacro": false,
+            "hasScope": true
+          }
+        ],
+        "hasReturnValue": false
+      },
+      {
+        "type": "Block",
+        "hasScope": false,
+        "coordinate": {
+          "file": "F",
+          "line": 55,
+          "column": 35
+        },
+        "inside": [
+          {
+            "type": "Block",
+            "hasScope": true,
+            "coordinate": {
+              "file": "F",
+              "line": 58,
+              "column": 5
+            },
+            "inside": [
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              }
+            ],
+            "hasReturnValue": false
+          },
+          {
+            "type": "ValueWrapper",
+            "hasReturnValue": false,
+            "coordinate": {
+              "file": "F",
+              "line": 62,
+              "column": 5,
+              "chain": []
+            },
+            "valueType": {
+              "type": "base",
+              "base": "void"
+            },
+            "codes": [
+              {
+                "type": "FunctionCall",
+                "isMacro": false,
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 19,
+                  "column": 9,
+                  "chain": [
+                    {
+                      "file": "F",
+                      "line": 62,
+                      "column": 5
+                    }
+                  ]
+                },
+                "func": {
+                  "usingList": [],
+                  "used": false,
+                  "name": "raw",
+                  "type": {
+                    "type": "base",
+                    "base": "void"
+                  },
+                  "args": [
+                    {
+                      "name": "code",
+                      "type": {
+                        "type": "base",
+                        "base": "string"
+                      },
+                      "isMacro": false,
+                      "optional": false
+                    }
+                  ],
+                  "body": {
+                    "type": "Block",
+                    "hasScope": true,
+                    "coordinate": {
+                      "line": -1,
+                      "column": -1,
+                      "file": "none"
+                    },
+                    "inside": [],
+                    "hasReturnValue": false
+                  },
+                  "prop": {
+                    "deprecated": false,
+                    "optional": false
+                  },
+                  "flag": "raw"
+                },
+                "args": [
+                  {
+                    "type": "String",
+                    "isMacro": true,
+                    "valueType": {
+                      "type": "base",
+                      "base": "string"
+                    },
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 19,
+                      "column": 16,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 62,
+                          "column": 5
+                        }
+                      ]
+                    },
+                    "value": "echo *"
+                  }
+                ],
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                }
+              }
+            ],
+            "isMacro": false,
+            "hasScope": true
+          }
+        ],
+        "hasReturnValue": false
+      },
+      {
+        "type": "Block",
+        "hasScope": false,
+        "coordinate": {
+          "file": "F",
+          "line": 55,
+          "column": 35
+        },
+        "inside": [
+          {
+            "type": "Block",
+            "hasScope": true,
+            "coordinate": {
+              "file": "F",
+              "line": 58,
+              "column": 5
+            },
+            "inside": [
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              }
+            ],
+            "hasReturnValue": false
+          },
+          {
+            "type": "ValueWrapper",
+            "hasReturnValue": false,
+            "coordinate": {
+              "file": "F",
+              "line": 62,
+              "column": 5,
+              "chain": []
+            },
+            "valueType": {
+              "type": "base",
+              "base": "void"
+            },
+            "codes": [
+              {
+                "type": "FunctionCall",
+                "isMacro": false,
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 19,
+                  "column": 9,
+                  "chain": [
+                    {
+                      "file": "F",
+                      "line": 62,
+                      "column": 5
+                    }
+                  ]
+                },
+                "func": {
+                  "usingList": [],
+                  "used": false,
+                  "name": "raw",
+                  "type": {
+                    "type": "base",
+                    "base": "void"
+                  },
+                  "args": [
+                    {
+                      "name": "code",
+                      "type": {
+                        "type": "base",
+                        "base": "string"
+                      },
+                      "isMacro": false,
+                      "optional": false
+                    }
+                  ],
+                  "body": {
+                    "type": "Block",
+                    "hasScope": true,
+                    "coordinate": {
+                      "line": -1,
+                      "column": -1,
+                      "file": "none"
+                    },
+                    "inside": [],
+                    "hasReturnValue": false
+                  },
+                  "prop": {
+                    "deprecated": false,
+                    "optional": false
+                  },
+                  "flag": "raw"
+                },
+                "args": [
+                  {
+                    "type": "String",
+                    "isMacro": true,
+                    "valueType": {
+                      "type": "base",
+                      "base": "string"
+                    },
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 19,
+                      "column": 16,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 62,
+                          "column": 5
+                        }
+                      ]
+                    },
+                    "value": "echo *"
+                  }
+                ],
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                }
+              }
+            ],
+            "isMacro": false,
+            "hasScope": true
+          }
+        ],
+        "hasReturnValue": false
+      },
+      {
+        "type": "Block",
+        "hasScope": false,
+        "coordinate": {
+          "file": "F",
+          "line": 55,
+          "column": 35
+        },
+        "inside": [
+          {
+            "type": "Block",
+            "hasScope": true,
+            "coordinate": {
+              "file": "F",
+              "line": 58,
+              "column": 5
+            },
+            "inside": [
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              },
+              {
+                "type": "ValueWrapper",
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 60,
+                  "column": 9,
+                  "chain": []
+                },
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                },
+                "codes": [
+                  {
+                    "type": "FunctionCall",
+                    "isMacro": false,
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 7,
+                      "column": 13,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 60,
+                          "column": 9
+                        }
+                      ]
+                    },
+                    "func": {
+                      "usingList": [],
+                      "used": false,
+                      "name": "raw",
+                      "type": {
+                        "type": "base",
+                        "base": "void"
+                      },
+                      "args": [
+                        {
+                          "name": "code",
+                          "type": {
+                            "type": "base",
+                            "base": "string"
+                          },
+                          "isMacro": false,
+                          "optional": false
+                        }
+                      ],
+                      "body": {
+                        "type": "Block",
+                        "hasScope": true,
+                        "coordinate": {
+                          "line": -1,
+                          "column": -1,
+                          "file": "none"
+                        },
+                        "inside": [],
+                        "hasReturnValue": false
+                      },
+                      "prop": {
+                        "deprecated": false,
+                        "optional": false
+                      },
+                      "flag": "raw"
+                    },
+                    "args": [
+                      {
+                        "type": "String",
+                        "isMacro": true,
+                        "valueType": {
+                          "type": "base",
+                          "base": "string"
+                        },
+                        "hasReturnValue": false,
+                        "coordinate": {
+                          "file": "F",
+                          "line": 7,
+                          "column": 20,
+                          "chain": [
+                            {
+                              "file": "F",
+                              "line": 60,
+                              "column": 9
+                            }
+                          ]
+                        },
+                        "value": "echo -n * "
+                      }
+                    ],
+                    "valueType": {
+                      "type": "base",
+                      "base": "void"
+                    }
+                  }
+                ],
+                "isMacro": false,
+                "hasScope": true
+              }
+            ],
+            "hasReturnValue": false
+          },
+          {
+            "type": "ValueWrapper",
+            "hasReturnValue": false,
+            "coordinate": {
+              "file": "F",
+              "line": 62,
+              "column": 5,
+              "chain": []
+            },
+            "valueType": {
+              "type": "base",
+              "base": "void"
+            },
+            "codes": [
+              {
+                "type": "FunctionCall",
+                "isMacro": false,
+                "hasReturnValue": false,
+                "coordinate": {
+                  "file": "F",
+                  "line": 19,
+                  "column": 9,
+                  "chain": [
+                    {
+                      "file": "F",
+                      "line": 62,
+                      "column": 5
+                    }
+                  ]
+                },
+                "func": {
+                  "usingList": [],
+                  "used": false,
+                  "name": "raw",
+                  "type": {
+                    "type": "base",
+                    "base": "void"
+                  },
+                  "args": [
+                    {
+                      "name": "code",
+                      "type": {
+                        "type": "base",
+                        "base": "string"
+                      },
+                      "isMacro": false,
+                      "optional": false
+                    }
+                  ],
+                  "body": {
+                    "type": "Block",
+                    "hasScope": true,
+                    "coordinate": {
+                      "line": -1,
+                      "column": -1,
+                      "file": "none"
+                    },
+                    "inside": [],
+                    "hasReturnValue": false
+                  },
+                  "prop": {
+                    "deprecated": false,
+                    "optional": false
+                  },
+                  "flag": "raw"
+                },
+                "args": [
+                  {
+                    "type": "String",
+                    "isMacro": true,
+                    "valueType": {
+                      "type": "base",
+                      "base": "string"
+                    },
+                    "hasReturnValue": false,
+                    "coordinate": {
+                      "file": "F",
+                      "line": 19,
+                      "column": 16,
+                      "chain": [
+                        {
+                          "file": "F",
+                          "line": 62,
+                          "column": 5
+                        }
+                      ]
+                    },
+                    "value": "echo *"
+                  }
+                ],
+                "valueType": {
+                  "type": "base",
+                  "base": "void"
+                }
+              }
+            ],
+            "isMacro": false,
+            "hasScope": true
+          }
+        ],
+        "hasReturnValue": false
+      }
+    ],
     "hasReturnValue": false
   }
 ]
