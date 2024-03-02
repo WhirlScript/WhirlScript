@@ -1,0 +1,21 @@
+/**
+ * This will print things to console.
+ */
+macro function print(x: string){
+    if(x != ""){
+        @bat litln(`echo |set /p =${x}`);
+        @sh litln(`echo -n ${x}`);
+    }
+}
+
+/**
+ * This will print things to console, and end with a new line.
+ */
+macro function println(x: string){
+    if(x == ""){
+        @bat litln(`echo.`);
+        @sh litln(`echo`);
+    } else {
+        litln(`echo ${x}`);
+    }
+}

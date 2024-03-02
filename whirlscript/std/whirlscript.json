@@ -1,0 +1,8 @@
+{
+  "name": "std",
+  "version": "0.0.1",
+  "author": "Bluemangoo",
+  "repo": "https://github.com/WhirlScript/WhirlScript",
+  "license": "MIT",
+  "index": "index"
+}
