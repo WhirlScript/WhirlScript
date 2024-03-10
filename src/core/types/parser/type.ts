@@ -7,7 +7,7 @@ type TypeStruct = {
 
 type TypeBase = {
     type: "base",
-    base: "void" | "boolean" | "int" | "string"
+    base: "void" | "boolean" | "int" | "string" | "command"
 }
 
 type Type = {
@@ -15,15 +15,16 @@ type Type = {
     struct: Struct
 } | {
     type: "base",
-    base: "void" | "boolean" | "int" | "string"
+    base: "void" | "boolean" | "int" | "string" | "command"
 }
 
-const BASE_TYPES_NAME = ["void", "boolean", "int", "string"];
+const BASE_TYPES_NAME = ["void", "boolean", "int", "string", "command"];
 const BASE_TYPES: {
-    void: Type
-    boolean: Type;
-    string: Type;
-    int: Type
+    void: Type,
+    boolean: Type,
+    string: Type,
+    int: Type,
+    command: Type
 } = {
     void: {
         type: "base",
@@ -40,6 +41,10 @@ const BASE_TYPES: {
     string: {
         type: "base",
         base: "string"
+    },
+    command: {
+        type: "base",
+        base: "command"
     }
 };
 

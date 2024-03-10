@@ -12,7 +12,7 @@ type Args = {
 }[];
 
 function createFlagFunction(name: string, type: Type, args: Args, deprecated: boolean) {
-    const func = new Func(name, BASE_TYPES.void, args, new RSegment.Block(BUILTIN_COORDINATE, [], undefined), {
+    const func = new Func(name, type, args, new RSegment.Block(BUILTIN_COORDINATE, [], undefined), {
         deprecated,
         optional: false
     });
@@ -27,22 +27,51 @@ const BUILTIN_FLAG_FUNCTIONS: { [key: string]: Func } = {
         isMacro: false,
         optional: false
     }], false),
-    rawln: createFlagFunction("raw", BASE_TYPES.void, [{
+    exec: createFlagFunction("exec", BASE_TYPES.void, [{
         name: "code",
         type: BASE_TYPES.string,
         isMacro: false,
         optional: false
     }], false),
-    lit: createFlagFunction("raw", BASE_TYPES.void, [{
+    name: createFlagFunction("name", BASE_TYPES.void, [{
         name: "code",
         type: BASE_TYPES.string,
         isMacro: false,
         optional: false
     }], false),
-    litln: createFlagFunction("raw", BASE_TYPES.void, [{
-        name: "code",
-        type: BASE_TYPES.string,
+    getOutput: createFlagFunction("getOutput", BASE_TYPES.string, [{
+        name: "c",
+        type: BASE_TYPES.command,
         isMacro: false,
+        optional: false
+    }], false),
+    pipe: createFlagFunction("pipe", BASE_TYPES.command, [{
+        name: "c1",
+        type: BASE_TYPES.command,
+        isMacro: false,
+        optional: false
+    }, {
+        name: "c2",
+        type: BASE_TYPES.command,
+        isMacro: false,
+        optional: false
+    }], false),
+    toFile: createFlagFunction("toFile", BASE_TYPES.void, [{
+        name: "c",
+        type: BASE_TYPES.command,
+        isMacro: false,
+        optional: false
+    }], false),
+    toNewFile: createFlagFunction("toNewFile", BASE_TYPES.void, [{
+        name: "c",
+        type: BASE_TYPES.command,
+        isMacro: false,
+        optional: false
+    }], false),
+    arg: createFlagFunction("arg", BASE_TYPES.string, [{
+        name: "n",
+        type: BASE_TYPES.int,
+        isMacro: true,
         optional: false
     }], false)
 };

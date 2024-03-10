@@ -274,6 +274,20 @@ class LogError {
             details: "Infinite loop"
         };
     }
+
+    returnOutsideFunction() {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Return outside function"
+        };
+    }
+
+    disabledType() {
+        return {
+            type: this.ERROR_TYPES.SYNTAX_ERROR,
+            details: "Disabled type"
+        };
+    }
 }
 
 const LOG_ERROR = new LogError();

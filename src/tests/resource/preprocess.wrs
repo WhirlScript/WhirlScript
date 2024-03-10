@@ -3,8 +3,8 @@
  */
 macro function print(x: string){
     if(x != ""){
-        @bat litln(`echo |set /p =${x}`);
-        @sh litln(`echo -n ${x}`);
+        @bat $`echo |set /p =${x}`;
+        @sh $`echo -n ${x}`;
     }
 }
 
@@ -13,10 +13,10 @@ macro function print(x: string){
  */
 macro function println(x: string){
     if(x == ""){
-        @bat litln(`echo.`);
-        @sh litln(`echo`);
+        @bat $`echo.`;
+        @sh $`echo`;
     } else {
-        litln(`echo ${x}`);
+        $`echo ${x}`;
     }
 }
 

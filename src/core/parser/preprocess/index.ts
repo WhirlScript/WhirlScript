@@ -4,6 +4,7 @@ import ApiWrapper from "../../types/api/apiWrapper";
 import Pools from "../../util/parser/pools";
 import { RSegment } from "../../types/parser/rSegment";
 import preprocessSegment from "./preprocessSegment";
+import * as crypto from "crypto";
 
 export default function preprocess(
     segments: Segment.SegmentInterface[],
@@ -50,6 +51,21 @@ export default function preprocess(
             namespace: [],
             pools
         }));
+    }
+    const usedNames: { [key: string]: true | undefined } = {};
+    const mangle = (name: string, i: number) =>
+        crypto.createHash("sha1").update(name + i).digest("hex").slice(0, 6);
+
+    for (let i = 0; i < pools.renamePool.length; i++) {
+        const rename = pools.renamePool[i];
+        let i2 = i;
+        let n = rename.v + "_" + mangle(rename.v, i2);
+        while (usedNames[n] != undefined) {
+            i2++;
+            n = rename.v + "_" + mangle(rename.v, i2);
+        }
+        rename.v = n;
+        usedNames[n] = true;
     }
     if (hasError.v) {
         throw new Error();

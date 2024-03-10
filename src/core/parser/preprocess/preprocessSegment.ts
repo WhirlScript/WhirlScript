@@ -151,6 +151,14 @@ export default function preprocessSegment(
                     reportError();
                     return new RSegment.Empty(seg.coordinate);
                 }
+                if (typeCalc.equalsTo(i.valueType, BASE_TYPES.command)) {
+                    api.logger.error(LOG_ERROR.disabledType(), {
+                        ...i.coordinate,
+                        chain: coordinateChain
+                    });
+                    reportError();
+                    return new RSegment.Empty(seg.coordinate);
+                }
                 if (!i.isMacro) {
                     api.logger.error(LOG_ERROR.notMacro(), {
                         ...i.coordinate,
@@ -275,6 +283,14 @@ export default function preprocessSegment(
                     reportError();
                     return new RSegment.Empty(seg.coordinate);
                 }
+                if (typeCalc.equalsTo(i.valueType, BASE_TYPES.command)) {
+                    api.logger.error(LOG_ERROR.disabledType(), {
+                        ...i.coordinate,
+                        chain: coordinateChain
+                    });
+                    reportError();
+                    return new RSegment.Empty(seg.coordinate);
+                }
                 if (type && !typeCalc.contains(i.valueType, type)) {
                     api.logger.error(LOG_ERROR.mismatchingType(), {
                         ...seg.coordinate,
@@ -308,6 +324,7 @@ export default function preprocessSegment(
                 optional,
                 deprecated
             });
+            pools.renamePool.push(val.name);
 
             pools.pushSymbol("Val", seg.valName, val, namespace);
 
@@ -451,6 +468,16 @@ export default function preprocessSegment(
                         return new RSegment.Empty(seg.coordinate);
                     }
                 }
+                if (typeCalc.equalsTo(type, BASE_TYPES.command)) {
+                    api.logger.error(LOG_ERROR.disabledType(), {
+                        ...i.coordinate,
+                        chain: coordinateChain
+                    });
+                    reportError();
+                    pools.flags.defineFunction = false;
+                    return new RSegment.Empty(seg.coordinate);
+                }
+
                 if (isMacro && !i.isMacro) {
                     api.logger.error(LOG_ERROR.notMacro(), {
                         ...arg.initialValue.coordinate,
@@ -507,6 +534,12 @@ export default function preprocessSegment(
             return new RSegment.Block(seg.coordinate, codes, undefined).noScope();
         }
         pools.symbolTable.push(SYMBOL_SEPARATOR.scope);
+        pools.pushReturnType(returnType);
+        const beforeReturn = () => {
+            pools.flags.defineFunction = false;
+            pools.popScope();
+            pools.returnTypeStack.pop();
+        };
         for (const arg of args) {
             const val = new Val(arg.name, arg.type, {
                 isConst: false,
@@ -517,14 +550,14 @@ export default function preprocessSegment(
             pools.pushSymbol("Val", new Name(seg.coordinate, arg.name), val, []);
         }
         const body = preprocessSegment(seg.block, coordinateChain, requirement, context);
-        pools.popScope();
+        beforeReturn();
         const func = new Func(seg.functionName.value, returnType, args,
             body.type == "Block" ? <RSegment.Block>body : new RSegment.Block(seg.coordinate, [body], undefined), {
                 deprecated,
                 optional
             });
         pools.pushSymbol("Function", seg.functionName, func, namespace);
-        pools.flags.defineFunction = false;
+        pools.renamePool.push(func.name);
         return new RSegment.Empty(seg.coordinate);
         //TODO
         // return value: unwrap, check, ?
@@ -908,6 +941,11 @@ export default function preprocessSegment(
     }
     if (segment.type == "Return") {
         const seg = <Segment.Return>segment;
+        if (pools.returnTypeStack.length == 0) {
+            api.logger.error(LOG_ERROR.returnOutsideFunction(), seg.coordinate);
+            reportError();
+            return new RSegment.Empty(seg.coordinate);
+        }
         if (!seg.value) {
             return new RSegment.Return(seg.coordinate, undefined, true);
         }
@@ -916,6 +954,12 @@ export default function preprocessSegment(
             api.logger.error(LOG_ERROR.mismatchingType(), seg.coordinate);
             reportError();
             return new RSegment.Return(seg.coordinate, undefined, true);
+        }
+        if (typeCalc.contains(value.valueType, pools.returnTypeStack[pools.returnTypeStack.length - 1].type)) {
+            pools.returnTypeStack[pools.returnTypeStack.length - 1].cnt++;
+        } else {
+            api.logger.error(LOG_ERROR.mismatchingType(), seg.coordinate);
+            reportError();
         }
         return new RSegment.Return(seg.coordinate, value, value.isMacro);
     }

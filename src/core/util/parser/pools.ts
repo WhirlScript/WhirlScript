@@ -11,16 +11,9 @@ import NativeFunc from "../../types/parser/nativeFunc";
 import Annotation from "../../types/parser/annotation";
 import BUILTIN_FLAG_FUNCTIONS from "../../builtin/function/builtinFlagFunctions";
 import { BUILTIN_ANNOTATIONS } from "../../builtin/annotations/builtinAnnotations";
+import Type from "../../types/parser/type";
 
 export default class Pools {
-    // map: {
-    //     [key: string]: string
-    // } = {};
-    // annotationPool: Annotation[] = [];
-    // valPool: Val[] = [];
-    // macroValPool: MacroVal[] = [];
-    // constPool: Val[] = [];
-    // macroFunctionPool: MacroFunc[] = [];
     constructor(pools?: Pools) {
         if (pools != undefined) {
             this.renamePool = pools.renamePool;
@@ -51,10 +44,16 @@ export default class Pools {
         defineFunction: false
     };
 
-    renamePool: (Val | Func)[] = [];
+    renamePool: SName[] = [];
     functionPool: Func[] = [];
 
+    returnTypeStack: { type: Type, cnt: number }[] = [];
+
     symbolTable: SymbolTable = [];
+
+    pushReturnType(type: Type) {
+        this.returnTypeStack.push({ type, cnt: 0 });
+    }
 
     popScope() {
         while (this.symbolTable.length > 0 && this.symbolTable.pop()?.type !== "Separator") {
@@ -124,5 +123,6 @@ const SYMBOL_SEPARATOR: { scope: Symbol, macro: Symbol } = {
 };
 
 export type SymbolTable = Symbol[]
+export type SName = { v: string }
 
 export { SYMBOL_SEPARATOR };

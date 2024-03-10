@@ -14,6 +14,7 @@ import Func from "../../types/parser/func";
 import MacroFunc from "../../types/parser/macroFunc";
 import NativeFunc from "../../types/parser/nativeFunc";
 import preprocessSegment from "./preprocessSegment";
+import BUILTIN_FLAG_FUNCTIONS from "../../builtin/function/builtinFlagFunctions";
 
 export default function preprocessValue(
     segmentRaw: Segment.Value,
@@ -339,12 +340,20 @@ export default function preprocessValue(
                     value: ""
                 });
             }
+            pools.pushReturnType(func.type);
+            const beforeReturn = () => {
+                pools.returnTypeStack.pop();
+                if (func.prop.hasScope) {
+                    p.popScope();
+                }
+            };
             const rStates: RSegment.SegmentInterface[] = [];
             for (let i = 0; i < func.args.length; i++) {
                 if (seg.args[i]) {
                     let a = preprocessValue(seg.args[i], coordinateChain, requirement, context);
                     if (a.type == "EmptyValue") {
                         reportError();
+                        beforeReturn();
                         return new RSegment.EmptyValue(seg.coordinate);
                     }
                     if (a.type == "MacroValCall") {
@@ -357,6 +366,7 @@ export default function preprocessValue(
                                 chain: coordinateChain
                             });
                             reportError();
+                            beforeReturn();
                             return new RSegment.EmptyValue(seg.coordinate);
                         }
                     }
@@ -366,6 +376,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
+                        beforeReturn();
                         return new RSegment.EmptyValue(seg.coordinate);
                     }
                     if (func.args[i].isMacro && !a.isMacro) {
@@ -374,6 +385,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
+                        beforeReturn();
                         return new RSegment.EmptyValue(seg.coordinate);
                     }
                     if (a.isMacro) {
@@ -411,7 +423,7 @@ export default function preprocessValue(
                                 val.type
                             )
                         );
-                        p.renamePool.push(val);
+                        p.renamePool.push(val.name);
                         p.symbolTable.push({
                             name: func.args[i].name,
                             type: "Val",
@@ -425,6 +437,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
+                        beforeReturn();
                         return new RSegment.EmptyValue(seg.coordinate);
                     }
                     if (func.args[i].isMacro) {
@@ -464,7 +477,7 @@ export default function preprocessValue(
                                 val.type
                             )
                         );
-                        p.renamePool.push(val);
+                        p.renamePool.push(val.name);
                         p.symbolTable.push({
                             name: func.args[i].name,
                             type: "Val",
@@ -493,6 +506,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
+                        beforeReturn();
                         return new RSegment.EmptyValue(seg.coordinate);
                     }
                     if (macroReturnValue.type == "ValueWrapper") {
@@ -505,9 +519,7 @@ export default function preprocessValue(
                     break;
                 }
             }
-            if (func.prop.hasScope) {
-                p.popScope();
-            }
+            beforeReturn();
             if (func.prop.isConstexpr && (!macroReturnValue || !macroReturnValue.isMacro)) {
                 api.logger.error(
                     LOG_ERROR.notMacro(),
@@ -643,6 +655,32 @@ export default function preprocessValue(
         });
         reportError();
         return new RSegment.EmptyValue(seg.coordinate);
+    }
+    if (segmentRaw.type == "Exec") {
+        const seg = <Segment.Exec>segmentRaw;
+
+        const a = preprocessValue(seg.command, coordinateChain, requirement, context);
+        if (a.type == "EmptyValue") {
+            reportError();
+            return new RSegment.EmptyValue(seg.coordinate);
+        }
+        if (!typeCalc.contains(a.valueType, BASE_TYPES.string)) {
+            api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
+                ...seg.coordinate,
+                chain: coordinateChain
+            });
+            reportError();
+            return new RSegment.EmptyValue(seg.coordinate);
+        }
+
+        return new RSegment.FunctionCall(
+            {
+                ...seg.coordinate,
+                chain: coordinateChain
+            },
+            BUILTIN_FLAG_FUNCTIONS["exec"],
+            [a]
+        );
     }
     if (segmentRaw.type == "ExpressionSVO") {
         const seg = <Segment.ExpressionSVO>segmentRaw;

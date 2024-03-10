@@ -19,6 +19,7 @@ export namespace RSegment {
         | "ValCall"
         | "MacroValCall"
         | "FunctionCall"
+        | "MacroFunction"
         | "ValueWrapper"
         | "GetProperty"
         | "Block"
@@ -40,6 +41,7 @@ export namespace RSegment {
         | "ValCall"
         | "MacroValCall"
         | "FunctionCall"
+        | "MacroFunction"
         | "ValueWrapper"
         | "GetProperty"
         | "StructBlock";
@@ -47,7 +49,7 @@ export namespace RSegment {
     export interface SegmentInterface {
         type: Types;
         coordinate: Coordinate;
-        hasReturnValue: boolean;
+        returned: boolean;
         macroReturnValue: Value | undefined;
     }
 
@@ -64,7 +66,7 @@ export namespace RSegment {
         readonly type = "Empty";
         readonly coordinate: Coordinate;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
 
@@ -81,7 +83,7 @@ export namespace RSegment {
         readonly isMacro = false;
         readonly valueType = BASE_TYPES.void;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
 
@@ -101,7 +103,7 @@ export namespace RSegment {
         readonly isMacro = false;
         readonly valueType: Type;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate, s: Value, v: string, o: Value, valueType: Type) {
@@ -124,7 +126,7 @@ export namespace RSegment {
         readonly isMacro = false;
         readonly valueType: Type;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate, s: Value, v: string, valueType: Type) {
@@ -145,7 +147,7 @@ export namespace RSegment {
         readonly isMacro = false;
         readonly valueType: Type;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate, v: string, o: Value, valueType: Type) {
@@ -165,7 +167,7 @@ export namespace RSegment {
         readonly isMacro = true;
         readonly valueType: Type = BASE_TYPES.void;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate) {
@@ -186,7 +188,7 @@ export namespace RSegment {
         readonly isMacro = true;
         readonly valueType: Type = BASE_TYPES.int;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate, value: number) {
@@ -208,7 +210,7 @@ export namespace RSegment {
         readonly isMacro = true;
         readonly valueType: Type = BASE_TYPES.boolean;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate, value: boolean) {
@@ -234,7 +236,7 @@ export namespace RSegment {
         readonly isMacro = true;
         readonly valueType: Type = BASE_TYPES.string;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate, value: string) {
@@ -258,7 +260,7 @@ export namespace RSegment {
             base: "string"
         };
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate, values: Value[]) {
@@ -276,7 +278,7 @@ export namespace RSegment {
         readonly isMacro = false;
         readonly valueType: Type;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate, val: Val) {
@@ -295,7 +297,7 @@ export namespace RSegment {
         readonly isMacro = true;
         readonly valueType: Type;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate, val: MacroVal) {
@@ -315,7 +317,7 @@ export namespace RSegment {
         readonly isMacro = false;
         readonly valueType: Type;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate, func: Func, args: Value[]) {
@@ -326,8 +328,8 @@ export namespace RSegment {
         }
     }
 
-    export class ValueWrapper implements SegmentInterface, Value {
-        readonly type = "ValueWrapper";
+    export class MacroFunction implements SegmentInterface {
+        readonly type = "MacroFunction";
         readonly coordinate: Coordinate;
 
         codes: RSegment.SegmentInterface[];
@@ -336,7 +338,7 @@ export namespace RSegment {
 
         isMacro: boolean;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         value: RSegment.Value | undefined;
         readonly macroReturnValue: undefined;
 
@@ -353,6 +355,40 @@ export namespace RSegment {
         }
     }
 
+    export class ValueWrapper implements SegmentInterface, Value {
+        readonly type = "ValueWrapper";
+        readonly coordinate: Coordinate;
+
+        codes: RSegment.SegmentInterface[];
+        hasScope: boolean;
+        valueType: Type;
+
+        isMacro: boolean;
+
+        readonly returned: boolean;
+        value: RSegment.Value | undefined;
+        readonly macroReturnValue: undefined;
+
+        constructor(coordinate: Coordinate, valueType: Type, codes: SegmentInterface[], prop: {
+            isMacro: boolean,
+            hasScope: boolean
+        }, value?: Value) {
+            this.coordinate = coordinate;
+            this.valueType = valueType;
+            this.codes = codes;
+            this.isMacro = prop.isMacro;
+            this.hasScope = prop.hasScope;
+            this.value = value;
+
+            this.returned = false;
+            for (const code of codes) {
+                if (code.returned) {
+                    this.returned = true;
+                }
+            }
+        }
+    }
+
     export class GetProperty implements SegmentInterface, Value {
         readonly type = "GetProperty";
         readonly coordinate: Coordinate;
@@ -360,7 +396,7 @@ export namespace RSegment {
         readonly isMacro = false;
         readonly valueType: Type;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
         readonly structValue: Value;
         readonly property: string;
@@ -382,7 +418,7 @@ export namespace RSegment {
 
         readonly inside: SegmentInterface[];
 
-        readonly hasReturnValue: boolean;
+        readonly returned: boolean;
         readonly macroReturnValue: Value | undefined;
 
         hasScope: boolean = true;
@@ -391,13 +427,12 @@ export namespace RSegment {
             this.coordinate = coordinate;
             this.inside = inside;
             this.macroReturnValue = macroReturnValue;
-            let hasReturnValue = false;
+            this.returned = false;
             for (const segmentInterface of inside) {
-                if (segmentInterface.hasReturnValue) {
-                    hasReturnValue = true;
+                if (segmentInterface.returned) {
+                    this.returned = true;
                 }
             }
-            this.hasReturnValue = hasReturnValue;
         }
 
         noScope() {
@@ -415,7 +450,7 @@ export namespace RSegment {
         readonly isMacro: boolean;
         readonly valueType: Type;
 
-        readonly hasReturnValue = false;
+        readonly returned = false;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate, inside: { [key: string]: Value }, valueType: Type) {
@@ -440,7 +475,7 @@ export namespace RSegment {
         readonly statement: SegmentInterface;
         readonly elseStatement: SegmentInterface | undefined;
 
-        readonly hasReturnValue: boolean;
+        readonly returned: boolean;
         readonly macroReturnValue: Value | undefined;
 
         constructor(coordinate: Coordinate, condition: Value, statement: SegmentInterface, elseStatement: SegmentInterface | undefined, macroReturnValue: Value | undefined) {
@@ -450,7 +485,7 @@ export namespace RSegment {
             this.elseStatement = elseStatement;
             this.macroReturnValue = macroReturnValue;
 
-            this.hasReturnValue = statement.hasReturnValue || (elseStatement?.hasReturnValue ?? false);
+            this.returned = statement.returned && (elseStatement?.returned ?? false);
         }
     }
 
@@ -464,7 +499,7 @@ export namespace RSegment {
         readonly statement3: SegmentInterface | undefined;
         readonly statement: SegmentInterface;
 
-        readonly hasReturnValue: boolean;
+        readonly returned: boolean;
         readonly macroReturnValue: Value | undefined;
 
         constructor(coordinate: Coordinate,
@@ -480,7 +515,7 @@ export namespace RSegment {
             this.statement = statement;
             this.macroReturnValue = macroReturnValue;
 
-            this.hasReturnValue = this.statement.hasReturnValue;
+            this.returned = this.statement.returned;
         }
     }
 
@@ -491,7 +526,7 @@ export namespace RSegment {
         readonly condition: Value;
         readonly statement: SegmentInterface;
 
-        readonly hasReturnValue: boolean;
+        readonly returned: boolean;
         readonly macroReturnValue: Value | undefined;
 
         constructor(coordinate: Coordinate,
@@ -503,7 +538,7 @@ export namespace RSegment {
             this.statement = statement;
             this.macroReturnValue = macroReturnValue;
 
-            this.hasReturnValue = statement.hasReturnValue;
+            this.returned = statement.returned;
         }
     }
 
@@ -514,7 +549,7 @@ export namespace RSegment {
         readonly value: Value | undefined;
         readonly valueWrapper: ValueWrapper | undefined;
 
-        readonly hasReturnValue: boolean;
+        readonly returned = true;
         readonly macroReturnValue: Value | undefined;
 
         constructor(coordinate: Coordinate, value: Value | undefined, macroReturn: boolean) {
@@ -538,7 +573,6 @@ export namespace RSegment {
                 this.value = mvc.val.value;
             }
 
-            this.hasReturnValue = !!value;
             if (macroReturn) {
                 this.macroReturnValue = value;
             }

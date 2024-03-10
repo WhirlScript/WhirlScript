@@ -1,6 +1,7 @@
 import Type from "./type";
 import { RSegment } from "./rSegment";
 import Val from "./val";
+import { SName } from "../../util/parser/pools";
 
 type Args = {
     name: string,
@@ -15,7 +16,7 @@ type FunctionProp = {
 }
 
 export default class Func {
-    readonly name: string;
+    readonly name: SName;
     readonly args: Args;
     readonly type: Type;
     readonly body: RSegment.Block;
@@ -25,7 +26,7 @@ export default class Func {
     flag: string | undefined;
 
     constructor(name: string, type: Type, args: Args, body: RSegment.Block, prop: FunctionProp) {
-        this.name = name;
+        this.name = { v: name };
         this.type = type;
         this.args = args;
         this.body = body;

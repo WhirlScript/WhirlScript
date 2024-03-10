@@ -173,6 +173,22 @@ export default function resolve(tokens: Deque<Token>, context: {
                 cursor = pop();
                 continue;
             }
+            if (cursor.value == "$") {
+                if (!expr.isEmpty() && expr.peekRear()?.type != "o") {
+                    api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
+                }
+                const coo = cursor.coordinate;
+                cursor = pop();
+                const n = new Segment.Name(coo, "exec", []);
+                const c = getExpression();
+                let exp: Segment.Value = new Segment.FunctionCall(coo, n, [c]);
+                if (hLAssertion) {
+                    exp = new Segment.Assertion(hLAssertion.coordinate, hLAssertion.type, exp);
+                    hLAssertion = undefined;
+                }
+                expr.pushRear(exp);
+                continue;
+            }
             if (cursor.value == "{") {
                 if (hLOperation) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(hLOperation.value), hLOperation.coordinate);

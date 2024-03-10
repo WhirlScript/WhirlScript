@@ -16,6 +16,7 @@ export namespace Segment {
         | "Name"
         | "ValCall"
         | "FunctionCall"
+        | "Exec"
         | "ValDefine"
         | "FunctionDefine"
         | "Block"
@@ -200,6 +201,18 @@ export namespace Segment {
             this.coordinate = coordinate;
             this.functionName = functionName;
             this.args = args;
+        }
+    }
+
+    export class Exec implements SegmentInterface, Value {
+        readonly type = "Exec";
+        readonly coordinate: Coordinate;
+
+        readonly command: Value;
+
+        constructor(coordinate: Coordinate, command: Value) {
+            this.coordinate = coordinate;
+            this.command = command;
         }
     }
 

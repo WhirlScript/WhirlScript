@@ -1,4 +1,5 @@
 import Type from "./type";
+import { SName } from "../../util/parser/pools";
 
 
 type ValProp = {
@@ -8,7 +9,7 @@ type ValProp = {
 }
 
 export default class Val {
-    readonly name: string;
+    readonly name: SName;
     readonly type: Type;
     readonly prop: ValProp;
     isInit: boolean = false;
@@ -16,7 +17,7 @@ export default class Val {
 
 
     constructor(name: string, type: Type, prop: ValProp) {
-        this.name = name;
+        this.name = { v: name };
         this.type = type;
         this.prop = prop;
     }
