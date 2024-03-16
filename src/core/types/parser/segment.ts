@@ -1,38 +1,7 @@
 import Coordinate from "./coordinate";
 
 export namespace Segment {
-    type Types =
-        "Empty"
-        | "Annotation"
-        | "AnnotationSegment"
-        | "ExpressionSVO"
-        | "ExpressionSV"
-        | "ExpressionVO"
-        | "MacroValCall"
-        | "Int"
-        | "Bool"
-        | "String"
-        | "TemplateString"
-        | "Name"
-        | "ValCall"
-        | "FunctionCall"
-        | "Exec"
-        | "ValDefine"
-        | "FunctionDefine"
-        | "Block"
-        | "StructBlock"
-        | "StructDefine"
-        | "Assertion"
-        | "If"
-        | "For"
-        | "While"
-        | "Namespace"
-        | "Using"
-        | "UsingNamespace"
-        | "Return";
-
     export interface SegmentInterface {
-        type: Types;
         coordinate: Coordinate;
     }
 
@@ -40,7 +9,6 @@ export namespace Segment {
     }
 
     export class Empty implements SegmentInterface {
-        readonly type = "Empty";
         readonly coordinate: Coordinate;
 
 
@@ -50,7 +18,6 @@ export namespace Segment {
     }
 
     export class Annotation implements SegmentInterface {
-        readonly type = "Annotation";
         readonly coordinate: Coordinate;
         readonly annotation: Name;
 
@@ -61,7 +28,6 @@ export namespace Segment {
     }
 
     export class AnnotationSegment implements SegmentInterface {
-        readonly type = "AnnotationSegment";
         readonly coordinate: Coordinate;
         readonly annotations: Annotation[];
         readonly value: SegmentInterface;
@@ -74,7 +40,6 @@ export namespace Segment {
     }
 
     export class ExpressionSVO implements SegmentInterface, Value {
-        readonly type = "ExpressionSVO";
         readonly coordinate: Coordinate;
 
         readonly s: Value;
@@ -90,7 +55,6 @@ export namespace Segment {
     }
 
     export class ExpressionSV implements SegmentInterface, Value {
-        readonly type = "ExpressionSV";
         readonly coordinate: Coordinate;
 
         readonly s: Value;
@@ -104,7 +68,6 @@ export namespace Segment {
     }
 
     export class ExpressionVO implements SegmentInterface, Value {
-        readonly type = "ExpressionVO";
         readonly coordinate: Coordinate;
 
         readonly v: string;
@@ -118,7 +81,6 @@ export namespace Segment {
     }
 
     export class Int implements SegmentInterface, Value {
-        readonly type = "Int";
         readonly coordinate: Coordinate;
 
         readonly value: number;
@@ -130,7 +92,6 @@ export namespace Segment {
     }
 
     export class Bool implements SegmentInterface, Value {
-        readonly type = "Bool";
         readonly coordinate: Coordinate;
 
         readonly value: boolean;
@@ -142,7 +103,6 @@ export namespace Segment {
     }
 
     export class String implements SegmentInterface, Value {
-        readonly type = "String";
         readonly coordinate: Coordinate;
 
         readonly value: string;
@@ -154,7 +114,6 @@ export namespace Segment {
     }
 
     export class TemplateString implements SegmentInterface, Value {
-        readonly type = "TemplateString";
         readonly coordinate: Coordinate;
         readonly values: Value[];
 
@@ -165,7 +124,6 @@ export namespace Segment {
     }
 
     export class Name implements SegmentInterface {
-        readonly type = "Name";
         readonly coordinate: Coordinate;
 
         readonly value: string;
@@ -179,7 +137,6 @@ export namespace Segment {
     }
 
     export class ValCall implements SegmentInterface, Value {
-        readonly type = "ValCall";
         readonly coordinate: Coordinate;
 
         readonly valName: Name;
@@ -191,7 +148,6 @@ export namespace Segment {
     }
 
     export class FunctionCall implements SegmentInterface, Value {
-        readonly type = "FunctionCall";
         readonly coordinate: Coordinate;
 
         readonly functionName: Name;
@@ -205,7 +161,6 @@ export namespace Segment {
     }
 
     export class Exec implements SegmentInterface, Value {
-        readonly type = "Exec";
         readonly coordinate: Coordinate;
 
         readonly command: Value;
@@ -230,7 +185,6 @@ export namespace Segment {
     }
 
     export class ValDefine implements SegmentInterface {
-        readonly type = "ValDefine";
         readonly coordinate: Coordinate;
 
         readonly valName: Name;
@@ -248,7 +202,6 @@ export namespace Segment {
     }
 
     export class FunctionDefine implements SegmentInterface {
-        readonly type = "FunctionDefine";
         readonly coordinate: Coordinate;
 
         readonly functionName: Name;
@@ -268,7 +221,6 @@ export namespace Segment {
     }
 
     export class Block implements SegmentInterface {
-        readonly type = "Block";
         readonly coordinate: Coordinate;
 
         readonly inside: SegmentInterface[];
@@ -281,7 +233,6 @@ export namespace Segment {
 
 
     export class StructBlock implements SegmentInterface, Value {
-        readonly type = "StructBlock";
         readonly coordinate: Coordinate;
 
         readonly inside: { [key: string]: Value };
@@ -293,7 +244,6 @@ export namespace Segment {
     }
 
     export class StructDefine implements SegmentInterface {
-        readonly type = "StructDefine";
         readonly coordinate: Coordinate;
 
         readonly structName: Name;
@@ -307,7 +257,6 @@ export namespace Segment {
     }
 
     export class Assertion implements SegmentInterface, Value {
-        readonly type = "Assertion";
         readonly coordinate: Coordinate;
 
         readonly toType: Name;
@@ -321,7 +270,6 @@ export namespace Segment {
     }
 
     export class If implements SegmentInterface {
-        readonly type = "If";
         readonly coordinate: Coordinate;
 
         readonly condition: Value;
@@ -337,7 +285,6 @@ export namespace Segment {
     }
 
     export class For implements SegmentInterface {
-        readonly type = "For";
         readonly coordinate: Coordinate;
 
         // for (st1; st2; st3) st
@@ -356,7 +303,6 @@ export namespace Segment {
     }
 
     export class While implements SegmentInterface {
-        readonly type = "While";
         readonly coordinate: Coordinate;
 
         readonly condition: Value;
@@ -370,7 +316,6 @@ export namespace Segment {
     }
 
     export class Namespace implements SegmentInterface {
-        readonly type = "Namespace";
         readonly coordinate: Coordinate;
 
         readonly namespaceName: Name;
@@ -384,7 +329,6 @@ export namespace Segment {
     }
 
     export class Using implements SegmentInterface {
-        readonly type = "Using";
         readonly coordinate: Coordinate;
 
         readonly definingName: Name;
@@ -396,7 +340,6 @@ export namespace Segment {
     }
 
     export class UsingNamespace implements SegmentInterface {
-        readonly type = "UsingNamespace";
         readonly coordinate: Coordinate;
 
         readonly namespaceName: Name;
@@ -408,7 +351,6 @@ export namespace Segment {
     }
 
     export class Return implements SegmentInterface {
-        readonly type = "Return";
         readonly coordinate: Coordinate;
 
         readonly value: Value | undefined;

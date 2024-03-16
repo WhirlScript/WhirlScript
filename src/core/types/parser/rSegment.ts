@@ -5,65 +5,25 @@ import Type, { BASE_TYPES } from "./type";
 import MacroVal from "./macroVal";
 
 export namespace RSegment {
-    type Types =
-        "Empty"
-        | "EmptyValue"
-        | "ExpressionSVO"
-        | "ExpressionSV"
-        | "ExpressionVO"
-        | "Void"
-        | "Int"
-        | "Bool"
-        | "String"
-        | "TemplateString"
-        | "ValCall"
-        | "MacroValCall"
-        | "FunctionCall"
-        | "MacroFunction"
-        | "ValueWrapper"
-        | "GetProperty"
-        | "Block"
-        | "StructBlock"
-        | "If"
-        | "For"
-        | "While"
-        | "Return";
-
-    type ValueTypes = "EmptyValue"
-        | "ExpressionSVO"
-        | "ExpressionSV"
-        | "ExpressionVO"
-        | "Void"
-        | "Int"
-        | "Bool"
-        | "String"
-        | "TemplateString"
-        | "ValCall"
-        | "MacroValCall"
-        | "FunctionCall"
-        | "MacroFunction"
-        | "ValueWrapper"
-        | "GetProperty"
-        | "StructBlock";
-
     export interface SegmentInterface {
-        type: Types;
         coordinate: Coordinate;
         returned: boolean;
         macroReturnValue: Value | undefined;
     }
 
     export interface Value extends SegmentInterface {
-        type: ValueTypes;
         valueType: Type;
         isMacro: boolean;
+    }
+
+    interface MacroBaseInterface extends Value {
+        toStr(): String;
     }
 
     export type MacroBase = Void | Int | Bool | String
 
 
     export class Empty implements SegmentInterface {
-        readonly type = "Empty";
         readonly coordinate: Coordinate;
 
         readonly returned = false;
@@ -75,8 +35,7 @@ export namespace RSegment {
         }
     }
 
-    export class EmptyValue implements SegmentInterface, Value {
-        readonly type = "EmptyValue";
+    export class EmptyValue implements Value {
         readonly coordinate: Coordinate;
 
 
@@ -92,8 +51,7 @@ export namespace RSegment {
         }
     }
 
-    export class ExpressionSVO implements SegmentInterface, Value {
-        readonly type = "ExpressionSVO";
+    export class ExpressionSVO implements Value {
         readonly coordinate: Coordinate;
 
         readonly s: Value;
@@ -116,8 +74,7 @@ export namespace RSegment {
 
     }
 
-    export class ExpressionSV implements SegmentInterface, Value {
-        readonly type = "ExpressionSV";
+    export class ExpressionSV implements Value {
         readonly coordinate: Coordinate;
 
         readonly s: Value;
@@ -137,8 +94,7 @@ export namespace RSegment {
         }
     }
 
-    export class ExpressionVO implements SegmentInterface, Value {
-        readonly type = "ExpressionVO";
+    export class ExpressionVO implements Value {
         readonly coordinate: Coordinate;
 
         readonly v: string;
@@ -158,8 +114,7 @@ export namespace RSegment {
         }
     }
 
-    export class Void implements SegmentInterface, Value {
-        readonly type = "Void";
+    export class Void implements MacroBaseInterface {
         readonly coordinate: Coordinate;
 
         readonly value: undefined;
@@ -179,8 +134,7 @@ export namespace RSegment {
         }
     }
 
-    export class Int implements SegmentInterface, Value {
-        readonly type = "Int";
+    export class Int implements MacroBaseInterface {
         readonly coordinate: Coordinate;
 
         readonly value: number;
@@ -201,8 +155,7 @@ export namespace RSegment {
         }
     }
 
-    export class Bool implements SegmentInterface, Value {
-        readonly type = "Bool";
+    export class Bool implements MacroBaseInterface {
         readonly coordinate: Coordinate;
 
         readonly value: boolean;
@@ -227,8 +180,7 @@ export namespace RSegment {
         }
     }
 
-    export class String implements SegmentInterface, Value {
-        readonly type = "String";
+    export class String implements MacroBaseInterface {
         readonly coordinate: Coordinate;
 
         readonly value: string;
@@ -249,8 +201,7 @@ export namespace RSegment {
         }
     }
 
-    export class TemplateString implements SegmentInterface, Value {
-        readonly type = "TemplateString";
+    export class TemplateString implements Value {
         readonly coordinate: Coordinate;
         readonly values: Value[];
 
@@ -269,8 +220,7 @@ export namespace RSegment {
         }
     }
 
-    export class ValCall implements SegmentInterface, Value {
-        readonly type = "ValCall";
+    export class ValCall implements Value {
         readonly coordinate: Coordinate;
 
         readonly val: Val;
@@ -288,8 +238,7 @@ export namespace RSegment {
         }
     }
 
-    export class MacroValCall implements SegmentInterface, Value {
-        readonly type = "MacroValCall";
+    export class MacroValCall implements Value {
         readonly coordinate: Coordinate;
 
         readonly val: MacroVal;
@@ -307,8 +256,7 @@ export namespace RSegment {
         }
     }
 
-    export class FunctionCall implements SegmentInterface, Value {
-        readonly type = "FunctionCall";
+    export class FunctionCall implements Value {
         readonly coordinate: Coordinate;
 
         readonly func: Func;
@@ -329,7 +277,6 @@ export namespace RSegment {
     }
 
     export class MacroFunction implements SegmentInterface {
-        readonly type = "MacroFunction";
         readonly coordinate: Coordinate;
 
         codes: RSegment.SegmentInterface[];
@@ -355,8 +302,7 @@ export namespace RSegment {
         }
     }
 
-    export class ValueWrapper implements SegmentInterface, Value {
-        readonly type = "ValueWrapper";
+    export class ValueWrapper implements Value {
         readonly coordinate: Coordinate;
 
         codes: RSegment.SegmentInterface[];
@@ -389,8 +335,7 @@ export namespace RSegment {
         }
     }
 
-    export class GetProperty implements SegmentInterface, Value {
-        readonly type = "GetProperty";
+    export class GetProperty implements Value {
         readonly coordinate: Coordinate;
 
         readonly isMacro = false;
@@ -413,7 +358,6 @@ export namespace RSegment {
     }
 
     export class Block implements SegmentInterface {
-        readonly type = "Block";
         readonly coordinate: Coordinate;
 
         readonly inside: SegmentInterface[];
@@ -441,8 +385,7 @@ export namespace RSegment {
         }
     }
 
-    export class StructBlock implements SegmentInterface, Value {
-        readonly type = "StructBlock";
+    export class StructBlock implements Value {
         readonly coordinate: Coordinate;
 
         readonly inside: { [key: string]: Value };
@@ -468,7 +411,6 @@ export namespace RSegment {
     }
 
     export class If implements SegmentInterface {
-        readonly type = "If";
         readonly coordinate: Coordinate;
 
         readonly condition: Value;
@@ -490,7 +432,6 @@ export namespace RSegment {
     }
 
     export class For implements SegmentInterface {
-        readonly type = "For";
         readonly coordinate: Coordinate;
 
         // for (st1; st2; st3) st
@@ -520,7 +461,6 @@ export namespace RSegment {
     }
 
     export class While implements SegmentInterface {
-        readonly type = "While";
         readonly coordinate: Coordinate;
 
         readonly condition: Value;
@@ -543,7 +483,6 @@ export namespace RSegment {
     }
 
     export class Return implements SegmentInterface {
-        readonly type = "Return";
         readonly coordinate: Coordinate;
 
         readonly value: Value | undefined;
@@ -555,22 +494,20 @@ export namespace RSegment {
         constructor(coordinate: Coordinate, value: Value | undefined, macroReturn: boolean) {
             this.coordinate = coordinate;
             this.value = value;
-            if (value?.isMacro && value?.type == "ValueWrapper") {
-                const vw = <ValueWrapper>value;
-                this.valueWrapper = vw;
+            if (value?.isMacro && value instanceof ValueWrapper) {
+                this.valueWrapper = value;
                 this.value = new ValueWrapper(
-                    vw.coordinate,
-                    vw.valueType,
+                    value.coordinate,
+                    value.valueType,
                     [],
                     {
-                        isMacro: vw.isMacro,
+                        isMacro: value.isMacro,
                         hasScope: false
                     },
-                    vw.value
+                    value.value
                 );
-            } else if (value?.type == "MacroValCall") {
-                const mvc = <MacroValCall>value;
-                this.value = mvc.val.value;
+            } else if (value instanceof MacroValCall) {
+                this.value = value.val.value;
             }
 
             if (macroReturn) {

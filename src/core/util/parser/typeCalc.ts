@@ -97,16 +97,16 @@ class TypeCalcC {
         }
         let va = value;
         const t = va.valueType;
-        if (va.type == "ValueWrapper") {
-            const r = (<RSegment.ValueWrapper>va).value;
+        if (va instanceof RSegment.ValueWrapper) {
+            const r = va.value;
             if (r) {
                 va = r;
             } else {
                 context.api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), coordinate);
             }
         }
-        if (va.type == "MacroValCall") {
-            const val = (<RSegment.MacroValCall>va).val;
+        if (va instanceof RSegment.MacroValCall) {
+            const val = va.val;
             if (!val.value) {
                 context.api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), coordinate);
             }
@@ -134,20 +134,19 @@ class TypeCalcC {
                 return num;
             }
         }
-        if (va.type == "StructBlock") {
-            const struct = <RSegment.StructBlock>va;
+        if (va instanceof RSegment.StructBlock) {
             const obj: any = {};
-            for (const key in struct.inside) {
-                let v = struct.inside[key];
-                if (v.type == "ValueWrapper") {
-                    const r = (<RSegment.ValueWrapper>v).value;
+            for (const key in va.inside) {
+                let v = va.inside[key];
+                if (v instanceof RSegment.ValueWrapper) {
+                    const r = v.value;
                     if (r) {
                         v = r;
                     } else {
                         context.api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), coordinate);
                     }
                 }
-                obj[key] = this.valueToObj(<RSegment.StructBlock>struct.inside[key], coordinate, context);
+                obj[key] = this.valueToObj(<RSegment.StructBlock>va.inside[key], coordinate, context);
 
             }
             return obj;

@@ -31,9 +31,9 @@ export default class MacroVal {
         }
         const codes: RSegment.ValueWrapper[] = [];
         let v = seg;
-        if (seg.type == "ValueWrapper") {
-            codes.push(<RSegment.ValueWrapper>seg);
-            v = <RSegment.Value>(<RSegment.ValueWrapper>seg).value;
+        if (seg instanceof RSegment.ValueWrapper) {
+            codes.push(seg);
+            v = <RSegment.Value>seg.value;
         }
         if (seg.valueType.type == "base") {
             return {

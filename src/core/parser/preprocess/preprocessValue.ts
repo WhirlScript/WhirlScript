@@ -30,28 +30,28 @@ export default function preprocessValue(
     }
 ): RSegment.Value {
     const { api, pools, namespace } = context;
+    let segment = segmentRaw;
 
     function reportError() {
         context.hasError.v = true;
     }
 
-    if (segmentRaw.type == "Assertion") {
-        const seg = <Segment.Assertion>segmentRaw;
-        const v = preprocessValue(seg.value, coordinateChain, requirement, context);
-        if (v.type == "EmptyValue") {
+    if (segment instanceof Segment.Assertion) {
+        const v = preprocessValue(segment.value, coordinateChain, requirement, context);
+        if (v instanceof RSegment.EmptyValue) {
             reportError();
-            return new RSegment.EmptyValue(seg.coordinate);
+            return new RSegment.EmptyValue(segment.coordinate);
         }
-        if (v.type == "ValueWrapper") {
-            v.valueType = typeCalc.getTypeWithName(seg.toType, context);
+        if (v instanceof RSegment.ValueWrapper) {
+            v.valueType = typeCalc.getTypeWithName(segment.toType, context);
             return v;
         }
         return new RSegment.ValueWrapper(
             {
-                ...seg.coordinate,
+                ...segment.coordinate,
                 chain: coordinateChain
             },
-            typeCalc.getTypeWithName(seg.toType, context),
+            typeCalc.getTypeWithName(segment.toType, context),
             [],
             {
                 isMacro: v.isMacro,
@@ -60,55 +60,51 @@ export default function preprocessValue(
             v
         );
     }
-    if (segmentRaw.type == "Int") {
-        const seg = <Segment.Int>segmentRaw;
+    if (segment instanceof Segment.Int) {
         return new RSegment.Int(
             {
-                ...seg.coordinate,
+                ...segment.coordinate,
                 chain: coordinateChain
             },
-            seg.value
+            segment.value
         );
     }
-    if (segmentRaw.type == "Bool") {
-        const seg = <Segment.Bool>segmentRaw;
+    if (segment instanceof Segment.Bool) {
         return new RSegment.Bool(
             {
-                ...seg.coordinate,
+                ...segment.coordinate,
                 chain: coordinateChain
             },
-            seg.value
+            segment.value
         );
     }
-    if (segmentRaw.type == "String") {
-        const seg = <Segment.String>segmentRaw;
+    if (segment instanceof Segment.String) {
         return new RSegment.String(
             {
-                ...seg.coordinate,
+                ...segment.coordinate,
                 chain: coordinateChain
             },
-            seg.value
+            segment.value
         );
     }
-    if (segmentRaw.type == "TemplateString") {
-        const seg = <Segment.TemplateString>segmentRaw;
+    if (segment instanceof Segment.TemplateString) {
         let values: RSegment.Value[] = [];
-        for (const value of seg.values) {
+        for (const value of segment.values) {
             let r = preprocessValue(value, coordinateChain, requirement, context);
-            if (r.type == "EmptyValue") {
+            if (r instanceof RSegment.EmptyValue) {
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             }
-            if (r.type == "MacroValCall") {
-                if (!(<RSegment.MacroValCall>r).val.value) {
+            if (r instanceof RSegment.MacroValCall) {
+                if (!r.val.value) {
                     api.logger.error(LOG_ERROR.useBeforeInit(), {
                         ...r.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
-                r = <RSegment.Value>(<RSegment.MacroValCall>r).val.value;
+                r = r.val.value;
             }
             if (r.valueType.type == "struct") {
                 api.logger.error(LOG_ERROR.cannotStringify(), {
@@ -116,17 +112,17 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             }
             if (values.length == 0) {
-                if (r.type == "Bool" || r.type == "Int") {
-                    values.push((<RSegment.MacroBase>r).toStr());
+                if (r instanceof RSegment.Bool || r instanceof RSegment.Int) {
+                    values.push(r.toStr());
                 } else {
                     values.push(r);
                 }
             } else {
                 if (r.isMacro) {
-                    if (values[values.length - 1].type == "String") {
+                    if (values[values.length - 1] instanceof RSegment.String) {
                         const b = <RSegment.String>values.pop();
                         values.push(
                             new RSegment.String(
@@ -145,29 +141,28 @@ export default function preprocessValue(
                 }
             }
         }
-        if (values.length == 1 && values[0].type == "String") {
+        if (values.length == 1 && values[0] instanceof RSegment.String) {
             return values[0];
         } else {
             return new RSegment.TemplateString(
                 {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 },
                 values
             );
         }
     }
-    if (segmentRaw.type == "StructBlock") {
-        const seg = <Segment.StructBlock>segmentRaw;
+    if (segment instanceof Segment.StructBlock) {
         const def: { [key: string]: Type } = {};
         const inside: { [key: string]: RSegment.Value } = {};
-        for (const key in seg.inside) {
-            inside[key] = preprocessValue(seg.inside[key], coordinateChain, requirement, context);
-            if (inside[key].type == "EmptyValue") {
+        for (const key in segment.inside) {
+            inside[key] = preprocessValue(segment.inside[key], coordinateChain, requirement, context);
+            if (inside[key] instanceof RSegment.EmptyValue) {
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             }
-            if (inside[key].type == "MacroValCall") {
+            if (inside[key] instanceof RSegment.MacroValCall) {
                 const v = (<RSegment.MacroValCall>inside[key]).val.value;
                 if (v) {
                     inside[key] = v;
@@ -177,7 +172,7 @@ export default function preprocessValue(
                         , chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
             }
             def[key] = inside[key].valueType;
@@ -185,7 +180,7 @@ export default function preprocessValue(
         const struct = new Struct("", def);
         return new RSegment.StructBlock(
             {
-                ...seg.coordinate,
+                ...segment.coordinate,
                 chain: coordinateChain
             },
             inside,
@@ -195,72 +190,70 @@ export default function preprocessValue(
             }
         );
     }
-    if (segmentRaw.type == "ValCall") {
-        const seg = <Segment.ValCall>segmentRaw;
+    if (segment instanceof Segment.ValCall) {
         const symbol = context.pools.getSymbol(
-            seg.valName,
+            segment.valName,
             {
-                ...seg.coordinate,
+                ...segment.coordinate,
                 chain: coordinateChain
             },
             { api, namespace }
         );
         if (symbol.type != "Val" && symbol.type != "MacroVal") {
             api.logger.error(LOG_ERROR.notAVal(symbol.name), {
-                ...seg.coordinate,
+                ...segment.coordinate,
                 chain: coordinateChain
             });
             reportError();
-            return new RSegment.EmptyValue(seg.coordinate);
+            return new RSegment.EmptyValue(segment.coordinate);
         }
         if (symbol.type == "MacroVal") {
             const val = <MacroVal>symbol.value;
             if (val.prop.deprecated) {
                 api.logger.warning(LOG_WARNING.deprecated(symbol.name), {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 });
             }
             if (!val.value) {
                 api.logger.error(LOG_ERROR.useBeforeInit(), {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             }
-            return new RSegment.MacroValCall(seg.coordinate, val);
+            return new RSegment.MacroValCall(segment.coordinate, val);
         }
         if (symbol.type == "Val") {
             const val = <Val>symbol.value;
             if (val.prop.deprecated) {
                 api.logger.warning(LOG_WARNING.deprecated(symbol.name), {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 });
             }
             if (!val.isInit) {
                 api.logger.error(LOG_ERROR.useBeforeInit(), {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
             }
             return new RSegment.ValCall(
                 {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 },
                 val
             );
         }
     }
-    if (segmentRaw.type == "FunctionCall") {
-        const seg = <Segment.FunctionCall>segmentRaw;
+    if (segment instanceof Segment.FunctionCall) {
         const symbol = context.pools.getSymbol(
-            seg.functionName,
+            segment.functionName,
             {
-                ...seg.coordinate,
+                ...segment.coordinate,
                 chain: coordinateChain
             },
             { api, namespace }
@@ -269,50 +262,50 @@ export default function preprocessValue(
             const func = <Func>symbol.value;
             if (func.prop.deprecated) {
                 api.logger.warning(LOG_WARNING.deprecated(symbol.name), {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 });
             }
             const args: RSegment.Value[] = [];
             for (let i = 0; i < func.args.length; i++) {
-                if (seg.args[i]) {
-                    const a = preprocessValue(seg.args[i], coordinateChain, requirement, context);
-                    if (a.type == "EmptyValue") {
+                if (segment.args[i]) {
+                    const a = preprocessValue(segment.args[i], coordinateChain, requirement, context);
+                    if (a instanceof RSegment.EmptyValue) {
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                     if (!typeCalc.contains(a.valueType, func.args[i].type)) {
                         api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
-                            ...seg.coordinate,
+                            ...segment.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                     if (func.args[i].isMacro && !a.isMacro) {
                         api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
-                            ...seg.coordinate,
+                            ...segment.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                     args.push(a);
                 } else {
                     if (!func.args[i].defaultValue) {
                         api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
-                            ...seg.coordinate,
+                            ...segment.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                     args.push(<RSegment.Value>func.args[i].defaultValue);
                 }
             }
             return new RSegment.FunctionCall(
                 {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 },
                 func,
@@ -329,7 +322,7 @@ export default function preprocessValue(
 
             if (func.prop.deprecated) {
                 api.logger.warning(LOG_WARNING.deprecated(symbol.name), {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 });
             }
@@ -349,14 +342,14 @@ export default function preprocessValue(
             };
             const rStates: RSegment.SegmentInterface[] = [];
             for (let i = 0; i < func.args.length; i++) {
-                if (seg.args[i]) {
-                    let a = preprocessValue(seg.args[i], coordinateChain, requirement, context);
-                    if (a.type == "EmptyValue") {
+                if (segment.args[i]) {
+                    let a = preprocessValue(segment.args[i], coordinateChain, requirement, context);
+                    if (a instanceof RSegment.EmptyValue) {
                         reportError();
                         beforeReturn();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
-                    if (a.type == "MacroValCall") {
+                    if (a instanceof RSegment.MacroValCall) {
                         const v = (<RSegment.MacroValCall>a).val.value;
                         if (v) {
                             a = v;
@@ -367,26 +360,26 @@ export default function preprocessValue(
                             });
                             reportError();
                             beforeReturn();
-                            return new RSegment.EmptyValue(seg.coordinate);
+                            return new RSegment.EmptyValue(segment.coordinate);
                         }
                     }
                     if (!typeCalc.contains(a.valueType, func.args[i].type)) {
                         api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
-                            ...seg.coordinate,
+                            ...segment.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
                         beforeReturn();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                     if (func.args[i].isMacro && !a.isMacro) {
                         api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
-                            ...seg.coordinate,
+                            ...segment.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
                         beforeReturn();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                     if (a.isMacro) {
                         p.symbolTable.push({
@@ -408,12 +401,12 @@ export default function preprocessValue(
                         rStates.push(
                             new RSegment.ExpressionSVO(
                                 {
-                                    ...seg.coordinate,
+                                    ...segment.coordinate,
                                     chain: coordinateChain
                                 },
                                 new RSegment.ValCall(
                                     {
-                                        ...seg.coordinate,
+                                        ...segment.coordinate,
                                         chain: coordinateChain
                                     },
                                     val
@@ -433,12 +426,12 @@ export default function preprocessValue(
                 } else {
                     if (!func.args[i].defaultValue) {
                         api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
-                            ...seg.coordinate,
+                            ...segment.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
                         beforeReturn();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                     if (func.args[i].isMacro) {
                         p.symbolTable.push({
@@ -462,12 +455,12 @@ export default function preprocessValue(
                         rStates.push(
                             new RSegment.ExpressionSVO(
                                 {
-                                    ...seg.coordinate,
+                                    ...segment.coordinate,
                                     chain: coordinateChain
                                 },
                                 new RSegment.ValCall(
                                     {
-                                        ...seg.coordinate,
+                                        ...segment.coordinate,
                                         chain: coordinateChain
                                     },
                                     val
@@ -491,11 +484,11 @@ export default function preprocessValue(
                 //TODO-implement: closure
                 const s = preprocessSegment(
                     segInside,
-                    [...coordinateChain, seg.coordinate],
+                    [...coordinateChain, segment.coordinate],
                     requirement,
                     { ...context, pools: p }
                 );
-                if (s.type != "Empty") {
+                if (!(s instanceof RSegment.Empty)) {
                     rStates.push(s);
                 }
                 if (s.macroReturnValue) {
@@ -507,14 +500,13 @@ export default function preprocessValue(
                         });
                         reportError();
                         beforeReturn();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
-                    if (macroReturnValue.type == "ValueWrapper") {
-                        const vw = <RSegment.ValueWrapper>macroReturnValue;
-                        if (vw.codes.length > 0) {
-                            rStates.push(vw);
+                    if (macroReturnValue instanceof RSegment.ValueWrapper) {
+                        if (macroReturnValue.codes.length > 0) {
+                            rStates.push(macroReturnValue);
                         }
-                        macroReturnValue = vw.value;
+                        macroReturnValue = macroReturnValue.value;
                     }
                     break;
                 }
@@ -524,7 +516,7 @@ export default function preprocessValue(
                 api.logger.error(
                     LOG_ERROR.notMacro(),
                     macroReturnValue?.coordinate ?? {
-                        ...seg.coordinate,
+                        ...segment.coordinate,
                         chain: coordinateChain
                     }
                 );
@@ -532,7 +524,7 @@ export default function preprocessValue(
             // TODO-optimise: if no body?
             return new RSegment.ValueWrapper(
                 {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 },
                 func.type,
@@ -548,20 +540,20 @@ export default function preprocessValue(
             const func = <NativeFunc>symbol.value;
             if (func.prop.deprecated) {
                 api.logger.warning(LOG_WARNING.deprecated(symbol.name), {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 });
             }
             const args: any[] = [];
             for (let i = 0; i < func.args.length; i++) {
-                if (seg.args[i]) {
-                    let a = preprocessValue(seg.args[i], coordinateChain, requirement, context);
-                    if (a.type == "EmptyValue") {
+                if (segment.args[i]) {
+                    let a = preprocessValue(segment.args[i], coordinateChain, requirement, context);
+                    if (a instanceof RSegment.EmptyValue) {
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
-                    if (a.type == "MacroValCall") {
-                        const v = (<RSegment.MacroValCall>a).val.value;
+                    if (a instanceof RSegment.MacroValCall) {
+                        const v = a.val.value;
                         if (v) {
                             a = v;
                         } else {
@@ -570,24 +562,24 @@ export default function preprocessValue(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.EmptyValue(seg.coordinate);
+                            return new RSegment.EmptyValue(segment.coordinate);
                         }
                     }
                     if (!typeCalc.contains(a.valueType, func.args[i].type)) {
                         api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
-                            ...seg.coordinate,
+                            ...segment.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                     if (!a.isMacro) {
                         api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
-                            ...seg.coordinate,
+                            ...segment.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                     try {
                         args.push(
@@ -606,16 +598,16 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                 } else {
                     if (!func.args[i].defaultValue) {
                         api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
-                            ...seg.coordinate,
+                            ...segment.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                     args.push(
                         typeCalc.valueToObj(
@@ -634,121 +626,117 @@ export default function preprocessValue(
                 o = func.body(...args);
             } catch (e) {
                 api.logger.error(LOG_ERROR.nativeError(e), {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             }
             return typeCalc.objToValue(
                 o,
                 {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 },
                 { api }
             );
         }
         api.logger.error(LOG_ERROR.notAFunction(symbol.name), {
-            ...seg.coordinate,
+            ...segment.coordinate,
             chain: coordinateChain
         });
         reportError();
-        return new RSegment.EmptyValue(seg.coordinate);
+        return new RSegment.EmptyValue(segment.coordinate);
     }
-    if (segmentRaw.type == "Exec") {
-        const seg = <Segment.Exec>segmentRaw;
-
-        const a = preprocessValue(seg.command, coordinateChain, requirement, context);
-        if (a.type == "EmptyValue") {
+    if (segment instanceof Segment.Exec) {
+        const a = preprocessValue(segment.command, coordinateChain, requirement, context);
+        if (a instanceof RSegment.EmptyValue) {
             reportError();
-            return new RSegment.EmptyValue(seg.coordinate);
+            return new RSegment.EmptyValue(segment.coordinate);
         }
         if (!typeCalc.contains(a.valueType, BASE_TYPES.string)) {
             api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
-                ...seg.coordinate,
+                ...segment.coordinate,
                 chain: coordinateChain
             });
             reportError();
-            return new RSegment.EmptyValue(seg.coordinate);
+            return new RSegment.EmptyValue(segment.coordinate);
         }
 
         return new RSegment.FunctionCall(
             {
-                ...seg.coordinate,
+                ...segment.coordinate,
                 chain: coordinateChain
             },
             BUILTIN_FLAG_FUNCTIONS["exec"],
             [a]
         );
     }
-    if (segmentRaw.type == "ExpressionSVO") {
-        const seg = <Segment.ExpressionSVO>segmentRaw;
-        let s = preprocessValue(seg.s, coordinateChain, requirement, context);
-        if (s.type == "EmptyValue") {
+    if (segment instanceof Segment.ExpressionSVO) {
+        let s = preprocessValue(segment.s, coordinateChain, requirement, context);
+        if (s instanceof RSegment.EmptyValue) {
             reportError();
-            return new RSegment.EmptyValue(seg.coordinate);
+            return new RSegment.EmptyValue(segment.coordinate);
         }
-        if (seg.v == ".") {
-            if (seg.o.type != "ValCall") {
+        if (segment.v == ".") {
+            if (!(segment.o instanceof Segment.ValCall)) {
                 api.logger.error(LOG_ERROR.unresolvedReference(""), {
-                    ...seg.o.coordinate,
+                    ...segment.o.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             }
-            if ((<Segment.ValCall>seg.o).valName.namespaces.length != 0) {
+            if ((<Segment.ValCall>segment.o).valName.namespaces.length != 0) {
                 api.logger.error(LOG_ERROR.unresolvedReference(""), {
-                    ...seg.o.coordinate,
+                    ...segment.o.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             }
-            const o = (<Segment.ValCall>seg.o).valName.value;
+            const o = (<Segment.ValCall>segment.o).valName.value;
             if (s.valueType.type == "base") {
                 api.logger.error(LOG_ERROR.baseTypeProperty(), {
                     ...s.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             } else {
                 if (s.valueType.struct.def[o]) {
-                    if (s.type == "ValueWrapper") {
-                        const vw = <RSegment.ValueWrapper>s;
-                        if (!vw.value) {
+                    if (s instanceof RSegment.ValueWrapper) {
+                        if (!s.value) {
                             api.logger.error(LOG_ERROR.unresolvedReference("null"), {
-                                ...seg.coordinate,
+                                ...segment.coordinate,
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.EmptyValue(seg.coordinate);
+                            return new RSegment.EmptyValue(segment.coordinate);
                         }
-                        if (vw.isMacro) {
+                        if (s.isMacro) {
                             return new RSegment.ValueWrapper(
-                                vw.coordinate,
-                                vw.valueType,
-                                vw.codes,
+                                s.coordinate,
+                                s.valueType,
+                                s.codes,
                                 {
-                                    isMacro: vw.isMacro,
-                                    hasScope: vw.hasScope
+                                    isMacro: s.isMacro,
+                                    hasScope: s.hasScope
                                 },
-                                (<RSegment.StructBlock>vw.value).inside[o]
+                                (<RSegment.StructBlock>s.value).inside[o]
                             );
                         } else {
                             return new RSegment.ValueWrapper(
-                                vw.coordinate,
-                                vw.valueType,
-                                vw.codes,
+                                s.coordinate,
+                                s.valueType,
+                                s.codes,
                                 {
-                                    isMacro: vw.isMacro,
-                                    hasScope: vw.hasScope
+                                    isMacro: s.isMacro,
+                                    hasScope: s.hasScope
                                 },
                                 new RSegment.GetProperty(
-                                    vw.coordinate,
-                                    <RSegment.Value>vw.value,
+                                    s.coordinate,
+                                    <RSegment.Value>s.value,
                                     o,
                                     s.valueType.struct.def[o]
                                 )
@@ -756,8 +744,8 @@ export default function preprocessValue(
                         }
                     }
                     let s1 = s;
-                    if (s1.type == "MacroValCall") {
-                        const v = (<RSegment.MacroValCall>s1).val.value;
+                    if (s1 instanceof RSegment.MacroValCall) {
+                        const v = s1.val.value;
                         if (v) {
                             s1 = v;
                         } else {
@@ -766,62 +754,61 @@ export default function preprocessValue(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.EmptyValue(seg.coordinate);
+                            return new RSegment.EmptyValue(segment.coordinate);
                         }
                     }
-                    if (s1.type == "StructBlock") {
-                        const structBlock = <RSegment.StructBlock>s1;
+                    if (s1 instanceof RSegment.StructBlock) {
                         if (s1.isMacro) {
-                            return structBlock.inside[o];
+                            return s1.inside[o];
                         } else {
                             return new RSegment.GetProperty(
-                                seg.coordinate,
-                                structBlock,
+                                segment.coordinate,
+                                s1,
                                 o,
                                 (<TypeStruct>s1.valueType).struct.def[o]
                             );
                         }
                     }
-                    if (s1.type == "ValCall") {
+                    if (s1 instanceof RSegment.ValCall) {
                         return new RSegment.GetProperty(
-                            seg.coordinate,
+                            segment.coordinate,
                             s1,
                             o,
                             (<TypeStruct>s1.valueType).struct.def[o],
-                            (<RSegment.ValCall>s1).val
+                            s1.val
                         );
                     }
-                    if (s1.type == "GetProperty") {
+                    if (s1 instanceof RSegment.GetProperty) {
                         return new RSegment.GetProperty(
-                            seg.coordinate,
+                            segment.coordinate,
                             s1,
                             o,
                             (<TypeStruct>s1.valueType).struct.def[o],
-                            (<RSegment.GetProperty>s1).valObj
+                            s1.valObj
                         );
                     }
                     api.logger.error(LOG_ERROR.reallyWeird(), {
-                        ...seg.coordinate,
+                        ...segment.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
                 api.logger.error(LOG_ERROR.noProperty(o), {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             }
         }
-        let v = seg.v;
+        let v = segment.v;
 
         let o: RSegment.Value;
         if (v == "+=") {
             v = "+";
             o = preprocessValue(
-                new Segment.ExpressionSVO(seg.coordinate, seg.s, "+", seg.o),
+                new Segment.ExpressionSVO(segment.coordinate, segment.s, "+", segment.o),
                 coordinateChain,
                 requirement,
                 context
@@ -829,7 +816,7 @@ export default function preprocessValue(
         } else if (v == "-=") {
             v = "-";
             o = preprocessValue(
-                new Segment.ExpressionSVO(seg.coordinate, seg.s, "-", seg.o),
+                new Segment.ExpressionSVO(segment.coordinate, segment.s, "-", segment.o),
                 coordinateChain,
                 requirement,
                 context
@@ -837,7 +824,7 @@ export default function preprocessValue(
         } else if (v == "*=") {
             v = "*";
             o = preprocessValue(
-                new Segment.ExpressionSVO(seg.coordinate, seg.s, "*", seg.o),
+                new Segment.ExpressionSVO(segment.coordinate, segment.s, "*", segment.o),
                 coordinateChain,
                 requirement,
                 context
@@ -845,7 +832,7 @@ export default function preprocessValue(
         } else if (v == "/=") {
             v = "/";
             o = preprocessValue(
-                new Segment.ExpressionSVO(seg.coordinate, seg.s, "/", seg.o),
+                new Segment.ExpressionSVO(segment.coordinate, segment.s, "/", segment.o),
                 coordinateChain,
                 requirement,
                 context
@@ -853,60 +840,60 @@ export default function preprocessValue(
         } else if (v == "%=") {
             v = "%";
             o = preprocessValue(
-                new Segment.ExpressionSVO(seg.coordinate, seg.s, "%", seg.o),
+                new Segment.ExpressionSVO(segment.coordinate, segment.s, "%", segment.o),
                 coordinateChain,
                 requirement,
                 context
             );
         } else {
-            o = preprocessValue(seg.o, coordinateChain, requirement, context);
+            o = preprocessValue(segment.o, coordinateChain, requirement, context);
         }
-        if (o.type == "EmptyValue") {
+        if (o instanceof RSegment.EmptyValue) {
             reportError();
-            return new RSegment.EmptyValue(seg.coordinate);
+            return new RSegment.EmptyValue(segment.coordinate);
         }
 
         if (typeCalc.equalsTo(s.valueType, BASE_TYPES.void) ||
             typeCalc.equalsTo(o.valueType, BASE_TYPES.void)) {
             api.logger.error(LOG_ERROR.mismatchingType(), {
-                ...seg.coordinate,
+                ...segment.coordinate,
                 chain: coordinateChain
             });
             reportError();
-            return new RSegment.EmptyValue(seg.coordinate);
+            return new RSegment.EmptyValue(segment.coordinate);
         }
         if (v == "=") {
-            if (s.type == "ValCall") {
-                if ((<RSegment.ValCall>s).val.prop.isConst) {
+            if (s instanceof RSegment.ValCall) {
+                if (s.val.prop.isConst) {
                     api.logger.error(LOG_ERROR.notAVar(), {
                         ...s.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
                 if (typeCalc.contains(o.valueType, s.valueType)) {
-                    (<RSegment.ValCall>s).val.isInit = true;
-                    return new RSegment.ExpressionSVO(seg.coordinate, s, seg.v, o, s.valueType);
+                    s.val.isInit = true;
+                    return new RSegment.ExpressionSVO(segment.coordinate, s, segment.v, o, s.valueType);
                 } else {
                     api.logger.error(LOG_ERROR.mismatchingType(), {
-                        ...seg.coordinate,
+                        ...segment.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
-            } else if (s.type == "GetProperty") {
-                if ((<RSegment.GetProperty>s).valObj) {
+            } else if (s instanceof RSegment.GetProperty) {
+                if (s.valObj) {
                     if (typeCalc.contains(o.valueType, s.valueType)) {
-                        return new RSegment.ExpressionSVO(seg.coordinate, s, seg.v, o, s.valueType);
+                        return new RSegment.ExpressionSVO(segment.coordinate, s, segment.v, o, s.valueType);
                     } else {
                         api.logger.error(LOG_ERROR.mismatchingType(), {
-                            ...seg.coordinate,
+                            ...segment.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                 } else {
                     api.logger.error(LOG_ERROR.notAVar(), {
@@ -914,38 +901,38 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
-            } else if (s.type == "MacroValCall") {
-                const val = (<RSegment.MacroValCall>s).val;
+            } else if (s instanceof RSegment.MacroValCall) {
+                const val = s.val;
                 if (!o.isMacro) {
                     api.logger.error(LOG_ERROR.notMacro(), {
                         ...o.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
                 if (!typeCalc.contains(o.valueType, s.valueType)) {
                     api.logger.error(LOG_ERROR.mismatchingType(), {
-                        ...seg.coordinate,
+                        ...segment.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
                 let o1 = o;
                 let type = o1.valueType;
-                if (o1.type == "ValueWrapper") {
-                    if ((<RSegment.ValueWrapper>o1).codes) {
-                        const vw = <RSegment.ValueWrapper>o1;
+                if (o1 instanceof RSegment.ValueWrapper) {
+                    if (o1.codes) {
+                        const vw = o1;
                         if (!vw.value) {
                             api.logger.error(LOG_ERROR.mismatchingType(), {
                                 ...o1.coordinate,
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.EmptyValue(seg.coordinate);
+                            return new RSegment.EmptyValue(segment.coordinate);
                         }
                         if (!typeCalc.contains(type, val.type)) {
                             api.logger.error(LOG_ERROR.mismatchingType(), {
@@ -953,32 +940,32 @@ export default function preprocessValue(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.EmptyValue(seg.coordinate);
+                            return new RSegment.EmptyValue(segment.coordinate);
                         }
                         val.value = vw.value;
                         return o1;
                     } else {
-                        if (!(<RSegment.ValueWrapper>o1).value) {
+                        if (!o1.value) {
                             api.logger.error(LOG_ERROR.missingType(), {
                                 ...o1.coordinate,
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.EmptyValue(seg.coordinate);
+                            return new RSegment.EmptyValue(segment.coordinate);
                         }
-                        o1 = <RSegment.Value>(<RSegment.ValueWrapper>o1).value;
+                        o1 = o1.value;
                     }
                 }
-                if (o1.type == "MacroValCall") {
-                    if ((<RSegment.MacroValCall>o).val.value) {
-                        o1 = <RSegment.Value>(<RSegment.MacroValCall>o).val.value;
+                if (o1 instanceof RSegment.MacroValCall) {
+                    if (o1.val.value) {
+                        o1 = o1.val.value;
                     } else {
                         api.logger.error(LOG_ERROR.useBeforeInit(), {
                             ...o.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                 }
                 const v = MacroVal.fromValue(o1, val.prop.isConst, { api });
@@ -992,11 +979,11 @@ export default function preprocessValue(
                     return val.value;
                 } else {
                     api.logger.error(LOG_ERROR.mismatchingType(), {
-                        ...seg.coordinate,
+                        ...segment.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
             } else {
                 api.logger.error(LOG_ERROR.notAVar(), {
@@ -1004,16 +991,16 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             }
         }
         if (s.valueType.type == "struct" || o.valueType.type == "struct") {
             api.logger.error(LOG_ERROR.mismatchingType(), {
-                ...seg.coordinate,
+                ...segment.coordinate,
                 chain: coordinateChain
             });
             reportError();
-            return new RSegment.EmptyValue(seg.coordinate);
+            return new RSegment.EmptyValue(segment.coordinate);
         }
         if (s.isMacro && o.isMacro) {
             const codes: RSegment.ValueWrapper[] = [];
@@ -1030,7 +1017,7 @@ export default function preprocessValue(
                     return codes[0];
                 }
                 return new RSegment.ValueWrapper(
-                    seg.coordinate,
+                    segment.coordinate,
                     value.valueType,
                     codes,
                     {
@@ -1041,22 +1028,20 @@ export default function preprocessValue(
                 );
             };
 
-            if (s.type == "ValueWrapper") {
-                const vw = <RSegment.ValueWrapper>s;
-                if (vw.codes.length > 0) {
+            if (s instanceof RSegment.ValueWrapper) {
+                if (s.codes.length > 0) {
                     codes.push(<RSegment.ValueWrapper>s);
                 }
-                s = <RSegment.Value>vw.value;
+                s = <RSegment.Value>s.value;
             }
-            if (o.type == "ValueWrapper") {
-                const vw = <RSegment.ValueWrapper>o;
-                if (vw.codes.length > 0) {
+            if (o instanceof RSegment.ValueWrapper) {
+                if (o.codes.length > 0) {
                     codes.push(<RSegment.ValueWrapper>o);
                 }
-                o = <RSegment.Value>vw.value;
+                o = <RSegment.Value>o.value;
             }
-            if (s.type == "MacroValCall") {
-                const val = (<RSegment.MacroValCall>s).val;
+            if (s instanceof RSegment.MacroValCall) {
+                const val = s.val;
                 if (val.value) {
                     s = val.value;
                 } else {
@@ -1065,11 +1050,11 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
             }
-            if (o.type == "MacroValCall") {
-                const val = (<RSegment.MacroValCall>o).val;
+            if (o instanceof RSegment.MacroValCall) {
+                const val = o.val;
                 if (val.value) {
                     o = val.value;
                 } else {
@@ -1078,7 +1063,7 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
             }
             if (!typeCalc.equalsTo(sType, s.valueType)) {
@@ -1105,7 +1090,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                     s = new RSegment.Int(s.coordinate, num);
                 }
@@ -1134,7 +1119,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                     o = new RSegment.Int(o.coordinate, num);
                 }
@@ -1142,32 +1127,32 @@ export default function preprocessValue(
             if (v == "+") {
                 if (typeCalc.equalsTo(sType, BASE_TYPES.string) ||
                     typeCalc.equalsTo(oType, BASE_TYPES.string)) {
-                    return wrap(new RSegment.String(seg.coordinate,
+                    return wrap(new RSegment.String(segment.coordinate,
                         (<RSegment.MacroBase>s).toStr().value + (<RSegment.MacroBase>o).toStr().value));
                 }
             } else if (v == "==" || v == "!=") {
                 if (!(sType.type == "base") || !(oType.type == "base")) {
                     api.logger.error(LOG_ERROR.mismatchingType(), {
-                        ...seg.coordinate,
+                        ...segment.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
                 if (v == "==") {
-                    return wrap(new RSegment.Bool(seg.coordinate, (<RSegment.MacroBase>s).value == (<RSegment.MacroBase>o).value));
+                    return wrap(new RSegment.Bool(segment.coordinate, (<RSegment.MacroBase>s).value == (<RSegment.MacroBase>o).value));
                 } else {
-                    return wrap(new RSegment.Bool(seg.coordinate, (<RSegment.MacroBase>s).value != (<RSegment.MacroBase>o).value));
+                    return wrap(new RSegment.Bool(segment.coordinate, (<RSegment.MacroBase>s).value != (<RSegment.MacroBase>o).value));
                 }
             } else {
                 if (typeCalc.equalsTo(sType, BASE_TYPES.string) ||
                     typeCalc.equalsTo(oType, BASE_TYPES.string)) {
                     api.logger.error(LOG_ERROR.mismatchingType(), {
-                        ...seg.coordinate,
+                        ...segment.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
             }
             if (["+", "-", "*", "/", "%", ">>", "<<"].indexOf(v) >= 0) {
@@ -1183,45 +1168,43 @@ export default function preprocessValue(
                 } else {
                     r = (<RSegment.Int>s).value;
                 }
-                return wrap(new RSegment.Int(seg.coordinate, eval(`${l}${v}${r}`)));
+                return wrap(new RSegment.Int(segment.coordinate, eval(`${l}${v}${r}`)));
             }
             if (["<", ">", ">=", "<=", "==", "!="].indexOf(v) >= 0) {
-                return wrap(new RSegment.Bool(seg.coordinate,
+                return wrap(new RSegment.Bool(segment.coordinate,
                     eval(`${(<RSegment.MacroBase>s).toStr().value}${v}${(<RSegment.MacroBase>o).toStr().value}`)));
             }
             if (v == "&&" || v == "||") {
                 if (typeCalc.equalsTo(sType, BASE_TYPES.boolean) && typeCalc.equalsTo(oType, BASE_TYPES.boolean)) {
                     if (v == "&&") {
-                        return wrap(new RSegment.Bool(seg.coordinate, (<RSegment.Bool>s).value && (<RSegment.Bool>o).value));
+                        return wrap(new RSegment.Bool(segment.coordinate, (<RSegment.Bool>s).value && (<RSegment.Bool>o).value));
                     } else {
-                        return wrap(new RSegment.Bool(seg.coordinate, (<RSegment.Bool>s).value || (<RSegment.Bool>o).value));
+                        return wrap(new RSegment.Bool(segment.coordinate, (<RSegment.Bool>s).value || (<RSegment.Bool>o).value));
                     }
                 }
                 api.logger.error(LOG_ERROR.mismatchingType(), {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             }
         } else {
             const codes: RSegment.ValueWrapper[] = [];
             const sType = s.valueType;
             const oType = o.valueType;
 
-            if (s.type == "ValueWrapper") {
-                const vw = <RSegment.ValueWrapper>s;
-                if (vw.codes.length > 0) {
-                    codes.push(<RSegment.ValueWrapper>s);
+            if (s instanceof RSegment.ValueWrapper) {
+                if (s.codes.length > 0) {
+                    codes.push(s);
                 }
-                s = <RSegment.Value>vw.value;
+                s = <RSegment.Value>s.value;
             }
-            if (o.type == "ValueWrapper") {
-                const vw = <RSegment.ValueWrapper>o;
-                if (vw.codes.length > 0) {
-                    codes.push(<RSegment.ValueWrapper>o);
+            if (o instanceof RSegment.ValueWrapper) {
+                if (o.codes.length > 0) {
+                    codes.push(o);
                 }
-                o = <RSegment.Value>vw.value;
+                o = <RSegment.Value>o.value;
             }
             let type: Type;
             if (v == "+") {
@@ -1237,11 +1220,11 @@ export default function preprocessValue(
                 if (typeCalc.equalsTo(sType, BASE_TYPES.string) ||
                     typeCalc.equalsTo(oType, BASE_TYPES.string)) {
                     api.logger.error(LOG_ERROR.mismatchingType(), {
-                        ...seg.coordinate,
+                        ...segment.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 } else if (["-", "*", "/", "%", ">>", "<<"].indexOf(v) >= 0) {
                     type = BASE_TYPES.int;
                 } else if (["<", ">", ">=", "<="].indexOf(v) >= 0) {
@@ -1251,22 +1234,22 @@ export default function preprocessValue(
                         type = BASE_TYPES.boolean;
                     } else {
                         api.logger.error(LOG_ERROR.mismatchingType(), {
-                            ...seg.coordinate,
+                            ...segment.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                 } else {
                     api.logger.error(LOG_ERROR.invalidCharacterOrToken(v), {
-                        ...seg.coordinate,
+                        ...segment.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
             }
-            const value = new RSegment.ExpressionSVO(seg.coordinate, s, v, o, type);
+            const value = new RSegment.ExpressionSVO(segment.coordinate, s, v, o, type);
 
             if (codes.length == 0) {
                 return value;
@@ -1277,7 +1260,7 @@ export default function preprocessValue(
                 return codes[0];
             }
             return new RSegment.ValueWrapper(
-                seg.coordinate,
+                segment.coordinate,
                 type,
                 codes,
                 {
@@ -1289,35 +1272,34 @@ export default function preprocessValue(
         }
     }
 
-    if (segmentRaw.type == "ExpressionSV") {
-        const seg = <Segment.ExpressionSV>segmentRaw;
-        let s = preprocessValue(seg.s, coordinateChain, requirement, context);
-        if (s.type == "EmptyValue") {
+    if (segment instanceof Segment.ExpressionSV) {
+        let s = preprocessValue(segment.s, coordinateChain, requirement, context);
+        if (s instanceof RSegment.EmptyValue) {
             reportError();
-            return new RSegment.EmptyValue(seg.coordinate);
+            return new RSegment.EmptyValue(segment.coordinate);
         }
-        let v = seg.v;
+        let v = segment.v;
 
         if (!typeCalc.equalsTo(s.valueType, BASE_TYPES.int)) {
             api.logger.error(LOG_ERROR.mismatchingType(), {
-                ...seg.coordinate,
+                ...segment.coordinate,
                 chain: coordinateChain
             });
             reportError();
-            return new RSegment.EmptyValue(seg.coordinate);
+            return new RSegment.EmptyValue(segment.coordinate);
         }
 
-        if (s.type == "MacroValCall") {
-            const val = (<RSegment.MacroValCall>s).val;
+        if (s instanceof RSegment.MacroValCall) {
+            const val = s.val;
             if (val.value) {
                 if (typeCalc.equalsTo(val.type, BASE_TYPES.int)) {
-                    const ret = new RSegment.Int(seg.coordinate, (<RSegment.Int>val.value).value);
+                    const ret = new RSegment.Int(segment.coordinate, (<RSegment.Int>val.value).value);
                     if (v == "++") {
-                        val.value = new RSegment.Int(seg.coordinate, (<RSegment.Int>val.value).value + 1);
+                        val.value = new RSegment.Int(segment.coordinate, (<RSegment.Int>val.value).value + 1);
                         return ret;
                     }
                     if (v == "--") {
-                        val.value = new RSegment.Int(seg.coordinate, (<RSegment.Int>val.value).value - 1);
+                        val.value = new RSegment.Int(segment.coordinate, (<RSegment.Int>val.value).value - 1);
                         return ret;
                     }
                 }
@@ -1331,83 +1313,82 @@ export default function preprocessValue(
                         reportError();
                         num = 0;
                     }
-                    const ret = new RSegment.Int(seg.coordinate, num);
+                    const ret = new RSegment.Int(segment.coordinate, num);
                     if (v == "++") {
-                        val.value = new RSegment.String(seg.coordinate, (num + 1).toString());
+                        val.value = new RSegment.String(segment.coordinate, (num + 1).toString());
                         return ret;
                     }
                     if (v == "--") {
-                        val.value = new RSegment.String(seg.coordinate, (num - 1).toString());
+                        val.value = new RSegment.String(segment.coordinate, (num - 1).toString());
                         return ret;
                     }
                 }
                 api.logger.error(LOG_ERROR.invalidCharacterOrToken(v), {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             } else {
                 api.logger.error(LOG_ERROR.useBeforeInit(), {
                     ...s.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             }
         }
-        if (s.type == "ValCall") {
-            if ((<RSegment.ValCall>s).val.prop.isConst) {
+        if (s instanceof RSegment.ValCall) {
+            if (s.val.prop.isConst) {
                 api.logger.error(LOG_ERROR.assignToConst(), {
                     ...s.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
             }
-            return new RSegment.ExpressionSV(seg.coordinate, s, seg.v, s.valueType);
+            return new RSegment.ExpressionSV(segment.coordinate, s, segment.v, s.valueType);
         }
-        if (s.type == "GetProperty") {
-            if ((<RSegment.GetProperty>s).valObj && (!(<RSegment.GetProperty>s).valObj?.prop.isConst)) {
-                return new RSegment.ExpressionSV(seg.coordinate, s, seg.v, s.valueType);
+        if (s instanceof RSegment.GetProperty) {
+            if (s.valObj && !s.valObj.prop.isConst) {
+                return new RSegment.ExpressionSV(segment.coordinate, s, segment.v, s.valueType);
             } else {
                 api.logger.error(LOG_ERROR.notAVar(), {
                     ...s.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             }
         }
     }
 
-    if (segmentRaw.type == "ExpressionVO") {
-        const seg = <Segment.ExpressionVO>segmentRaw;
-        let v = seg.v;
-        let o = preprocessValue(seg.o, coordinateChain, requirement, context);
-        if (o.type == "EmptyValue") {
+    if (segment instanceof Segment.ExpressionVO) {
+        let v = segment.v;
+        let o = preprocessValue(segment.o, coordinateChain, requirement, context);
+        if (o instanceof RSegment.EmptyValue) {
             reportError();
-            return new RSegment.EmptyValue(seg.coordinate);
+            return new RSegment.EmptyValue(segment.coordinate);
         }
 
         if (v == "!") {
             if (!typeCalc.equalsTo(o.valueType, BASE_TYPES.boolean)) {
                 api.logger.error(LOG_ERROR.mismatchingType(), {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.Bool(seg.coordinate, false);
+                return new RSegment.Bool(segment.coordinate, false);
             }
             if (o.isMacro) {
                 let vw: RSegment.ValueWrapper | undefined;
-                if (o.type == "ValueWrapper") {
-                    if ((<RSegment.ValueWrapper>o).codes.length > 0) {
-                        vw = <RSegment.ValueWrapper>o;
+                if (o instanceof RSegment.ValueWrapper) {
+                    if (o.codes.length > 0) {
+                        vw = o;
                     }
-                    o = <RSegment.Value>(<RSegment.ValueWrapper>o).value;
+                    o = <RSegment.Value>o.value;
                 }
-                if (o.type == "MacroValCall") {
-                    const val = (<RSegment.MacroValCall>o).val;
+                if (o instanceof RSegment.MacroValCall) {
+                    const val = o.val;
                     if (val.value) {
                         o = val.value;
                     } else {
@@ -1416,7 +1397,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.EmptyValue(seg.coordinate);
+                        return new RSegment.EmptyValue(segment.coordinate);
                     }
                 }
                 if (!typeCalc.equalsTo(o.valueType, BASE_TYPES.boolean)) {
@@ -1435,30 +1416,30 @@ export default function preprocessValue(
                     }
                 }
                 if (vw) {
-                    vw.value = new RSegment.Bool(seg.coordinate, !(<RSegment.Bool>o).value);
+                    vw.value = new RSegment.Bool(segment.coordinate, !(<RSegment.Bool>o).value);
                     return vw;
                 } else {
-                    return new RSegment.Bool(seg.coordinate, !(<RSegment.Bool>o).value);
+                    return new RSegment.Bool(segment.coordinate, !(<RSegment.Bool>o).value);
                 }
             } else {
                 let vw: RSegment.ValueWrapper | undefined;
                 const oType = o.valueType;
 
-                if (o.type == "ValueWrapper") {
-                    if ((<RSegment.ValueWrapper>o).codes.length > 0) {
-                        vw = <RSegment.ValueWrapper>o;
+                if (o instanceof RSegment.ValueWrapper) {
+                    if (o.codes.length > 0) {
+                        vw = o;
                     }
-                    o = <RSegment.Value>(<RSegment.ValueWrapper>o).value;
+                    o = <RSegment.Value>o.value;
                 }
                 if (typeCalc.equalsTo(oType, BASE_TYPES.string)) {
                     api.logger.error(LOG_ERROR.mismatchingType(), {
-                        ...seg.coordinate,
+                        ...segment.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
-                const value = new RSegment.ExpressionVO(seg.coordinate, v, o, BASE_TYPES.boolean);
+                const value = new RSegment.ExpressionVO(segment.coordinate, v, o, BASE_TYPES.boolean);
                 if (vw) {
                     vw.value = value;
                     return vw;
@@ -1470,23 +1451,23 @@ export default function preprocessValue(
         if (v == "++" || v == "--") {
             if (!typeCalc.equalsTo(o.valueType, BASE_TYPES.int)) {
                 api.logger.error(LOG_ERROR.mismatchingType(), {
-                    ...seg.coordinate,
+                    ...segment.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new RSegment.EmptyValue(seg.coordinate);
+                return new RSegment.EmptyValue(segment.coordinate);
             }
-            if (o.type == "MacroValCall") {
-                const val = (<RSegment.MacroValCall>o).val;
+            if (o instanceof RSegment.MacroValCall) {
+                const val = o.val;
                 if (val.value) {
                     if (typeCalc.equalsTo(val.type, BASE_TYPES.int)) {
-                        const ret = new RSegment.Int(seg.coordinate, (<RSegment.Int>val.value).value);
+                        const ret = new RSegment.Int(segment.coordinate, (<RSegment.Int>val.value).value);
                         if (v == "++") {
-                            val.value = new RSegment.Int(seg.coordinate, (<RSegment.Int>val.value).value + 1);
+                            val.value = new RSegment.Int(segment.coordinate, (<RSegment.Int>val.value).value + 1);
                             return ret;
                         }
                         if (v == "--") {
-                            val.value = new RSegment.Int(seg.coordinate, (<RSegment.Int>val.value).value - 1);
+                            val.value = new RSegment.Int(segment.coordinate, (<RSegment.Int>val.value).value - 1);
                             return ret;
                         }
                     }
@@ -1501,56 +1482,56 @@ export default function preprocessValue(
                             num = 0;
                         }
                         if (v == "++") {
-                            val.value = new RSegment.String(seg.coordinate, (num + 1).toString());
+                            val.value = new RSegment.String(segment.coordinate, (num + 1).toString());
                             return val.value;
                         }
                         if (v == "--") {
-                            val.value = new RSegment.String(seg.coordinate, (num - 1).toString());
+                            val.value = new RSegment.String(segment.coordinate, (num - 1).toString());
                             return val.value;
                         }
                     }
                     api.logger.error(LOG_ERROR.invalidCharacterOrToken(v), {
-                        ...seg.coordinate,
+                        ...segment.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 } else {
                     api.logger.error(LOG_ERROR.useBeforeInit(), {
                         ...o.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
             }
-            if (o.type == "ValCall") {
-                if ((<RSegment.ValCall>o).val.prop.isConst) {
+            if (o instanceof RSegment.ValCall) {
+                if (o.val.prop.isConst) {
                     api.logger.error(LOG_ERROR.notAVar(), {
                         ...o.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
-                return new RSegment.ExpressionSV(seg.coordinate, o, seg.v, o.valueType);
+                return new RSegment.ExpressionSV(segment.coordinate, o, segment.v, o.valueType);
             }
-            if (o.type == "GetProperty") {
-                if ((<RSegment.GetProperty>o).valObj && (!(<RSegment.GetProperty>o).valObj?.prop.isConst)) {
-                    return new RSegment.ExpressionSV(seg.coordinate, o, seg.v, o.valueType);
+            if (o instanceof RSegment.GetProperty) {
+                if (o.valObj && !o.valObj.prop.isConst) {
+                    return new RSegment.ExpressionSV(segment.coordinate, o, segment.v, o.valueType);
                 } else {
                     api.logger.error(LOG_ERROR.notAVar(), {
                         ...o.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.EmptyValue(seg.coordinate);
+                    return new RSegment.EmptyValue(segment.coordinate);
                 }
             }
         }
     }
     api.logger.errorInterrupt(LOG_ERROR.reallyWeird(), {
-        ...segmentRaw.coordinate,
+        ...segment.coordinate,
         chain: coordinateChain
     });
     return <RSegment.Value>{};

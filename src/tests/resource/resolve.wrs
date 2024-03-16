@@ -40,6 +40,6 @@ for (var i = 0; i <= 5; i++){
     println("*");
 }
 
-function yell(name: string = "A guest") {
-    println(`${name} yelled`);
+function welcome(name: string = "A guest") {
+    println(`Welcome! I'm ${name}.`);
 }

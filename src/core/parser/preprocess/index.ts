@@ -21,24 +21,23 @@ export default function preprocess(
     const hasError = { v: false };
 
     function push(segment: RSegment.SegmentInterface) {
-        if (segment.type == "Empty" || segment.type == "EmptyValue") {
+        if (segment instanceof RSegment.Empty || segment instanceof RSegment.EmptyValue) {
             return;
         }
-        if (segment.type == "Block" && !(<RSegment.Block>segment).hasScope) {
-            for (const s of (<RSegment.Block>segment).inside) {
+        if (segment instanceof RSegment.Block && !segment.hasScope) {
+            for (const s of segment.inside) {
                 push(s);
             }
         }
-        if (segment.type == "ValueWrapper" && (<RSegment.ValueWrapper>segment).codes.length != 0) {
-            const seg = <RSegment.ValueWrapper>segment;
-            for (const s of seg.codes) {
+        if (segment instanceof RSegment.ValueWrapper && segment.codes.length != 0) {
+            for (const s of segment.codes) {
                 push(s);
             }
-            if (seg.value) {
-                push(seg.value);
+            if (segment.value) {
+                push(segment.value);
             }
         }
-        if (segment.type == "Int" || segment.type == "Bool" || segment.type == "String") {
+        if (segment instanceof RSegment.Int || segment instanceof RSegment.Bool || segment instanceof RSegment.String) {
             return;
         }
         result.push(segment);

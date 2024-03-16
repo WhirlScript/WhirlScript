@@ -11,6 +11,16 @@ import RawCode from "../../util/parser/rawCode";
 import readFile from "../../util/api/readFile";
 import tokenize from "../tokenize";
 
+class O {
+    constructor(value: string, level: number) {
+        this.value = value;
+        this.level = level;
+    }
+
+    value: string;
+    level: number;
+}
+
 export default function resolve(tokens: Deque<Token>, context: {
     importPool: string[],
     api: ApiWrapper
@@ -46,13 +56,13 @@ export default function resolve(tokens: Deque<Token>, context: {
     let cursor = pop();
 
     function getExpression(): Segment.Value {
-        const expr: Deque<Segment.Value | { type: "o", value: string, level: number }> = new Deque();
+        const expr: Deque<Segment.Value | O> = new Deque();
         const opLevel: LightDeque<number> = new LightDeque();// Operation levels
         let hLOperation: Token | undefined;// Hanging leading operation
         let hLAssertion: { type: Segment.Name, coordinate: Coordinate } | undefined;// Hanging leading assertion
         while (cursor.value != "," && cursor.value != ";" && cursor.value != ")" && cursor.value != "}" && cursor.flag != "EOF") {
             if (cursor.value == "(") {
-                if (!expr.isEmpty() && expr.peekRear()?.type != "o") {
+                if (!expr.isEmpty() && !(expr.peekRear() instanceof O)) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                 }
                 cursor = pop();
@@ -76,7 +86,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 if (hLOperation) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(hLOperation.value), hLOperation.coordinate);
                 }
-                if (!expr.isEmpty() && expr.peekRear()?.type != "o") {
+                if (!expr.isEmpty() && !(expr.peekRear() instanceof O)) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                 }
                 if (hLAssertion) {
@@ -92,7 +102,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 if (hLOperation) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(hLOperation.value), hLOperation.coordinate);
                 }
-                if (!expr.isEmpty() && expr.peekRear()?.type != "o") {
+                if (!expr.isEmpty() && !(expr.peekRear() instanceof O)) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                 }
                 if (hLAssertion) {
@@ -108,7 +118,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 if (hLOperation) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(hLOperation.value), hLOperation.coordinate);
                 }
-                if (!expr.isEmpty() && expr.peekRear()?.type != "o") {
+                if (!expr.isEmpty() && !(expr.peekRear() instanceof O)) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                 }
                 if (hLAssertion) {
@@ -124,7 +134,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 if (hLOperation) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(hLOperation.value), hLOperation.coordinate);
                 }
-                if (!expr.isEmpty() && expr.peekRear()?.type != "o") {
+                if (!expr.isEmpty() && !(expr.peekRear() instanceof O)) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                 }
                 cursor = pop();
@@ -142,7 +152,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 if (hLOperation) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(hLOperation.value), hLOperation.coordinate);
                 }
-                if (!expr.isEmpty() && expr.peekRear()?.type != "o") {
+                if (!expr.isEmpty() && !(expr.peekRear() instanceof O)) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                 }
                 const values: Segment.Value[] = [];
@@ -174,7 +184,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 continue;
             }
             if (cursor.value == "$") {
-                if (!expr.isEmpty() && expr.peekRear()?.type != "o") {
+                if (!expr.isEmpty() && !(expr.peekRear() instanceof O)) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                 }
                 const coo = cursor.coordinate;
@@ -193,7 +203,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 if (hLOperation) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(hLOperation.value), hLOperation.coordinate);
                 }
-                if (!expr.isEmpty() && expr.peekRear()?.type != "o") {
+                if (!expr.isEmpty() && !(expr.peekRear() instanceof O)) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                 }
                 const coo = cursor.coordinate;
@@ -240,7 +250,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 }
                 const level = (<{ [key: string]: number }>CODE_TYPES.operatorPrecedence)?.[cursor.value];
                 if (level == 1 || level == 2) {
-                    if (expr.isEmpty() || expr.peekRear()?.type == "o") {
+                    if (expr.isEmpty() || expr.peekRear() instanceof O) {
                         hLOperation = cursor;
                     } else {
                         if (cursor.value == "!") {
@@ -252,7 +262,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                     cursor = pop();
                     continue;
                 }
-                if (expr.isEmpty() || expr.peekRear()?.type == "o") {
+                if (expr.isEmpty() || expr.peekRear() instanceof O) {
                     if (cursor.value == "<") {
                         const coo = cursor.coordinate;
                         cursor = pop();
@@ -273,13 +283,13 @@ export default function resolve(tokens: Deque<Token>, context: {
                 }
                 if (opLevel.isEmpty()) {
                     opLevel.pushRear(level);
-                    expr.pushRear({ type: "o", value: cursor.value, level });
+                    expr.pushRear(new O(cursor.value, level));
                     cursor = pop();
                     continue;
                 }
                 if (opLevel.size() >= 1 && opLevel.peekRear() < level) {
                     while (opLevel.size() >= 1 && opLevel.peekRear() < level) {
-                        const temp: Deque<Segment.Value | { type: "o", value: string, level: number }> = new Deque();
+                        const temp: Deque<Segment.Value | O> = new Deque();
                         const levelPref = opLevel.peekRear();
                         temp.pushFront(expr.popRear());
                         while (!opLevel.isEmpty() && opLevel.peekRear() == levelPref) {
@@ -299,18 +309,18 @@ export default function resolve(tokens: Deque<Token>, context: {
                         }
                         expr.pushRear(<Segment.Value>temp.peekFront());
                     }
-                    expr.pushRear({ type: "o", value: cursor.value, level });
+                    expr.pushRear(new O(cursor.value, level));
                     cursor = pop();
                     continue;
                 } else {
                     opLevel.pushRear(level);
-                    expr.pushRear({ type: "o", value: cursor.value, level });
+                    expr.pushRear(new O(cursor.value, level));
                     cursor = pop();
                     continue;
                 }
             }
             if (cursor.flag == "word") {
-                if (!expr.isEmpty() && expr.peekRear()?.type != "o") {
+                if (!expr.isEmpty() && !(expr.peekRear() instanceof O)) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                 }
                 const coo = cursor.coordinate;
