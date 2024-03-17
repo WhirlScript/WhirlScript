@@ -233,6 +233,8 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
             }
+            val.used = true;
+            pools.pushRequirePool(val);
             if (!val.isInit) {
                 api.logger.error(LOG_ERROR.useBeforeInit(), {
                     ...segment.coordinate,
@@ -266,6 +268,8 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
             }
+            func.used = true;
+            pools.pushRequirePool(func);
             const args: RSegment.Value[] = [];
             for (let i = 0; i < func.args.length; i++) {
                 if (segment.args[i]) {
@@ -350,7 +354,7 @@ export default function preprocessValue(
                         return new RSegment.EmptyValue(segment.coordinate);
                     }
                     if (a instanceof RSegment.MacroValCall) {
-                        const v = (<RSegment.MacroValCall>a).val.value;
+                        const v = a.val.value;
                         if (v) {
                             a = v;
                         } else {
@@ -392,7 +396,10 @@ export default function preprocessValue(
                             )
                         });
                     } else {
-                        const val = new Val(func.args[i].name, func.args[i].type, {
+                        const val = new Val(func.args[i].name, {
+                            ...func.coordinate,
+                            chain: coordinateChain
+                        }, func.args[i].type, {
                             deprecated: false,
                             isConst: false,
                             optional: false
@@ -447,7 +454,10 @@ export default function preprocessValue(
                             )
                         });
                     } else {
-                        const val = new Val(func.args[i].name, func.args[i].type, {
+                        const val = new Val(func.args[i].name, {
+                            ...func.coordinate,
+                            chain: coordinateChain
+                        }, func.args[i].type, {
                             deprecated: false,
                             isConst: false,
                             optional: false
@@ -471,6 +481,7 @@ export default function preprocessValue(
                             )
                         );
                         p.renamePool.push(val.name);
+                        p.pushDefinePool(val);
                         p.symbolTable.push({
                             name: func.args[i].name,
                             type: "Val",
@@ -687,7 +698,7 @@ export default function preprocessValue(
                 reportError();
                 return new RSegment.EmptyValue(segment.coordinate);
             }
-            if ((<Segment.ValCall>segment.o).valName.namespaces.length != 0) {
+            if (segment.o.valName.namespaces.length != 0) {
                 api.logger.error(LOG_ERROR.unresolvedReference(""), {
                     ...segment.o.coordinate,
                     chain: coordinateChain
@@ -695,7 +706,7 @@ export default function preprocessValue(
                 reportError();
                 return new RSegment.EmptyValue(segment.coordinate);
             }
-            const o = (<Segment.ValCall>segment.o).valName.value;
+            const o = segment.o.valName.value;
             if (s.valueType.type == "base") {
                 api.logger.error(LOG_ERROR.baseTypeProperty(), {
                     ...s.coordinate,

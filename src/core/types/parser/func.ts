@@ -2,6 +2,7 @@ import Type from "./type";
 import { RSegment } from "./rSegment";
 import Val from "./val";
 import { SName } from "../../util/parser/pools";
+import Coordinate from "./coordinate";
 
 type Args = {
     name: string,
@@ -17,27 +18,31 @@ type FunctionProp = {
 
 export default class Func {
     readonly name: SName;
+    readonly coordinate: Coordinate;
     readonly args: Args;
     readonly type: Type;
     readonly body: RSegment.Block;
     readonly prop: FunctionProp;
-    usingList: (Func | Val)[] = [];
     used: boolean = false;
+    required: boolean = false;
+    requireList: (Func | Val)[];
     flag: string | undefined;
 
-    constructor(name: string, type: Type, args: Args, body: RSegment.Block, prop: FunctionProp) {
+    constructor(name: string, coordinate: Coordinate, requireList: (Func | Val)[], type: Type, args: Args, body: RSegment.Block, prop: FunctionProp) {
         this.name = { v: name };
+        this.coordinate = coordinate;
+        this.requireList = requireList;
         this.type = type;
         this.args = args;
         this.body = body;
         this.prop = prop;
     }
 
-    use() {
-        for (const usingListElement of this.usingList) {
-            usingListElement.use();
+    require() {
+        for (const e of this.requireList) {
+            e.require();
         }
-        this.used = true;
+        this.required = true;
     }
 
 }

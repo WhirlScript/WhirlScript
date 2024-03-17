@@ -52,7 +52,7 @@ if (me.id == 0){
 }
 
 @const
-for (macro var i = 0; i <= 5; i++){
+for (macro var i = 0; i < 5; i++){
     macro var j = 0;
     @const
     while (j < i){
@@ -62,6 +62,7 @@ for (macro var i = 0; i <= 5; i++){
     println("*");
 }
 
+@optional
 function welcome(name: string = "A guest") {
     println(`Welcome! I'm ${name}.`);
 }

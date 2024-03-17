@@ -32,6 +32,20 @@ class LogWarning {
             details: "The statement is not expandable"
         };
     }
+
+    notUsed(name:string): WhirlWarning {
+        return {
+            type: this.WARNING_TYPES.WARNING,
+            details: `${name} is defined but not used`
+        };
+    }
+
+    internalWarning(msg: string) {
+        return {
+            type: this.WARNING_TYPES.WARNING,
+            details: `Internal Warning: ${msg}`
+        };
+    }
 }
 
 const LOG_WARNING = new LogWarning();

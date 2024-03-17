@@ -12,7 +12,7 @@ type Args = {
 }[];
 
 function createFlagFunction(name: string, type: Type, args: Args, deprecated: boolean) {
-    const func = new Func(name, type, args, new RSegment.Block(BUILTIN_COORDINATE, [], undefined), {
+    const func = new Func(name, BUILTIN_COORDINATE, [], type, args, new RSegment.Block(BUILTIN_COORDINATE, [], undefined), {
         deprecated,
         optional: false
     });

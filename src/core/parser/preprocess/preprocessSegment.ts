@@ -317,12 +317,16 @@ export default function preprocessSegment(
                 }
             }
 
-            const val = new Val(segment.valName.value, type, {
+            const val = new Val(segment.valName.value, {
+                ...segment.coordinate,
+                chain: coordinateChain
+            }, type, {
                 isConst: !segment.props.var,
                 optional,
                 deprecated
             });
             pools.renamePool.push(val.name);
+            pools.pushDefinePool(val);
 
             pools.pushSymbol("Val", segment.valName, val, namespace);
 
@@ -521,7 +525,7 @@ export default function preprocessSegment(
         }
         if (segment.props.macro) {
             pools.flags.defineFunction = false;
-            const func = new MacroFunc(segment.functionName.value, returnType, args, segment.block, {
+            const func = new MacroFunc(segment.functionName.value, segment.coordinate, returnType, args, segment.block, {
                 deprecated,
                 hasScope: !(annotations.indexOf(BUILTIN_ANNOTATIONS["@noScope"]) >= 0),
                 isConstexpr: annotations.indexOf(BUILTIN_ANNOTATIONS["@constexpr"]) >= 0
@@ -537,29 +541,48 @@ export default function preprocessSegment(
         }
         pools.symbolTable.push(SYMBOL_SEPARATOR.scope);
         pools.pushReturnType(returnType);
+        pools.definePool.push([]);
+        pools.requirePool.push([]);
         const beforeReturn = () => {
             pools.flags.defineFunction = false;
             pools.popScope();
             pools.returnTypeStack.pop();
         };
         for (const arg of args) {
-            const val = new Val(arg.name, arg.type, {
+            const val = new Val(arg.name, {
+                ...segment.coordinate,
+                chain: coordinateChain
+            }, arg.type, {
                 isConst: false,
                 optional: false,
                 deprecated: false
             });
             val.isInit = true;
+            pools.renamePool.push(val.name);
             pools.pushSymbol("Val", new Name(segment.coordinate, arg.name), val, []);
+            pools.pushDefinePool(val);
         }
         const body = preprocessSegment(segment.block, coordinateChain, requirement, context);
+        for (const e of (<(Val | Func)[]>pools.definePool.pop())) {
+            if (!e.used && !e.prop.optional) {
+                api.logger.warning(LOG_WARNING.notUsed(e.name.v), {
+                    ...e.coordinate,
+                    chain: coordinateChain
+                });
+            }
+        }
         beforeReturn();
-        const func = new Func(segment.functionName.value, returnType, args,
+        const func = new Func(segment.functionName.value, {
+                ...segment.coordinate,
+                chain: coordinateChain
+            }, <(Val | Func)[]>pools.requirePool.pop(), returnType, args,
             body instanceof RSegment.Block ? body : new RSegment.Block(segment.coordinate, [body], undefined), {
                 deprecated,
                 optional
             });
         pools.pushSymbol("Function", segment.functionName, func, namespace);
         pools.renamePool.push(func.name);
+        pools.pushDefinePool(func);
         return new RSegment.Empty(segment.coordinate);
         //TODO
         // return value: unwrap, check, ?
@@ -766,11 +789,11 @@ export default function preprocessSegment(
                     macroReturnValue = statement.macroReturnValue;
                     break;
                 }
-                c1 = preprocessValue(segment.statement2, coordinateChain, requirement, context);
                 const statement3 = preprocessSegment(segment.statement3, coordinateChain, requirement, context);
                 if (!(statement3 instanceof RSegment.Empty)) {
                     codes.push(statement3);
                 }
+                c1 = preprocessValue(segment.statement2, coordinateChain, requirement, context);
             }
             pools.popScope();
             return new RSegment.Block(segment.coordinate, codes, macroReturnValue);

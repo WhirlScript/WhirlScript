@@ -5,6 +5,7 @@ import Pools from "../../util/parser/pools";
 import { RSegment } from "../../types/parser/rSegment";
 import preprocessSegment from "./preprocessSegment";
 import * as crypto from "crypto";
+import LOG_WARNING from "../../logger/logWarning";
 
 export default function preprocess(
     segments: Segment.SegmentInterface[],
@@ -50,6 +51,16 @@ export default function preprocess(
             namespace: [],
             pools
         }));
+    }
+
+    for (const e of pools.requirePool[0]) {
+        e.require();
+    }
+
+    for (const e of pools.definePool[0]) {
+        if (!e.used && !e.prop.optional) {
+            api.logger.warning(LOG_WARNING.notUsed(e.name.v), e.coordinate);
+        }
     }
     const usedNames: { [key: string]: true | undefined } = {};
     const mangle = (name: string, i: number) =>

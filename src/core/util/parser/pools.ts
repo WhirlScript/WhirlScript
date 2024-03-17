@@ -20,6 +20,8 @@ export default class Pools {
             this.functionPool = pools.functionPool;
             this.symbolTable = pools.symbolTable;
             this.flags = pools.flags;
+            this.requirePool = pools.requirePool;
+            this.definePool = pools.definePool;
             return;
         }
         for (const builtinAnnotationsKey in BUILTIN_ANNOTATIONS) {
@@ -50,6 +52,10 @@ export default class Pools {
     returnTypeStack: { type: Type, cnt: number }[] = [];
 
     symbolTable: SymbolTable = [];
+
+    requirePool: (Func | Val)[][] = [[]];
+
+    definePool: (Func | Val)[][] = [[]];
 
     pushReturnType(type: Type) {
         this.returnTypeStack.push({ type, cnt: 0 });
@@ -99,6 +105,18 @@ export default class Pools {
             type,
             value
         });
+    }
+
+    pushRequirePool(item: Func | Val) {
+        if (this.requirePool[this.requirePool.length - 1].indexOf(item) < 0) {
+            this.requirePool[this.requirePool.length - 1].push(item);
+        }
+    }
+
+    pushDefinePool(item: Func | Val) {
+        if (this.definePool[this.definePool.length - 1].indexOf(item) < 0) {
+            this.definePool[this.definePool.length - 1].push(item);
+        }
     }
 }
 

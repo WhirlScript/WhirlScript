@@ -40,16 +40,19 @@ class TypeCalcC {
             return false;
         }
         if (type1.type == "base" && type2.type == "base") {
+            if (type1.base == type2.base) {
+                return true;
+            }
             if (type1.base == "void" || type2.base == "void") {
                 return false;
             }
             if (type1.base == type2.base) {
                 return true;
             }
-            if (type1.base == "string") {
+            if (type2.base == "string") {
                 return true;
             }
-            return type1.base == "int" && type2.base == "boolean";
+            return type1.base == "boolean" && type2.base == "int";
 
         }
         if (type1.type == "struct" && type2.type == "struct") {

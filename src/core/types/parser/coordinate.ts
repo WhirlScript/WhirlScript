@@ -8,7 +8,7 @@ export default interface Coordinate {
 const BUILTIN_COORDINATE: Coordinate = {
     line: -1,
     column: -1,
-    file: "none"
+    file: "internal"
 };
 
 export { BUILTIN_COORDINATE };
