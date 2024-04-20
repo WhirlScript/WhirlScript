@@ -1,13 +1,13 @@
-import { Segment } from "./segment";
+import { PTN } from "./ptn";
 import Type from "./type";
-import { RSegment } from "./rSegment";
+import { ASTN } from "./astn";
 import Coordinate from "./coordinate";
 
 type Args = {
     name: string,
     type: Type,
     isMacro: boolean,
-    defaultValue?: RSegment.Value
+    defaultValue?: ASTN.Value
 }[];
 
 type MacroFunctionProp = {
@@ -21,11 +21,11 @@ export default class MacroFunc {
     readonly coordinate: Coordinate;
     readonly args: Args;
     readonly type: Type;
-    readonly body: Segment.Block;
+    readonly body: PTN.Block;
     readonly prop: MacroFunctionProp;
     readonly symbolTableLength: number;
 
-    constructor(name: string, coordinate: Coordinate, type: Type, args: Args, body: Segment.Block, prop: MacroFunctionProp, symbolTableLength: number) {
+    constructor(name: string, coordinate: Coordinate, type: Type, args: Args, body: PTN.Block, prop: MacroFunctionProp, symbolTableLength: number) {
         this.name = name;
         this.coordinate = coordinate;
         this.type = type;

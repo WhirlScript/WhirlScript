@@ -1,14 +1,14 @@
-import { Segment } from "../../types/parser/segment";
+import { PTN } from "../../types/parser/ptn";
 import Coordinate from "../../types/parser/coordinate";
 import ApiWrapper from "../../types/api/apiWrapper";
 import Pools from "../../util/parser/pools";
-import { RSegment } from "../../types/parser/rSegment";
+import { ASTN } from "../../types/parser/astn";
 import preprocessSegment from "./preprocessSegment";
 import * as crypto from "crypto";
 import LOG_WARNING from "../../logger/logWarning";
 
 export default function preprocess(
-    segments: Segment.SegmentInterface[],
+    parseTrees: PTN.ParseTreeNode[],
     requirement: {
         target: "sh" | "bat";
     },
@@ -18,34 +18,34 @@ export default function preprocess(
     const { api } = context;
     const coordinateChain: Coordinate[] = [];
     const pools = new Pools();
-    const result: RSegment.SegmentInterface[] = [];
+    const result: ASTN.AbstractSyntaxTreeNode[] = [];
     const hasError = { v: false };
 
-    function push(segment: RSegment.SegmentInterface) {
-        if (segment instanceof RSegment.Empty || segment instanceof RSegment.EmptyValue) {
+    function push(ast: ASTN.AbstractSyntaxTreeNode) {
+        if (ast instanceof ASTN.Empty || ast instanceof ASTN.EmptyValue) {
             return;
         }
-        if (segment instanceof RSegment.Block && !segment.hasScope) {
-            for (const s of segment.inside) {
+        if (ast instanceof ASTN.Block && !ast.hasScope) {
+            for (const s of ast.inside) {
                 push(s);
             }
         }
-        if (segment instanceof RSegment.ValueWrapper && segment.codes.length != 0) {
-            for (const s of segment.codes) {
+        if (ast instanceof ASTN.ValueWrapper && ast.codes.length != 0) {
+            for (const s of ast.codes) {
                 push(s);
             }
-            if (segment.value) {
-                push(segment.value);
+            if (ast.value) {
+                push(ast.value);
             }
         }
-        if (segment instanceof RSegment.Int || segment instanceof RSegment.Bool || segment instanceof RSegment.String) {
+        if (ast instanceof ASTN.Int || ast instanceof ASTN.Bool || ast instanceof ASTN.String) {
             return;
         }
-        result.push(segment);
+        result.push(ast);
     }
 
-    for (const segment of segments) {
-        push(preprocessSegment(segment, coordinateChain, requirement, {
+    for (const parseTree of parseTrees) {
+        push(preprocessSegment(parseTree, coordinateChain, requirement, {
             api,
             hasError,
             namespace: [],

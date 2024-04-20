@@ -4,14 +4,14 @@ import Func from "./func";
 import Type, { BASE_TYPES } from "./type";
 import MacroVal from "./macroVal";
 
-export namespace RSegment {
-    export interface SegmentInterface {
+export namespace ASTN {
+    export interface AbstractSyntaxTreeNode {
         coordinate: Coordinate;
         returned: boolean;
         macroReturnValue: Value | undefined;
     }
 
-    export interface Value extends SegmentInterface {
+    export interface Value extends AbstractSyntaxTreeNode {
         valueType: Type;
         isMacro: boolean;
     }
@@ -23,7 +23,7 @@ export namespace RSegment {
     export type MacroBase = Void | Int | Bool | String
 
 
-    export class Empty implements SegmentInterface {
+    export class Empty implements AbstractSyntaxTreeNode {
         readonly coordinate: Coordinate;
 
         readonly returned = false;
@@ -130,7 +130,7 @@ export namespace RSegment {
         }
 
         toStr(): String {
-            return new RSegment.String(this.coordinate, "");
+            return new ASTN.String(this.coordinate, "");
         }
     }
 
@@ -151,7 +151,7 @@ export namespace RSegment {
         }
 
         toStr(): String {
-            return new RSegment.String(this.coordinate, this.value.toString());
+            return new ASTN.String(this.coordinate, this.value.toString());
         }
     }
 
@@ -176,7 +176,7 @@ export namespace RSegment {
         }
 
         toStr(): String {
-            return new RSegment.String(this.coordinate, this.value ? "1" : "0");
+            return new ASTN.String(this.coordinate, this.value ? "1" : "0");
         }
     }
 
@@ -276,20 +276,20 @@ export namespace RSegment {
         }
     }
 
-    export class MacroFunction implements SegmentInterface {
+    export class MacroFunction implements AbstractSyntaxTreeNode {
         readonly coordinate: Coordinate;
 
-        codes: RSegment.SegmentInterface[];
+        codes: ASTN.AbstractSyntaxTreeNode[];
         hasScope: boolean;
         valueType: Type;
 
         isMacro: boolean;
 
         readonly returned = false;
-        value: RSegment.Value | undefined;
+        value: ASTN.Value | undefined;
         readonly macroReturnValue: undefined;
 
-        constructor(coordinate: Coordinate, valueType: Type, codes: SegmentInterface[], prop: {
+        constructor(coordinate: Coordinate, valueType: Type, codes: AbstractSyntaxTreeNode[], prop: {
             isMacro: boolean,
             hasScope: boolean
         }, value?: Value) {
@@ -305,17 +305,17 @@ export namespace RSegment {
     export class ValueWrapper implements Value {
         readonly coordinate: Coordinate;
 
-        codes: RSegment.SegmentInterface[];
+        codes: ASTN.AbstractSyntaxTreeNode[];
         hasScope: boolean;
         valueType: Type;
 
         isMacro: boolean;
 
         readonly returned: boolean;
-        value: RSegment.Value | undefined;
+        value: ASTN.Value | undefined;
         readonly macroReturnValue: undefined;
 
-        constructor(coordinate: Coordinate, valueType: Type, codes: SegmentInterface[], prop: {
+        constructor(coordinate: Coordinate, valueType: Type, codes: AbstractSyntaxTreeNode[], prop: {
             isMacro: boolean,
             hasScope: boolean
         }, value?: Value) {
@@ -357,17 +357,17 @@ export namespace RSegment {
         }
     }
 
-    export class Block implements SegmentInterface {
+    export class Block implements AbstractSyntaxTreeNode {
         readonly coordinate: Coordinate;
 
-        readonly inside: SegmentInterface[];
+        readonly inside: AbstractSyntaxTreeNode[];
 
         readonly returned: boolean;
         readonly macroReturnValue: Value | undefined;
 
         hasScope: boolean = true;
 
-        constructor(coordinate: Coordinate, inside: SegmentInterface[], macroReturnValue: Value | undefined) {
+        constructor(coordinate: Coordinate, inside: AbstractSyntaxTreeNode[], macroReturnValue: Value | undefined) {
             this.coordinate = coordinate;
             this.inside = inside;
             this.macroReturnValue = macroReturnValue;
@@ -410,17 +410,17 @@ export namespace RSegment {
         }
     }
 
-    export class If implements SegmentInterface {
+    export class If implements AbstractSyntaxTreeNode {
         readonly coordinate: Coordinate;
 
         readonly condition: Value;
-        readonly statement: SegmentInterface;
-        readonly elseStatement: SegmentInterface | undefined;
+        readonly statement: AbstractSyntaxTreeNode;
+        readonly elseStatement: AbstractSyntaxTreeNode | undefined;
 
         readonly returned: boolean;
         readonly macroReturnValue: Value | undefined;
 
-        constructor(coordinate: Coordinate, condition: Value, statement: SegmentInterface, elseStatement: SegmentInterface | undefined, macroReturnValue: Value | undefined) {
+        constructor(coordinate: Coordinate, condition: Value, statement: AbstractSyntaxTreeNode, elseStatement: AbstractSyntaxTreeNode | undefined, macroReturnValue: Value | undefined) {
             this.coordinate = coordinate;
             this.condition = condition;
             this.statement = statement;
@@ -431,23 +431,23 @@ export namespace RSegment {
         }
     }
 
-    export class For implements SegmentInterface {
+    export class For implements AbstractSyntaxTreeNode {
         readonly coordinate: Coordinate;
 
         // for (st1; st2; st3) st
-        readonly statement1: SegmentInterface | undefined;
+        readonly statement1: AbstractSyntaxTreeNode | undefined;
         readonly statement2: Value;
-        readonly statement3: SegmentInterface | undefined;
-        readonly statement: SegmentInterface;
+        readonly statement3: AbstractSyntaxTreeNode | undefined;
+        readonly statement: AbstractSyntaxTreeNode;
 
         readonly returned: boolean;
         readonly macroReturnValue: Value | undefined;
 
         constructor(coordinate: Coordinate,
-                    statement1: SegmentInterface | undefined,
+                    statement1: AbstractSyntaxTreeNode | undefined,
                     statement2: Value,
-                    statement3: SegmentInterface | undefined,
-                    statement: SegmentInterface,
+                    statement3: AbstractSyntaxTreeNode | undefined,
+                    statement: AbstractSyntaxTreeNode,
                     macroReturnValue: Value | undefined) {
             this.coordinate = coordinate;
             this.statement1 = statement1;
@@ -460,18 +460,18 @@ export namespace RSegment {
         }
     }
 
-    export class While implements SegmentInterface {
+    export class While implements AbstractSyntaxTreeNode {
         readonly coordinate: Coordinate;
 
         readonly condition: Value;
-        readonly statement: SegmentInterface;
+        readonly statement: AbstractSyntaxTreeNode;
 
         readonly returned: boolean;
         readonly macroReturnValue: Value | undefined;
 
         constructor(coordinate: Coordinate,
                     condition: Value,
-                    statement: SegmentInterface,
+                    statement: AbstractSyntaxTreeNode,
                     macroReturnValue: Value | undefined) {
             this.coordinate = coordinate;
             this.condition = condition;
@@ -482,7 +482,7 @@ export namespace RSegment {
         }
     }
 
-    export class Return implements SegmentInterface {
+    export class Return implements AbstractSyntaxTreeNode {
         readonly coordinate: Coordinate;
 
         readonly value: Value | undefined;

@@ -1,8 +1,8 @@
 import Type from "./type";
-import { RSegment } from "./rSegment";
+import { ASTN } from "./astn";
 import ApiWrapper from "../api/apiWrapper";
 import LOG_ERROR from "../../logger/logError";
-import ValueWrapper = RSegment.ValueWrapper;
+import ValueWrapper = ASTN.ValueWrapper;
 
 type MacroValProp = {
     isConst: boolean
@@ -11,29 +11,29 @@ type MacroValProp = {
 export default class MacroVal {
     readonly type: Type;
     readonly prop: MacroValProp;
-    value: RSegment.Value | undefined;
+    value: ASTN.Value | undefined;
 
-    constructor(type: Type, prop: MacroValProp, value?: RSegment.Value) {
+    constructor(type: Type, prop: MacroValProp, value?: ASTN.Value) {
         this.type = type;
         this.prop = prop;
         this.value = value;
     }
 
     static fromValue(
-        seg: RSegment.Value,
+        seg: ASTN.Value,
         isConst: boolean,
         context: {
             api: ApiWrapper
         }
-    ): { val: MacroVal, wrapper?: RSegment.ValueWrapper } {
+    ): { val: MacroVal, wrapper?: ASTN.ValueWrapper } {
         if (!seg.isMacro) {
             context.api.logger.errorInterrupt(LOG_ERROR.notMacro(), seg.coordinate);
         }
-        const codes: RSegment.ValueWrapper[] = [];
+        const codes: ASTN.ValueWrapper[] = [];
         let v = seg;
-        if (seg instanceof RSegment.ValueWrapper) {
+        if (seg instanceof ASTN.ValueWrapper) {
             codes.push(seg);
-            v = <RSegment.Value>seg.value;
+            v = <ASTN.Value>seg.value;
         }
         if (seg.valueType.type == "base") {
             return {
@@ -48,14 +48,14 @@ export default class MacroVal {
                 wrapper: codes.length == 0 ? undefined : codes[0]
             };
         } else {
-            const sb = <RSegment.StructBlock>seg;
-            const inside: { [key: string]: RSegment.MacroValCall } = {};
+            const sb = <ASTN.StructBlock>seg;
+            const inside: { [key: string]: ASTN.MacroValCall } = {};
             for (const key in seg.valueType.struct.def) {
                 const child = this.fromValue(sb.inside[key], isConst, context);
                 if (child.wrapper) {
                     codes.push(child.wrapper);
                 }
-                inside[key] = new RSegment.MacroValCall(sb.inside[key].coordinate, child.val);
+                inside[key] = new ASTN.MacroValCall(sb.inside[key].coordinate, child.val);
             }
             return {
                 val: new MacroVal(
@@ -64,7 +64,7 @@ export default class MacroVal {
                         isConst,
                         deprecated: false
                     },
-                    new RSegment.StructBlock(
+                    new ASTN.StructBlock(
                         seg.coordinate,
                         inside,
                         seg.valueType

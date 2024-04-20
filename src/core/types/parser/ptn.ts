@@ -1,14 +1,14 @@
 import Coordinate from "./coordinate";
 
-export namespace Segment {
-    export interface SegmentInterface {
+export namespace PTN {
+    export interface ParseTreeNode {
         coordinate: Coordinate;
     }
 
-    export interface Value extends SegmentInterface {
+    export interface Value extends ParseTreeNode {
     }
 
-    export class Empty implements SegmentInterface {
+    export class Empty implements ParseTreeNode {
         readonly coordinate: Coordinate;
 
 
@@ -17,7 +17,7 @@ export namespace Segment {
         }
     }
 
-    export class Annotation implements SegmentInterface {
+    export class Annotation implements ParseTreeNode {
         readonly coordinate: Coordinate;
         readonly annotation: Name;
 
@@ -27,19 +27,19 @@ export namespace Segment {
         }
     }
 
-    export class AnnotationSegment implements SegmentInterface {
+    export class AnnotationWrapper implements ParseTreeNode {
         readonly coordinate: Coordinate;
         readonly annotations: Annotation[];
-        readonly value: SegmentInterface;
+        readonly value: ParseTreeNode;
 
-        constructor(annotations: Annotation[], value: SegmentInterface) {
+        constructor(annotations: Annotation[], value: ParseTreeNode) {
             this.coordinate = (annotations[0] ?? value).coordinate;
             this.annotations = annotations;
             this.value = value;
         }
     }
 
-    export class ExpressionSVO implements SegmentInterface, Value {
+    export class ExpressionSVO implements ParseTreeNode, Value {
         readonly coordinate: Coordinate;
 
         readonly s: Value;
@@ -54,7 +54,7 @@ export namespace Segment {
         }
     }
 
-    export class ExpressionSV implements SegmentInterface, Value {
+    export class ExpressionSV implements ParseTreeNode, Value {
         readonly coordinate: Coordinate;
 
         readonly s: Value;
@@ -67,7 +67,7 @@ export namespace Segment {
         }
     }
 
-    export class ExpressionVO implements SegmentInterface, Value {
+    export class ExpressionVO implements ParseTreeNode, Value {
         readonly coordinate: Coordinate;
 
         readonly v: string;
@@ -80,7 +80,7 @@ export namespace Segment {
         }
     }
 
-    export class Int implements SegmentInterface, Value {
+    export class Int implements ParseTreeNode, Value {
         readonly coordinate: Coordinate;
 
         readonly value: number;
@@ -91,7 +91,7 @@ export namespace Segment {
         }
     }
 
-    export class Bool implements SegmentInterface, Value {
+    export class Bool implements ParseTreeNode, Value {
         readonly coordinate: Coordinate;
 
         readonly value: boolean;
@@ -102,7 +102,7 @@ export namespace Segment {
         }
     }
 
-    export class String implements SegmentInterface, Value {
+    export class String implements ParseTreeNode, Value {
         readonly coordinate: Coordinate;
 
         readonly value: string;
@@ -113,7 +113,7 @@ export namespace Segment {
         }
     }
 
-    export class TemplateString implements SegmentInterface, Value {
+    export class TemplateString implements ParseTreeNode, Value {
         readonly coordinate: Coordinate;
         readonly values: Value[];
 
@@ -123,7 +123,7 @@ export namespace Segment {
         }
     }
 
-    export class Name implements SegmentInterface {
+    export class Name implements ParseTreeNode {
         readonly coordinate: Coordinate;
 
         readonly value: string;
@@ -136,7 +136,7 @@ export namespace Segment {
         }
     }
 
-    export class ValCall implements SegmentInterface, Value {
+    export class ValCall implements ParseTreeNode, Value {
         readonly coordinate: Coordinate;
 
         readonly valName: Name;
@@ -147,7 +147,7 @@ export namespace Segment {
         }
     }
 
-    export class FunctionCall implements SegmentInterface, Value {
+    export class FunctionCall implements ParseTreeNode, Value {
         readonly coordinate: Coordinate;
 
         readonly functionName: Name;
@@ -160,7 +160,7 @@ export namespace Segment {
         }
     }
 
-    export class Exec implements SegmentInterface, Value {
+    export class Exec implements ParseTreeNode, Value {
         readonly coordinate: Coordinate;
 
         readonly command: Value;
@@ -184,7 +184,7 @@ export namespace Segment {
         macro: boolean;
     }
 
-    export class ValDefine implements SegmentInterface {
+    export class ValDefine implements ParseTreeNode {
         readonly coordinate: Coordinate;
 
         readonly valName: Name;
@@ -201,7 +201,7 @@ export namespace Segment {
         }
     }
 
-    export class FunctionDefine implements SegmentInterface {
+    export class FunctionDefine implements ParseTreeNode {
         readonly coordinate: Coordinate;
 
         readonly functionName: Name;
@@ -220,19 +220,19 @@ export namespace Segment {
         }
     }
 
-    export class Block implements SegmentInterface {
+    export class Block implements ParseTreeNode {
         readonly coordinate: Coordinate;
 
-        readonly inside: SegmentInterface[];
+        readonly inside: ParseTreeNode[];
 
-        constructor(coordinate: Coordinate, inside: SegmentInterface[]) {
+        constructor(coordinate: Coordinate, inside: ParseTreeNode[]) {
             this.coordinate = coordinate;
             this.inside = inside;
         }
     }
 
 
-    export class StructBlock implements SegmentInterface, Value {
+    export class StructBlock implements ParseTreeNode, Value {
         readonly coordinate: Coordinate;
 
         readonly inside: { [key: string]: Value };
@@ -243,7 +243,7 @@ export namespace Segment {
         }
     }
 
-    export class StructDefine implements SegmentInterface {
+    export class StructDefine implements ParseTreeNode {
         readonly coordinate: Coordinate;
 
         readonly structName: Name;
@@ -256,7 +256,7 @@ export namespace Segment {
         }
     }
 
-    export class Assertion implements SegmentInterface, Value {
+    export class Assertion implements ParseTreeNode, Value {
         readonly coordinate: Coordinate;
 
         readonly toType: Name;
@@ -269,14 +269,14 @@ export namespace Segment {
         }
     }
 
-    export class If implements SegmentInterface {
+    export class If implements ParseTreeNode {
         readonly coordinate: Coordinate;
 
         readonly condition: Value;
-        readonly statement: SegmentInterface;
-        readonly elseStatement: SegmentInterface | undefined;
+        readonly statement: ParseTreeNode;
+        readonly elseStatement: ParseTreeNode | undefined;
 
-        constructor(coordinate: Coordinate, condition: Value, statement: SegmentInterface, elseStatement?: SegmentInterface) {
+        constructor(coordinate: Coordinate, condition: Value, statement: ParseTreeNode, elseStatement?: ParseTreeNode) {
             this.coordinate = coordinate;
             this.condition = condition;
             this.statement = statement;
@@ -284,16 +284,16 @@ export namespace Segment {
         }
     }
 
-    export class For implements SegmentInterface {
+    export class For implements ParseTreeNode {
         readonly coordinate: Coordinate;
 
         // for (st1; st2; st3) st
-        readonly statement1: SegmentInterface;
+        readonly statement1: ParseTreeNode;
         readonly statement2: Value;
-        readonly statement3: SegmentInterface;
-        readonly statement: SegmentInterface;
+        readonly statement3: ParseTreeNode;
+        readonly statement: ParseTreeNode;
 
-        constructor(coordinate: Coordinate, statement1: SegmentInterface, statement2: Value, statement3: SegmentInterface, statement: SegmentInterface) {
+        constructor(coordinate: Coordinate, statement1: ParseTreeNode, statement2: Value, statement3: ParseTreeNode, statement: ParseTreeNode) {
             this.coordinate = coordinate;
             this.statement1 = statement1;
             this.statement2 = statement2;
@@ -302,20 +302,20 @@ export namespace Segment {
         }
     }
 
-    export class While implements SegmentInterface {
+    export class While implements ParseTreeNode {
         readonly coordinate: Coordinate;
 
         readonly condition: Value;
-        readonly statement: SegmentInterface;
+        readonly statement: ParseTreeNode;
 
-        constructor(coordinate: Coordinate, condition: Value, statement: SegmentInterface) {
+        constructor(coordinate: Coordinate, condition: Value, statement: ParseTreeNode) {
             this.coordinate = coordinate;
             this.condition = condition;
             this.statement = statement;
         }
     }
 
-    export class Namespace implements SegmentInterface {
+    export class Namespace implements ParseTreeNode {
         readonly coordinate: Coordinate;
 
         readonly namespaceName: Name;
@@ -328,7 +328,7 @@ export namespace Segment {
         }
     }
 
-    export class Using implements SegmentInterface {
+    export class Using implements ParseTreeNode {
         readonly coordinate: Coordinate;
 
         readonly definingName: Name;
@@ -339,7 +339,7 @@ export namespace Segment {
         }
     }
 
-    export class UsingNamespace implements SegmentInterface {
+    export class UsingNamespace implements ParseTreeNode {
         readonly coordinate: Coordinate;
 
         readonly namespaceName: Name;
@@ -350,7 +350,7 @@ export namespace Segment {
         }
     }
 
-    export class Return implements SegmentInterface {
+    export class Return implements ParseTreeNode {
         readonly coordinate: Coordinate;
 
         readonly value: Value | undefined;

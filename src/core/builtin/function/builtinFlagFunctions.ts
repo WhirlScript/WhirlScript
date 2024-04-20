@@ -1,6 +1,6 @@
 import Func from "../../types/parser/func";
 import Type, { BASE_TYPES } from "../../types/parser/type";
-import { RSegment } from "../../types/parser/rSegment";
+import { ASTN } from "../../types/parser/astn";
 import { BUILTIN_COORDINATE } from "../../types/parser/coordinate";
 
 type Args = {
@@ -8,11 +8,11 @@ type Args = {
     type: Type,
     isMacro: boolean,
     optional: boolean,
-    defaultValue?: RSegment.Value
+    defaultValue?: ASTN.Value
 }[];
 
 function createFlagFunction(name: string, type: Type, args: Args, deprecated: boolean) {
-    const func = new Func(name, BUILTIN_COORDINATE, [], type, args, new RSegment.Block(BUILTIN_COORDINATE, [], undefined), {
+    const func = new Func(name, BUILTIN_COORDINATE, [], type, args, new ASTN.Block(BUILTIN_COORDINATE, [], undefined), {
         deprecated,
         optional: false
     });

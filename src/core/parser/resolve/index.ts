@@ -3,7 +3,7 @@ import LightDeque from "../../util/lightDeque";
 import Token from "../../types/parser/token";
 import ApiWrapper from "../../types/api/apiWrapper";
 import Coordinate from "../../types/parser/coordinate";
-import { Segment } from "../../types/parser/segment";
+import { PTN } from "../../types/parser/ptn";
 import LOG_ERROR from "../../logger/logError";
 import CODE_TYPES from "../../types/parser/codeTypes";
 import WORD_TEST from "../../util/wordTest";
@@ -24,9 +24,9 @@ class O {
 export default function resolve(tokens: Deque<Token>, context: {
     importPool: string[],
     api: ApiWrapper
-}): Segment.SegmentInterface[] {
+}): PTN.ParseTreeNode[] {
     const { importPool, api } = context;
-    const segments: Segment.SegmentInterface[] = [];
+    const parseTrees: PTN.ParseTreeNode[] = [];
     tokens.pushRear({
         value: "",
         coordinate: {
@@ -55,11 +55,11 @@ export default function resolve(tokens: Deque<Token>, context: {
 
     let cursor = pop();
 
-    function getExpression(): Segment.Value {
-        const expr: Deque<Segment.Value | O> = new Deque();
+    function getExpression(): PTN.Value {
+        const expr: Deque<PTN.Value | O> = new Deque();
         const opLevel: LightDeque<number> = new LightDeque();// Operation levels
         let hLOperation: Token | undefined;// Hanging leading operation
-        let hLAssertion: { type: Segment.Name, coordinate: Coordinate } | undefined;// Hanging leading assertion
+        let hLAssertion: { type: PTN.Name, coordinate: Coordinate } | undefined;// Hanging leading assertion
         while (cursor.value != "," && cursor.value != ";" && cursor.value != ")" && cursor.value != "}" && cursor.flag != "EOF") {
             if (cursor.value == "(") {
                 if (!expr.isEmpty() && !(expr.peekRear() instanceof O)) {
@@ -68,11 +68,11 @@ export default function resolve(tokens: Deque<Token>, context: {
                 cursor = pop();
                 let exp = getExpression();
                 if (hLAssertion) {
-                    exp = new Segment.Assertion(hLAssertion.coordinate, hLAssertion.type, exp);
+                    exp = new PTN.Assertion(hLAssertion.coordinate, hLAssertion.type, exp);
                     hLAssertion = undefined;
                 }
                 if (hLOperation) {
-                    exp = new Segment.ExpressionVO(hLOperation.coordinate, hLOperation.value, exp);
+                    exp = new PTN.ExpressionVO(hLOperation.coordinate, hLOperation.value, exp);
                     hLOperation = undefined;
                 }
                 expr.pushRear(exp);
@@ -90,10 +90,10 @@ export default function resolve(tokens: Deque<Token>, context: {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                 }
                 if (hLAssertion) {
-                    expr.pushRear(new Segment.Assertion(hLAssertion.coordinate, hLAssertion.type, new Segment.Bool(cursor.coordinate, true)));
+                    expr.pushRear(new PTN.Assertion(hLAssertion.coordinate, hLAssertion.type, new PTN.Bool(cursor.coordinate, true)));
                     hLAssertion = undefined;
                 } else {
-                    expr.pushRear(new Segment.Bool(cursor.coordinate, true));
+                    expr.pushRear(new PTN.Bool(cursor.coordinate, true));
                 }
                 cursor = pop();
                 continue;
@@ -106,10 +106,10 @@ export default function resolve(tokens: Deque<Token>, context: {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                 }
                 if (hLAssertion) {
-                    expr.pushRear(new Segment.Assertion(hLAssertion.coordinate, hLAssertion.type, new Segment.Bool(cursor.coordinate, false)));
+                    expr.pushRear(new PTN.Assertion(hLAssertion.coordinate, hLAssertion.type, new PTN.Bool(cursor.coordinate, false)));
                     hLAssertion = undefined;
                 } else {
-                    expr.pushRear(new Segment.Bool(cursor.coordinate, false));
+                    expr.pushRear(new PTN.Bool(cursor.coordinate, false));
                 }
                 cursor = pop();
                 continue;
@@ -122,10 +122,10 @@ export default function resolve(tokens: Deque<Token>, context: {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                 }
                 if (hLAssertion) {
-                    expr.pushRear(new Segment.Assertion(hLAssertion.coordinate, hLAssertion.type, new Segment.Int(cursor.coordinate, parseInt(cursor.value))));
+                    expr.pushRear(new PTN.Assertion(hLAssertion.coordinate, hLAssertion.type, new PTN.Int(cursor.coordinate, parseInt(cursor.value))));
                     hLAssertion = undefined;
                 } else {
-                    expr.pushRear(new Segment.Int(cursor.coordinate, parseInt(cursor.value)));
+                    expr.pushRear(new PTN.Int(cursor.coordinate, parseInt(cursor.value)));
                 }
                 cursor = pop();
                 continue;
@@ -139,10 +139,10 @@ export default function resolve(tokens: Deque<Token>, context: {
                 }
                 cursor = pop();
                 if (hLAssertion) {
-                    expr.pushRear(new Segment.Assertion(hLAssertion.coordinate, hLAssertion.type, new Segment.String(cursor.coordinate, cursor.value)));
+                    expr.pushRear(new PTN.Assertion(hLAssertion.coordinate, hLAssertion.type, new PTN.String(cursor.coordinate, cursor.value)));
                     hLAssertion = undefined;
                 } else {
-                    expr.pushRear(new Segment.String(cursor.coordinate, cursor.value));
+                    expr.pushRear(new PTN.String(cursor.coordinate, cursor.value));
                 }
                 pop(); // another ' | "
                 cursor = pop();
@@ -155,11 +155,11 @@ export default function resolve(tokens: Deque<Token>, context: {
                 if (!expr.isEmpty() && !(expr.peekRear() instanceof O)) {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                 }
-                const values: Segment.Value[] = [];
+                const values: PTN.Value[] = [];
                 cursor = pop();
                 while (cursor.value != "`") {
                     if (cursor.flag == "string") {
-                        values.push(new Segment.String(cursor.coordinate, cursor.value));
+                        values.push(new PTN.String(cursor.coordinate, cursor.value));
                         cursor = pop();
                     } else {
                         if (cursor.value == "${") {
@@ -173,9 +173,9 @@ export default function resolve(tokens: Deque<Token>, context: {
                         }
                     }
                 }
-                const seg = new Segment.TemplateString(cursor.coordinate, values);
+                const seg = new PTN.TemplateString(cursor.coordinate, values);
                 if (hLAssertion) {
-                    expr.pushRear(new Segment.Assertion(hLAssertion.coordinate, hLAssertion.type, seg));
+                    expr.pushRear(new PTN.Assertion(hLAssertion.coordinate, hLAssertion.type, seg));
                     hLAssertion = undefined;
                 } else {
                     expr.pushRear(seg);
@@ -189,11 +189,11 @@ export default function resolve(tokens: Deque<Token>, context: {
                 }
                 const coo = cursor.coordinate;
                 cursor = pop();
-                const n = new Segment.Name(coo, "exec", []);
+                const n = new PTN.Name(coo, "exec", []);
                 const c = getExpression();
-                let exp: Segment.Value = new Segment.FunctionCall(coo, n, [c]);
+                let exp: PTN.Value = new PTN.FunctionCall(coo, n, [c]);
                 if (hLAssertion) {
-                    exp = new Segment.Assertion(hLAssertion.coordinate, hLAssertion.type, exp);
+                    exp = new PTN.Assertion(hLAssertion.coordinate, hLAssertion.type, exp);
                     hLAssertion = undefined;
                 }
                 expr.pushRear(exp);
@@ -209,7 +209,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 const coo = cursor.coordinate;
                 cursor = pop();
                 let end = false;
-                const inside: { [key: string]: Segment.Value } = {};
+                const inside: { [key: string]: PTN.Value } = {};
                 while (cursor.value != "}") {
                     if (end) {
                         api.logger.error(LOG_ERROR.missingExpectedColon(), cursor.coordinate);
@@ -231,9 +231,9 @@ export default function resolve(tokens: Deque<Token>, context: {
                         cursor = pop();
                     }
                 }
-                const seg = new Segment.StructBlock(coo, inside);
+                const seg = new PTN.StructBlock(coo, inside);
                 if (hLAssertion) {
-                    expr.pushRear(new Segment.Assertion(hLAssertion.coordinate, hLAssertion.type, seg));
+                    expr.pushRear(new PTN.Assertion(hLAssertion.coordinate, hLAssertion.type, seg));
                     hLAssertion = undefined;
                 } else {
                     expr.pushRear(seg);
@@ -256,8 +256,8 @@ export default function resolve(tokens: Deque<Token>, context: {
                         if (cursor.value == "!") {
                             api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                         }
-                        const pref = <Segment.Value>expr.popRear();
-                        expr.pushRear(new Segment.ExpressionSV(pref.coordinate, pref, cursor.value));
+                        const pref = <PTN.Value>expr.popRear();
+                        expr.pushRear(new PTN.ExpressionSV(pref.coordinate, pref, cursor.value));
                     }
                     cursor = pop();
                     continue;
@@ -289,7 +289,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 }
                 if (opLevel.size() >= 1 && opLevel.peekRear() < level) {
                     while (opLevel.size() >= 1 && opLevel.peekRear() < level) {
-                        const temp: Deque<Segment.Value | O> = new Deque();
+                        const temp: Deque<PTN.Value | O> = new Deque();
                         const levelPref = opLevel.peekRear();
                         temp.pushFront(expr.popRear());
                         while (!opLevel.isEmpty() && opLevel.peekRear() == levelPref) {
@@ -299,15 +299,15 @@ export default function resolve(tokens: Deque<Token>, context: {
                         }
                         while (temp.size() > 1) {
                             temp.pushFront(
-                                new Segment.ExpressionSVO(
-                                    (<Segment.Value>temp.peekFront()).coordinate,
-                                    <Segment.Value>temp.popFront(),
+                                new PTN.ExpressionSVO(
+                                    (<PTN.Value>temp.peekFront()).coordinate,
+                                    <PTN.Value>temp.popFront(),
                                     (<{ type: "o", value: string, level: number }>temp.popFront()).value,
-                                    <Segment.Value>temp.popFront()
+                                    <PTN.Value>temp.popFront()
                                 )
                             );
                         }
-                        expr.pushRear(<Segment.Value>temp.peekFront());
+                        expr.pushRear(<PTN.Value>temp.peekFront());
                     }
                     expr.pushRear(new O(cursor.value, level));
                     cursor = pop();
@@ -327,7 +327,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 const n = getName();
                 if (cursor.value == "(") {
                     cursor = pop();
-                    const args: Segment.Value[] = [];
+                    const args: PTN.Value[] = [];
                     while (cursor.value != ")") {
                         args.push(getExpression());
                         if (cursor.value == "," || cursor.value == ")") {
@@ -335,24 +335,24 @@ export default function resolve(tokens: Deque<Token>, context: {
                         }
                         api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
                         // never goes below
-                        return <Segment.FunctionCall>{};
+                        return <PTN.FunctionCall>{};
                     }
                     cursor = pop();
-                    let exp: Segment.Value = new Segment.FunctionCall(coo, n, args);
+                    let exp: PTN.Value = new PTN.FunctionCall(coo, n, args);
                     if (hLAssertion) {
-                        exp = new Segment.Assertion(hLAssertion.coordinate, hLAssertion.type, exp);
+                        exp = new PTN.Assertion(hLAssertion.coordinate, hLAssertion.type, exp);
                         hLAssertion = undefined;
                     }
                     expr.pushRear(exp);
                     continue;
                 }
-                let exp: Segment.Value = new Segment.ValCall(cursor.coordinate, n);
+                let exp: PTN.Value = new PTN.ValCall(cursor.coordinate, n);
                 if (hLOperation) {
-                    exp = new Segment.ExpressionVO(hLOperation.coordinate, hLOperation.value, exp);
+                    exp = new PTN.ExpressionVO(hLOperation.coordinate, hLOperation.value, exp);
                     hLOperation = undefined;
                 }
                 if (hLAssertion) {
-                    exp = new Segment.Assertion(hLAssertion.coordinate, hLAssertion.type, exp);
+                    exp = new PTN.Assertion(hLAssertion.coordinate, hLAssertion.type, exp);
                     hLAssertion = undefined;
                 }
                 expr.pushRear(exp);
@@ -360,23 +360,23 @@ export default function resolve(tokens: Deque<Token>, context: {
         }
         while (expr.size() > 1) {
             expr.pushFront(
-                new Segment.ExpressionSVO(
-                    (<Segment.Value>expr.peekFront()).coordinate,
-                    <Segment.Value>expr.popFront(),
+                new PTN.ExpressionSVO(
+                    (<PTN.Value>expr.peekFront()).coordinate,
+                    <PTN.Value>expr.popFront(),
                     (<{ type: "o", value: string, level: number }>expr.popFront()).value,
-                    <Segment.Value>expr.popFront()
+                    <PTN.Value>expr.popFront()
                 )
             );
         }
-        return <Segment.Value>expr.peekFront();
+        return <PTN.Value>expr.peekFront();
     }
 
-    function getName(): Segment.Name {
+    function getName(): PTN.Name {
         const s: string[] = [];
         const coo = cursor.coordinate;
         if (cursor.flag == "operator" || WORD_TEST.isInt(cursor.value)) {
             api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
-            return new Segment.Name(coo, "", []);
+            return new PTN.Name(coo, "", []);
         }
         s.push(cursor.value);
         cursor = pop();
@@ -384,17 +384,17 @@ export default function resolve(tokens: Deque<Token>, context: {
             cursor = pop();
             if (cursor.flag == "operator" || WORD_TEST.isInt(cursor.value)) {
                 api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
-                return new Segment.Name(coo, "", []);
+                return new PTN.Name(coo, "", []);
             }
             s.push(cursor.value);
             cursor = pop();
         }
-        return new Segment.Name(coo, <string>s.pop(), s);
+        return new PTN.Name(coo, <string>s.pop(), s);
     }
 
-    function getBlock(context: { block: number }): Segment.Block {
+    function getBlock(context: { block: number }): PTN.Block {
         const coo = cursor.coordinate;
-        const statements: Segment.SegmentInterface[] = [];
+        const statements: PTN.ParseTreeNode[] = [];
         cursor = pop();
         while (cursor.value != "}") {
             statements.push(getStatement({ block: context.block + 1 }, {
@@ -405,7 +405,7 @@ export default function resolve(tokens: Deque<Token>, context: {
             }));
         }
         cursor = pop();
-        return new Segment.Block(coo, statements);
+        return new PTN.Block(coo, statements);
     }
 
     function getStatement(context: { block: number }, requirements: {
@@ -413,7 +413,7 @@ export default function resolve(tokens: Deque<Token>, context: {
         isBlock: boolean,
         isSingle: boolean //TODO: figure out when it will be false
         withoutSemi: boolean
-    }): Segment.SegmentInterface {
+    }): PTN.ParseTreeNode {
         const { block } = context;
 
         // Empty `;`
@@ -421,17 +421,17 @@ export default function resolve(tokens: Deque<Token>, context: {
             const coo = cursor.coordinate;
             if (!requirements.isSingle) {
                 api.logger.errorInterrupt(LOG_ERROR.reallyWeird(), cursor.coordinate);
-                return new Segment.Empty(cursor.coordinate);
+                return new PTN.Empty(cursor.coordinate);
             }
             cursor = pop();
-            return new Segment.Empty(coo);
+            return new PTN.Empty(coo);
         }
 
         // Import `import "xxx";`
         if (cursor.value == "import") {
             if (!requirements.isSingle) {
                 api.logger.errorInterrupt(LOG_ERROR.reallyWeird(), cursor.coordinate);
-                return new Segment.Empty(cursor.coordinate);
+                return new PTN.Empty(cursor.coordinate);
             }
             let valid = true;
             if (block > 0) {
@@ -451,7 +451,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 if (requirements.withoutSemi || cursor.value != ";") {
                     api.logger.error(LOG_ERROR.missingExpectedSemicolon(), cursor.coordinate);
                     reportError();
-                    return new Segment.Empty(lineCoordinate);
+                    return new PTN.Empty(lineCoordinate);
                 }
                 if (!requirements.withoutSemi) {
                     cursor = pop();
@@ -464,7 +464,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                     if (!file.success) {
                         api.logger.error(LOG_ERROR.unknownFile(filePath), lineCoordinate);
                         reportError();
-                        return new Segment.Empty(lineCoordinate);
+                        return new PTN.Empty(lineCoordinate);
                     }
                     const tokensImported = tokenize(new RawCode({
                             coordinate: {
@@ -481,24 +481,24 @@ export default function resolve(tokens: Deque<Token>, context: {
                     }
                 }
             }
-            return new Segment.Empty(lineCoordinate);
+            return new PTN.Empty(lineCoordinate);
         }
 
         // Annotation `@xxx`
         if (cursor.value.startsWith("@")) {
-            const annotations: Segment.Annotation[] = [];
+            const annotations: PTN.Annotation[] = [];
             while (cursor.value.startsWith("@")) {
                 const coo = cursor.coordinate;
-                annotations.push(new Segment.Annotation(coo, getName()));
+                annotations.push(new PTN.Annotation(coo, getName()));
             }
-            return new Segment.AnnotationSegment(annotations, getStatement(context, requirements));
+            return new PTN.AnnotationWrapper(annotations, getStatement(context, requirements));
         }
 
         // Block `{...}`
         if (cursor.value == "{") {
             if (!requirements.isBlock) {
                 api.logger.errorInterrupt(LOG_ERROR.unexpectedBlock(), cursor.coordinate);
-                return new Segment.Empty(cursor.coordinate);
+                return new PTN.Empty(cursor.coordinate);
             }
             return getBlock(context);
         }
@@ -507,16 +507,16 @@ export default function resolve(tokens: Deque<Token>, context: {
         if (cursor.value == "struct") {
             if (!requirements.isBlock) {
                 api.logger.errorInterrupt(LOG_ERROR.unexpectedBlock(), cursor.coordinate);
-                return new Segment.Empty(cursor.coordinate);
+                return new PTN.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
             let valid = true;
-            const inside: { [key: string]: Segment.Name } = {};
+            const inside: { [key: string]: PTN.Name } = {};
             cursor = pop();
             const n = getName();
             if (cursor.value != "{") {
                 api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
-                return new Segment.Empty(cursor.coordinate);
+                return new PTN.Empty(cursor.coordinate);
             }
             cursor = pop();
             let end = false;
@@ -545,9 +545,9 @@ export default function resolve(tokens: Deque<Token>, context: {
             }
             cursor = pop();
             if (valid) {
-                return new Segment.StructDefine(coo, n, inside);
+                return new PTN.StructDefine(coo, n, inside);
             } else {
-                return new Segment.Empty(coo);
+                return new PTN.Empty(coo);
             }
         }
 
@@ -571,7 +571,7 @@ export default function resolve(tokens: Deque<Token>, context: {
         if (cursor.value == "var" || cursor.value == "const") {
             if (!requirements.isSingle) {
                 api.logger.errorInterrupt(LOG_ERROR.reallyWeird(), cursor.coordinate);
-                return new Segment.Empty(cursor.coordinate);
+                return new PTN.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
             const valProps = {
@@ -582,8 +582,8 @@ export default function resolve(tokens: Deque<Token>, context: {
             }
             cursor = pop();
             const n = getName();
-            let t: Segment.Name | undefined;
-            let v: Segment.Value | undefined;
+            let t: PTN.Name | undefined;
+            let v: PTN.Value | undefined;
             if (cursor.value == ":") {
                 cursor = pop();
                 t = getName();
@@ -600,29 +600,29 @@ export default function resolve(tokens: Deque<Token>, context: {
                     cursor = pop();
                 }
             }
-            return new Segment.ValDefine(coo, n, t, { ...definingProps, ...valProps }, v);
+            return new PTN.ValDefine(coo, n, t, { ...definingProps, ...valProps }, v);
         }
 
         // Function Define `function xxx(xxx: Xxx): Xxx { xxx; }`
         if (cursor.value == "function") {
             if (!requirements.isBlock) {
                 api.logger.errorInterrupt(LOG_ERROR.unexpectedBlock(), cursor.coordinate);
-                return new Segment.Empty(cursor.coordinate);
+                return new PTN.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
             cursor = pop();
             const n = getName();
-            const args: Segment.ValDefine[] = [];
-            let t: Segment.Name | undefined;
+            const args: PTN.ValDefine[] = [];
+            let t: PTN.Name | undefined;
             if (cursor.value != "(") {
                 api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
-                return new Segment.Empty(coo);
+                return new PTN.Empty(coo);
             }
             cursor = pop();
             while (cursor.value != ")") {
                 const n = getName();
-                let t: Segment.Name | undefined;
-                let v: Segment.Value | undefined;
+                let t: PTN.Name | undefined;
+                let v: PTN.Value | undefined;
                 if (cursor.value == ":") {
                     cursor = pop();
                     t = getName();
@@ -633,12 +633,12 @@ export default function resolve(tokens: Deque<Token>, context: {
                 }
                 if (cursor.value != "," && cursor.value != ")") {
                     api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), cursor.coordinate);
-                    return new Segment.Empty(coo);
+                    return new PTN.Empty(coo);
                 }
                 if (cursor.value == ",") {
                     cursor = pop();
                 }
-                args.push(new Segment.ValDefine(coo, n, t, { native: false, macro: false, var: true }, v));
+                args.push(new PTN.ValDefine(coo, n, t, { native: false, macro: false, var: true }, v));
             }
             cursor = pop();
             if (cursor.value == ":") {
@@ -647,12 +647,12 @@ export default function resolve(tokens: Deque<Token>, context: {
             }
             if (cursor.value == ";") {
                 cursor = pop();
-                return new Segment.FunctionDefine(coo, n, t, {
+                return new PTN.FunctionDefine(coo, n, t, {
                     macro: definingProps.macro
                 }, args, undefined);
             } else {
                 const block = getBlock({ block: context.block + 1 });
-                return new Segment.FunctionDefine(coo, n, t, {
+                return new PTN.FunctionDefine(coo, n, t, {
                     macro: definingProps.macro
                 }, args, block);
             }
@@ -672,19 +672,19 @@ export default function resolve(tokens: Deque<Token>, context: {
         if (cursor.value == "if") {
             if (!requirements.isBlock) {
                 api.logger.errorInterrupt(LOG_ERROR.unexpectedBlock(), cursor.coordinate);
-                return new Segment.Empty(cursor.coordinate);
+                return new PTN.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
             cursor = pop();
             if (cursor.value != "(") {
                 api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo);
-                return new Segment.Empty(coo);
+                return new PTN.Empty(coo);
             }
             cursor = pop();
             const condition = getExpression();
             if (cursor.value != ")") {
                 api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo);
-                return new Segment.Empty(coo);
+                return new PTN.Empty(coo);
             }
             cursor = pop();
             const statement = getStatement(context, {
@@ -693,7 +693,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 isSingle: true,
                 withoutSemi: false
             });
-            let elseStatement: Segment.SegmentInterface | undefined;
+            let elseStatement: PTN.ParseTreeNode | undefined;
             if (cursor.value == "else") {
                 cursor = pop();
                 elseStatement = getStatement(context, {
@@ -703,20 +703,20 @@ export default function resolve(tokens: Deque<Token>, context: {
                     withoutSemi: false
                 });
             }
-            return new Segment.If(coo, condition, statement, elseStatement);
+            return new PTN.If(coo, condition, statement, elseStatement);
         }
 
         // For `for (xxx; xxx; xxx) xxx;`
         if (cursor.value == "for") {
             if (!requirements.isBlock) {
                 api.logger.errorInterrupt(LOG_ERROR.unexpectedBlock(), cursor.coordinate);
-                return new Segment.Empty(cursor.coordinate);
+                return new PTN.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
             cursor = pop();
             if (cursor.value != "(") {
                 api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo);
-                return new Segment.Empty(coo);
+                return new PTN.Empty(coo);
             }
             cursor = pop();
             const statement1 = getStatement(context, {
@@ -731,7 +731,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                 isBlock: false,
                 withoutSemi: false
             });
-            let statement3: Segment.SegmentInterface = new Segment.Empty(cursor.coordinate);
+            let statement3: PTN.ParseTreeNode = new PTN.Empty(cursor.coordinate);
             if (cursor.value != ")") {
                 statement3 = getStatement(context, {
                     withBlock: true,
@@ -742,7 +742,7 @@ export default function resolve(tokens: Deque<Token>, context: {
             }
             if (cursor.value != ")") {
                 api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo);
-                return new Segment.Empty(coo);
+                return new PTN.Empty(coo);
             }
             cursor = pop();
             const statement = getStatement(context, {
@@ -751,26 +751,26 @@ export default function resolve(tokens: Deque<Token>, context: {
                 isSingle: true,
                 withoutSemi: false
             });
-            return new Segment.For(coo, statement1, statement2, statement3, statement);
+            return new PTN.For(coo, statement1, statement2, statement3, statement);
         }
 
         // While `while (xxx) xxx;`
         if (cursor.value == "while") {
             if (!requirements.isBlock) {
                 api.logger.errorInterrupt(LOG_ERROR.unexpectedBlock(), cursor.coordinate);
-                return new Segment.Empty(cursor.coordinate);
+                return new PTN.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
             cursor = pop();
             if (cursor.value != "(") {
                 api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo);
-                return new Segment.Empty(coo);
+                return new PTN.Empty(coo);
             }
             cursor = pop();
             const condition = getExpression();
             if (cursor.value != ")") {
                 api.logger.errorInterrupt(LOG_ERROR.invalidCharacterOrToken(cursor.value), coo);
-                return new Segment.Empty(coo);
+                return new PTN.Empty(coo);
             }
             cursor = pop();
             const statement = getStatement(context, {
@@ -779,27 +779,27 @@ export default function resolve(tokens: Deque<Token>, context: {
                 isSingle: true,
                 withoutSemi: false
             });
-            return new Segment.While(coo, condition, statement);
+            return new PTN.While(coo, condition, statement);
         }
 
         // Namespace `namespace xx { xxx; }`
         if (cursor.value == "namespace") {
             if (!requirements.isBlock) {
                 api.logger.errorInterrupt(LOG_ERROR.unexpectedBlock(), cursor.coordinate);
-                return new Segment.Empty(cursor.coordinate);
+                return new PTN.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
             cursor = pop();
             const n = getName();
             const block = getBlock(context);
-            return new Segment.Namespace(coo, n, block);
+            return new PTN.Namespace(coo, n, block);
         }
 
         // Using
         if (cursor.value == "using") {
             if (!requirements.isSingle) {
                 api.logger.errorInterrupt(LOG_ERROR.reallyWeird(), cursor.coordinate);
-                return new Segment.Empty(cursor.coordinate);
+                return new PTN.Empty(cursor.coordinate);
             }
             const coo = cursor.coordinate;
             cursor = pop();
@@ -808,7 +808,7 @@ export default function resolve(tokens: Deque<Token>, context: {
             if (cursor.value == "namespace") {
                 cursor = pop();
                 const n = getName();
-                return new Segment.UsingNamespace(coo, n);
+                return new PTN.UsingNamespace(coo, n);
             }
 
             // `using xxx;`
@@ -819,7 +819,7 @@ export default function resolve(tokens: Deque<Token>, context: {
             } else {
                 cursor = pop();
             }
-            return new Segment.Using(coo, n);
+            return new PTN.Using(coo, n);
         }
 
         // Return `return xxx`;
@@ -835,7 +835,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                         cursor = pop();
                     }
                 }
-                return new Segment.Return(coo);
+                return new PTN.Return(coo);
             }
             const expr = getExpression();
             if (!requirements.withoutSemi) {
@@ -846,7 +846,7 @@ export default function resolve(tokens: Deque<Token>, context: {
                     cursor = pop();
                 }
             }
-            return new Segment.Return(coo, expr);
+            return new PTN.Return(coo, expr);
         }
 
         // xxx;
@@ -863,7 +863,7 @@ export default function resolve(tokens: Deque<Token>, context: {
     }
 
     while (cursor.flag != "EOF") {
-        segments.push(getStatement({ block: 0 }, {
+        parseTrees.push(getStatement({ block: 0 }, {
             withBlock: true,
             isBlock: true,
             isSingle: true,
@@ -875,5 +875,5 @@ export default function resolve(tokens: Deque<Token>, context: {
         throw new Error();
     }
 
-    return segments;
+    return parseTrees;
 }

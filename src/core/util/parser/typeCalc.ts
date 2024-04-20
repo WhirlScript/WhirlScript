@@ -1,11 +1,11 @@
 import Type, { BASE_TYPES } from "../../types/parser/type";
-import { Segment } from "../../types/parser/segment";
+import { PTN } from "../../types/parser/ptn";
 import Coordinate from "../../types/parser/coordinate";
 import ApiWrapper from "../../types/api/apiWrapper";
 import Pools from "./pools";
 import LOG_ERROR from "../../logger/logError";
 import Struct from "../../types/parser/struct";
-import { RSegment } from "../../types/parser/rSegment";
+import { ASTN } from "../../types/parser/astn";
 
 class TypeCalcC {
     equalsTo(type1: Type, type2: Type): boolean {
@@ -66,7 +66,7 @@ class TypeCalcC {
         return false;
     }
 
-    getTypeWithName(name: Segment.Name, context: { pools: Pools, api: ApiWrapper, namespace: string[] }): Type {
+    getTypeWithName(name: PTN.Name, context: { pools: Pools, api: ApiWrapper, namespace: string[] }): Type {
         if (name.namespaces.length == 0) {
             if (name.value == "int") {
                 return BASE_TYPES.int;
@@ -94,13 +94,13 @@ class TypeCalcC {
         };
     }
 
-    valueToObj(value: RSegment.Value, coordinate: Coordinate, context: { api: ApiWrapper }): any {
+    valueToObj(value: ASTN.Value, coordinate: Coordinate, context: { api: ApiWrapper }): any {
         if (!value.isMacro) {
             context.api.logger.errorInterrupt(LOG_ERROR.notMacro(), coordinate);
         }
         let va = value;
         const t = va.valueType;
-        if (va instanceof RSegment.ValueWrapper) {
+        if (va instanceof ASTN.ValueWrapper) {
             const r = va.value;
             if (r) {
                 va = r;
@@ -108,7 +108,7 @@ class TypeCalcC {
                 context.api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), coordinate);
             }
         }
-        if (va instanceof RSegment.MacroValCall) {
+        if (va instanceof ASTN.MacroValCall) {
             const val = va.val;
             if (!val.value) {
                 context.api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), coordinate);
@@ -120,7 +120,7 @@ class TypeCalcC {
                 context.api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), value.coordinate);
             }
             if (this.equalsTo(t, BASE_TYPES.boolean)) {
-                const str = (<RSegment.MacroBase>va).toStr().value;
+                const str = (<ASTN.MacroBase>va).toStr().value;
                 if (str == "1") {
                     return true;
                 }
@@ -130,18 +130,18 @@ class TypeCalcC {
                 context.api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), value.coordinate);
             }
             if (this.equalsTo(t, BASE_TYPES.int)) {
-                const num = Number((<RSegment.MacroBase>va).toStr().value);
+                const num = Number((<ASTN.MacroBase>va).toStr().value);
                 if (isNaN(num)) {
                     context.api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), value.coordinate);
                 }
                 return num;
             }
         }
-        if (va instanceof RSegment.StructBlock) {
+        if (va instanceof ASTN.StructBlock) {
             const obj: any = {};
             for (const key in va.inside) {
                 let v = va.inside[key];
-                if (v instanceof RSegment.ValueWrapper) {
+                if (v instanceof ASTN.ValueWrapper) {
                     const r = v.value;
                     if (r) {
                         v = r;
@@ -149,39 +149,39 @@ class TypeCalcC {
                         context.api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), coordinate);
                     }
                 }
-                obj[key] = this.valueToObj(<RSegment.StructBlock>va.inside[key], coordinate, context);
+                obj[key] = this.valueToObj(<ASTN.StructBlock>va.inside[key], coordinate, context);
 
             }
             return obj;
         } else {
-            return (<RSegment.MacroBase>va).value;
+            return (<ASTN.MacroBase>va).value;
         }
     }
 
-    objToValue(obj: any, coordinate: Coordinate, context: { api: ApiWrapper }): RSegment.Value {
+    objToValue(obj: any, coordinate: Coordinate, context: { api: ApiWrapper }): ASTN.Value {
         if (obj == undefined) {
-            return new RSegment.Void(coordinate);
+            return new ASTN.Void(coordinate);
         }
         if (typeof obj == "boolean") {
-            return new RSegment.Bool(coordinate, obj);
+            return new ASTN.Bool(coordinate, obj);
         }
         if (typeof obj == "number") {
-            return new RSegment.Int(coordinate, obj);
+            return new ASTN.Int(coordinate, obj);
         }
         if (typeof obj == "string") {
-            return new RSegment.String(coordinate, obj);
+            return new ASTN.String(coordinate, obj);
         }
         if (typeof obj != "object") {
             context.api.logger.errorInterrupt(LOG_ERROR.nativeValueError(obj), coordinate);
         }
         const def: { [key: string]: Type } = {};
-        const inside: { [key: string]: RSegment.Value } = {};
+        const inside: { [key: string]: ASTN.Value } = {};
         for (const key in obj) {
             inside[key] = this.objToValue(obj[key], coordinate, context);
             def[key] = inside[key].valueType;
         }
         const struct = new Struct("", def);
-        return new RSegment.StructBlock(
+        return new ASTN.StructBlock(
             coordinate,
             inside,
             {

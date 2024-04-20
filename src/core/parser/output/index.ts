@@ -1,10 +1,11 @@
-import { RSegment } from "../../types/parser/rSegment";
+import { ASTN } from "../../types/parser/astn";
 import ApiWrapper from "../../types/api/apiWrapper";
 import shOutput from "./shOutput";
 import batOutput from "./batOutput";
+import { CompileConfig } from "../../types/config/compileConfig";
 
 export default function output(
-    segments: RSegment.SegmentInterface[],
+    segments: ASTN.AbstractSyntaxTreeNode[],
     requirement: {
         target: "sh" | "bat";
     },
@@ -22,7 +23,11 @@ export default function output(
         if (requirement.target == "sh") {
             script += shOutput(segment, context);
         } else {
-            script += batOutput(segment, context);
+            script += batOutput(segment, {
+                api: context.api,
+                indent: 0,
+                config: new CompileConfig({})
+            });
         }
     }
 

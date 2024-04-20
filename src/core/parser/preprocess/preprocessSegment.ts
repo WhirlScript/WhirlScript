@@ -1,8 +1,8 @@
-import { Segment } from "../../types/parser/segment";
+import { PTN } from "../../types/parser/ptn";
 import Coordinate from "../../types/parser/coordinate";
 import ApiWrapper from "../../types/api/apiWrapper";
 import Pools, { SYMBOL_SEPARATOR } from "../../util/parser/pools";
-import { RSegment } from "../../types/parser/rSegment";
+import { ASTN } from "../../types/parser/astn";
 import Annotation from "../../types/parser/annotation";
 import LOG_ERROR from "../../logger/logError";
 import { BUILTIN_ANNOTATIONS } from "../../builtin/annotations/builtinAnnotations";
@@ -15,10 +15,10 @@ import preprocessValue from "./preprocessValue";
 import LOG_WARNING from "../../logger/logWarning";
 import MacroFunc from "../../types/parser/macroFunc";
 import Func from "../../types/parser/func";
-import Name = Segment.Name;
+import Name = PTN.Name;
 
 export default function preprocessSegment(
-    segmentRaw: Segment.SegmentInterface,
+    parseTreeRaw: PTN.ParseTreeNode,
     coordinateChain: Coordinate[],
     requirement: {
         target: "sh" | "bat";
@@ -29,9 +29,9 @@ export default function preprocessSegment(
         hasError: { v: boolean },
         namespace: string[]
     }
-): RSegment.SegmentInterface {
+): ASTN.AbstractSyntaxTreeNode {
     const { api, pools, namespace } = context;
-    let segment = segmentRaw;
+    let parseTree = parseTreeRaw;
     let annotations: Annotation[] = [];
 
 
@@ -42,10 +42,10 @@ export default function preprocessSegment(
     let constStatement = false;
     let deprecated = false;
     let optional = false;
-    if (segment instanceof Segment.AnnotationSegment) {
+    if (parseTree instanceof PTN.AnnotationWrapper) {
         let sh = false;
         let bat = false;
-        for (const annotation of segment.annotations) {
+        for (const annotation of parseTree.annotations) {
             const symbol = pools.getSymbol(annotation.annotation, {
                 ...annotation.coordinate,
                 chain: coordinateChain
@@ -78,50 +78,50 @@ export default function preprocessSegment(
             (sh && !bat && requirement.target == "bat") ||
             (!sh && bat && requirement.target == "sh")
         ) {
-            return new RSegment.Empty({
-                ...segment.coordinate,
+            return new ASTN.Empty({
+                ...parseTree.coordinate,
                 chain: coordinateChain
             });
         }
-        segment = segment.value;
+        parseTree = parseTree.value;
     }
-    if (segment instanceof Segment.Empty) {
-        return new RSegment.Empty({
-            ...segment.coordinate,
+    if (parseTree instanceof PTN.Empty) {
+        return new ASTN.Empty({
+            ...parseTree.coordinate,
             chain: coordinateChain
         });
     }
-    if (segment instanceof Segment.ValDefine) {
-        if (segment.props.native) {
+    if (parseTree instanceof PTN.ValDefine) {
+        if (parseTree.props.native) {
             api.logger.error(LOG_ERROR.nativeVal(), {
-                ...segment.coordinate,
+                ...parseTree.coordinate,
                 chain: coordinateChain
             });
             reportError();
         }
-        if (!segment.valType && !segment.initialValue) {
+        if (!parseTree.valType && !parseTree.initialValue) {
             api.logger.error(LOG_ERROR.missingType(), {
-                ...segment.coordinate,
+                ...parseTree.coordinate,
                 chain: coordinateChain
             });
             reportError();
-            return new RSegment.Empty(segment.coordinate);
+            return new ASTN.Empty(parseTree.coordinate);
         }
         let type: Type | undefined;
-        if (segment.valType) {
+        if (parseTree.valType) {
             if (
-                segment.valType.namespaces.length == 0 &&
-                BASE_TYPES_NAME.indexOf(segment.valType.value) >= 0
+                parseTree.valType.namespaces.length == 0 &&
+                BASE_TYPES_NAME.indexOf(parseTree.valType.value) >= 0
             ) {
                 type = {
                     type: "base",
-                    base: <"string" | "boolean" | "int" | "void">segment.valType.value
+                    base: <"string" | "boolean" | "int" | "void">parseTree.valType.value
                 };
             } else {
                 const t = pools.getSymbol(
-                    segment.valType,
+                    parseTree.valType,
                     {
-                        ...segment.valType.coordinate,
+                        ...parseTree.valType.coordinate,
                         chain: coordinateChain
                     },
                     { api, namespace }
@@ -137,17 +137,17 @@ export default function preprocessSegment(
             }
             if (typeCalc.equalsTo(type, BASE_TYPES.void)) {
                 api.logger.error(LOG_ERROR.voidVal(), {
-                    ...segment.coordinate,
+                    ...parseTree.coordinate,
                     chain: coordinateChain
                 });
             }
         }
-        if (segment.props.macro) {
-            if (segment.initialValue) {
-                const i = preprocessValue(segment.initialValue, coordinateChain, requirement, context);
-                if (i instanceof RSegment.EmptyValue) {
+        if (parseTree.props.macro) {
+            if (parseTree.initialValue) {
+                const i = preprocessValue(parseTree.initialValue, coordinateChain, requirement, context);
+                if (i instanceof ASTN.EmptyValue) {
                     reportError();
-                    return new RSegment.Empty(segment.coordinate);
+                    return new ASTN.Empty(parseTree.coordinate);
                 }
                 if (typeCalc.equalsTo(i.valueType, BASE_TYPES.command)) {
                     api.logger.error(LOG_ERROR.disabledType(), {
@@ -155,7 +155,7 @@ export default function preprocessSegment(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.Empty(segment.coordinate);
+                    return new ASTN.Empty(parseTree.coordinate);
                 }
                 if (!i.isMacro) {
                     api.logger.error(LOG_ERROR.notMacro(), {
@@ -163,32 +163,32 @@ export default function preprocessSegment(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.Empty(segment.coordinate);
+                    return new ASTN.Empty(parseTree.coordinate);
                 }
                 if (type) {
                     if (!typeCalc.contains(i.valueType, type)) {
                         api.logger.error(LOG_ERROR.mismatchingType(), {
-                            ...segment.coordinate,
+                            ...parseTree.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.Empty(segment.coordinate);
+                        return new ASTN.Empty(parseTree.coordinate);
                     }
                 } else {
                     type = i.valueType;
                 }
                 let i1 = i;
                 let iType = i1.valueType;
-                if (i1 instanceof RSegment.ValueWrapper) {
-                    if ((<RSegment.ValueWrapper>i1).codes) {
-                        const vw = <RSegment.ValueWrapper>i1;
+                if (i1 instanceof ASTN.ValueWrapper) {
+                    if ((<ASTN.ValueWrapper>i1).codes) {
+                        const vw = <ASTN.ValueWrapper>i1;
                         if (!vw.value) {
                             api.logger.error(LOG_ERROR.mismatchingType(), {
                                 ...i1.coordinate,
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.Empty(segment.coordinate);
+                            return new ASTN.Empty(parseTree.coordinate);
                         }
                         if (!typeCalc.contains(iType, type)) {
                             api.logger.error(LOG_ERROR.mismatchingType(), {
@@ -196,16 +196,16 @@ export default function preprocessSegment(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.Empty(segment.coordinate);
+                            return new ASTN.Empty(parseTree.coordinate);
                         }
                         const val = new MacroVal(type, {
-                                isConst: !segment.props.var,
+                                isConst: !parseTree.props.var,
                                 deprecated
                             },
-                            <RSegment.Value>vw.value);
+                            <ASTN.Value>vw.value);
                         pools.pushSymbol(
                             "MacroVal",
-                            segment.valName,
+                            parseTree.valName,
                             val,
                             namespace
                         );
@@ -213,73 +213,73 @@ export default function preprocessSegment(
                         vw.value = undefined;
                         return vw;
                     } else {
-                        if (!(<RSegment.ValueWrapper>i1).value) {
+                        if (!(<ASTN.ValueWrapper>i1).value) {
                             api.logger.error(LOG_ERROR.missingType(), {
                                 ...i1.coordinate,
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.Empty(segment.coordinate);
+                            return new ASTN.Empty(parseTree.coordinate);
                         }
-                        i1 = <RSegment.Value>(<RSegment.ValueWrapper>i1).value;
+                        i1 = <ASTN.Value>(<ASTN.ValueWrapper>i1).value;
                     }
                 }
-                if (i1 instanceof RSegment.MacroValCall) {
-                    if ((<RSegment.MacroValCall>i).val.value) {
-                        i1 = <RSegment.Value>(<RSegment.MacroValCall>i).val.value;
+                if (i1 instanceof ASTN.MacroValCall) {
+                    if ((<ASTN.MacroValCall>i).val.value) {
+                        i1 = <ASTN.Value>(<ASTN.MacroValCall>i).val.value;
                     } else {
                         api.logger.error(LOG_ERROR.useBeforeInit(), {
                             ...i.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.Empty(segment.coordinate);
+                        return new ASTN.Empty(parseTree.coordinate);
                     }
                 }
-                const v = MacroVal.fromValue(i1, !segment.props.var, { api });
+                const v = MacroVal.fromValue(i1, !parseTree.props.var, { api });
                 const val = new MacroVal(type, {
-                        isConst: !segment.props.var,
+                        isConst: !parseTree.props.var,
                         deprecated
                     },
                     v.val.value
                 );
-                pools.pushSymbol("MacroVal", segment.valName, val, namespace);
+                pools.pushSymbol("MacroVal", parseTree.valName, val, namespace);
 
                 if (v.wrapper) {
                     v.wrapper.valueType = val.type;
                     v.wrapper.value = val.value;
                     return v.wrapper;
                 }
-                return new RSegment.Empty(segment.coordinate);
+                return new ASTN.Empty(parseTree.coordinate);
             } else {
                 if (!type) {
                     api.logger.error(LOG_ERROR.missingType(), {
-                        ...segment.coordinate,
+                        ...parseTree.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.Empty(segment.coordinate);
+                    return new ASTN.Empty(parseTree.coordinate);
                 }
-                if (!segment.props.var) {
+                if (!parseTree.props.var) {
                     api.logger.error(LOG_ERROR.missingInitialValue(), {
-                        ...segment.coordinate,
+                        ...parseTree.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
                 }
                 const val = new MacroVal(type, {
-                        isConst: !segment.props.var,
+                        isConst: !parseTree.props.var,
                         deprecated
                     }
                 );
-                pools.pushSymbol("MacroVal", segment.valName, val, namespace);
+                pools.pushSymbol("MacroVal", parseTree.valName, val, namespace);
             }
         } else {
-            const i = segment.initialValue ? preprocessValue(segment.initialValue, coordinateChain, requirement, context) : undefined;
+            const i = parseTree.initialValue ? preprocessValue(parseTree.initialValue, coordinateChain, requirement, context) : undefined;
             if (i) {
-                if (i instanceof RSegment.EmptyValue) {
+                if (i instanceof ASTN.EmptyValue) {
                     reportError();
-                    return new RSegment.Empty(segment.coordinate);
+                    return new ASTN.Empty(parseTree.coordinate);
                 }
                 if (typeCalc.equalsTo(i.valueType, BASE_TYPES.command)) {
                     api.logger.error(LOG_ERROR.disabledType(), {
@@ -287,11 +287,11 @@ export default function preprocessSegment(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.Empty(segment.coordinate);
+                    return new ASTN.Empty(parseTree.coordinate);
                 }
                 if (type && !typeCalc.contains(i.valueType, type)) {
                     api.logger.error(LOG_ERROR.mismatchingType(), {
-                        ...segment.coordinate,
+                        ...parseTree.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
@@ -302,62 +302,62 @@ export default function preprocessSegment(
             } else {
                 if (!type) {
                     api.logger.error(LOG_ERROR.missingType(), {
-                        ...segment.coordinate,
+                        ...parseTree.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new RSegment.Empty(segment.coordinate);
+                    return new ASTN.Empty(parseTree.coordinate);
                 }
-                if (!segment.props.var) {
+                if (!parseTree.props.var) {
                     api.logger.error(LOG_ERROR.missingInitialValue(), {
-                        ...segment.coordinate,
+                        ...parseTree.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
                 }
             }
 
-            const val = new Val(segment.valName.value, {
-                ...segment.coordinate,
+            const val = new Val(parseTree.valName.value, {
+                ...parseTree.coordinate,
                 chain: coordinateChain
             }, type, {
-                isConst: !segment.props.var,
+                isConst: !parseTree.props.var,
                 optional,
                 deprecated
             });
             pools.renamePool.push(val.name);
             pools.pushDefinePool(val);
 
-            pools.pushSymbol("Val", segment.valName, val, namespace);
+            pools.pushSymbol("Val", parseTree.valName, val, namespace);
 
             if (i) {
                 val.isInit = true;
-                return new RSegment.ExpressionSVO(segment.coordinate, new RSegment.ValCall(segment.coordinate, val), "=", i, type);
+                return new ASTN.ExpressionSVO(parseTree.coordinate, new ASTN.ValCall(parseTree.coordinate, val), "=", i, type);
             } else {
-                return new RSegment.Empty(segment.coordinate);
+                return new ASTN.Empty(parseTree.coordinate);
             }
 
         }
     }
-    if (segment instanceof Segment.FunctionDefine) {
+    if (parseTree instanceof PTN.FunctionDefine) {
         if (pools.flags.defineFunction) {
             api.logger.error(LOG_ERROR.functionInFunction(), {
-                ...segment.coordinate,
+                ...parseTree.coordinate,
                 chain: coordinateChain
             });
             reportError();
-            return new RSegment.Empty(segment.coordinate);
+            return new ASTN.Empty(parseTree.coordinate);
         }
         pools.flags.defineFunction = true;
         type Arg = {
             name: string,
             type: Type,
             isMacro: boolean,
-            defaultValue?: RSegment.Value
+            defaultValue?: ASTN.Value
         }
         const args: Arg[] = [];
-        const codes: RSegment.SegmentInterface[] = [];
-        for (const arg of segment.args) {
+        const codes: ASTN.AbstractSyntaxTreeNode[] = [];
+        for (const arg of parseTree.args) {
             if (!arg.valType) {
                 api.logger.error(LOG_ERROR.missingType(), {
                     ...arg.coordinate,
@@ -365,10 +365,10 @@ export default function preprocessSegment(
                 });
                 reportError();
                 pools.flags.defineFunction = false;
-                return new RSegment.Empty(segment.coordinate);
+                return new ASTN.Empty(parseTree.coordinate);
             }
             let isMacro = arg.props.macro;
-            if (!segment.props.macro && arg.props.macro) {
+            if (!parseTree.props.macro && arg.props.macro) {
                 api.logger.warning(LOG_WARNING.macroArgInRuntimeFunction(), {
                     ...arg.coordinate,
                     chain: coordinateChain
@@ -378,24 +378,24 @@ export default function preprocessSegment(
             let type = typeCalc.getTypeWithName(arg.valType, context);
             if (arg.initialValue) {
                 let i = preprocessValue(arg.initialValue, coordinateChain, requirement, context);
-                if (i instanceof RSegment.EmptyValue) {
+                if (i instanceof ASTN.EmptyValue) {
                     reportError();
                     pools.flags.defineFunction = false;
-                    return new RSegment.Empty(segment.coordinate);
+                    return new ASTN.Empty(parseTree.coordinate);
                 }
 
                 if (arg.props.macro && !i.isMacro) {
                     api.logger.error(LOG_ERROR.notMacro(), {
-                        ...segment.coordinate,
+                        ...parseTree.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
                     pools.flags.defineFunction = false;
-                    return new RSegment.Empty(segment.coordinate);
+                    return new ASTN.Empty(parseTree.coordinate);
                 }
                 if (i.isMacro) {
                     let t = i.valueType;
-                    if (i instanceof RSegment.ValueWrapper) {
+                    if (i instanceof ASTN.ValueWrapper) {
                         if (i.codes) {
                             const vw = i;
                             if (!vw.value) {
@@ -404,54 +404,54 @@ export default function preprocessSegment(
                                     chain: coordinateChain
                                 });
                             }
-                            i = <RSegment.Value>vw.value;
+                            i = <ASTN.Value>vw.value;
                             codes.push(...vw.codes);
                         }
-                        if (!(<RSegment.ValueWrapper>i).value) {
+                        if (!(<ASTN.ValueWrapper>i).value) {
                             api.logger.error(LOG_ERROR.reallyWeird(), {
                                 ...i.coordinate,
                                 chain: coordinateChain
                             });
                             reportError();
                             pools.flags.defineFunction = false;
-                            return new RSegment.Empty(segment.coordinate);
+                            return new ASTN.Empty(parseTree.coordinate);
                         }
                         if (!typeCalc.equalsTo(t, i.valueType)) {
                             if (typeCalc.equalsTo(t, BASE_TYPES.boolean)) {
-                                const str = (<RSegment.MacroBase>i).toStr().value;
+                                const str = (<ASTN.MacroBase>i).toStr().value;
                                 if (str == "1") {
-                                    i = new RSegment.Bool(i.coordinate, true);
+                                    i = new ASTN.Bool(i.coordinate, true);
                                 } else if (str == "0") {
-                                    i = new RSegment.Bool(i.coordinate, false);
+                                    i = new ASTN.Bool(i.coordinate, false);
                                 } else {
                                     api.logger.error(LOG_ERROR.mismatchingType(), {
                                         ...i.coordinate,
                                         chain: coordinateChain
                                     });
                                     reportError();
-                                    i = new RSegment.Bool(i.coordinate, true);
+                                    i = new ASTN.Bool(i.coordinate, true);
                                 }
                             } else if (typeCalc.equalsTo(t, BASE_TYPES.int)) {
-                                if (i instanceof RSegment.Bool) {
+                                if (i instanceof ASTN.Bool) {
                                     i = i.toInt();
                                 } else {
-                                    const num = Number((<RSegment.MacroBase>i).toStr().value);
+                                    const num = Number((<ASTN.MacroBase>i).toStr().value);
                                     if (isNaN(num)) {
                                         api.logger.error(LOG_ERROR.mismatchingType(), {
                                             ...i.coordinate,
                                             chain: coordinateChain
                                         });
-                                        i = new RSegment.Int(i.coordinate, 0);
+                                        i = new ASTN.Int(i.coordinate, 0);
                                     } else {
-                                        i = new RSegment.Int(i.coordinate, num);
+                                        i = new ASTN.Int(i.coordinate, num);
                                     }
                                 }
                             } else {
-                                i = (<RSegment.MacroBase>i).toStr();
+                                i = (<ASTN.MacroBase>i).toStr();
                             }
                         }
                     }
-                    if (i instanceof RSegment.MacroValCall) {
+                    if (i instanceof ASTN.MacroValCall) {
                         if (i.val.value) {
                             i = i.val.value;
                         } else {
@@ -460,7 +460,7 @@ export default function preprocessSegment(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.Empty(segment.coordinate);
+                            return new ASTN.Empty(parseTree.coordinate);
                         }
                     }
 
@@ -471,7 +471,7 @@ export default function preprocessSegment(
                         });
                         reportError();
                         pools.flags.defineFunction = false;
-                        return new RSegment.Empty(segment.coordinate);
+                        return new ASTN.Empty(parseTree.coordinate);
                     }
                 }
                 if (typeCalc.equalsTo(type, BASE_TYPES.command)) {
@@ -481,7 +481,7 @@ export default function preprocessSegment(
                     });
                     reportError();
                     pools.flags.defineFunction = false;
-                    return new RSegment.Empty(segment.coordinate);
+                    return new ASTN.Empty(parseTree.coordinate);
                 }
 
                 if (isMacro && !i.isMacro) {
@@ -507,7 +507,7 @@ export default function preprocessSegment(
                     });
                     reportError();
                     pools.flags.defineFunction = false;
-                    return new RSegment.Empty(segment.coordinate);
+                    return new ASTN.Empty(parseTree.coordinate);
                 }
                 type = typeCalc.getTypeWithName(arg.valType, context);
                 args.push({
@@ -517,27 +517,27 @@ export default function preprocessSegment(
                 });
             }
         }
-        const returnType = segment.functionType ? typeCalc.getTypeWithName(segment.functionType, context) : BASE_TYPES.void;
-        if (!segment.block) {
+        const returnType = parseTree.functionType ? typeCalc.getTypeWithName(parseTree.functionType, context) : BASE_TYPES.void;
+        if (!parseTree.block) {
             pools.flags.defineFunction = false;
-            return new RSegment.Empty(segment.coordinate);
+            return new ASTN.Empty(parseTree.coordinate);
             //TODO-implement native function
         }
-        if (segment.props.macro) {
+        if (parseTree.props.macro) {
             pools.flags.defineFunction = false;
-            const func = new MacroFunc(segment.functionName.value, segment.coordinate, returnType, args, segment.block, {
+            const func = new MacroFunc(parseTree.functionName.value, parseTree.coordinate, returnType, args, parseTree.block, {
                 deprecated,
                 hasScope: !(annotations.indexOf(BUILTIN_ANNOTATIONS["@noScope"]) >= 0),
                 isConstexpr: annotations.indexOf(BUILTIN_ANNOTATIONS["@constexpr"]) >= 0
             }, pools.symbolTable.length);
-            pools.pushSymbol("MacroFunction", segment.functionName, func, namespace);
+            pools.pushSymbol("MacroFunction", parseTree.functionName, func, namespace);
             if (codes.length == 0) {
-                return new RSegment.Empty(segment.coordinate);
+                return new ASTN.Empty(parseTree.coordinate);
             }
             if (codes.length == 1) {
                 return codes[0];
             }
-            return new RSegment.Block(segment.coordinate, codes, undefined).noScope();
+            return new ASTN.Block(parseTree.coordinate, codes, undefined).noScope();
         }
         pools.symbolTable.push(SYMBOL_SEPARATOR.scope);
         pools.pushReturnType(returnType);
@@ -550,7 +550,7 @@ export default function preprocessSegment(
         };
         for (const arg of args) {
             const val = new Val(arg.name, {
-                ...segment.coordinate,
+                ...parseTree.coordinate,
                 chain: coordinateChain
             }, arg.type, {
                 isConst: false,
@@ -559,10 +559,10 @@ export default function preprocessSegment(
             });
             val.isInit = true;
             pools.renamePool.push(val.name);
-            pools.pushSymbol("Val", new Name(segment.coordinate, arg.name), val, []);
+            pools.pushSymbol("Val", new Name(parseTree.coordinate, arg.name), val, []);
             pools.pushDefinePool(val);
         }
-        const body = preprocessSegment(segment.block, coordinateChain, requirement, context);
+        const body = preprocessSegment(parseTree.block, coordinateChain, requirement, context);
         for (const e of (<(Val | Func)[]>pools.definePool.pop())) {
             if (!e.used && !e.prop.optional) {
                 api.logger.warning(LOG_WARNING.notUsed(e.name.v), {
@@ -572,28 +572,28 @@ export default function preprocessSegment(
             }
         }
         beforeReturn();
-        const func = new Func(segment.functionName.value, {
-                ...segment.coordinate,
+        const func = new Func(parseTree.functionName.value, {
+                ...parseTree.coordinate,
                 chain: coordinateChain
             }, <(Val | Func)[]>pools.requirePool.pop(), returnType, args,
-            body instanceof RSegment.Block ? body : new RSegment.Block(segment.coordinate, [body], undefined), {
+            body instanceof ASTN.Block ? body : new ASTN.Block(parseTree.coordinate, [body], undefined), {
                 deprecated,
                 optional
             });
-        pools.pushSymbol("Function", segment.functionName, func, namespace);
+        pools.pushSymbol("Function", parseTree.functionName, func, namespace);
         pools.renamePool.push(func.name);
         pools.pushDefinePool(func);
-        return new RSegment.Empty(segment.coordinate);
+        return new ASTN.Empty(parseTree.coordinate);
         //TODO
         // return value: unwrap, check, ?
     }
-    if (segment instanceof Segment.Block) {
-        const inside: RSegment.SegmentInterface[] = [];
-        let macroReturnValue: RSegment.Value | undefined;
+    if (parseTree instanceof PTN.Block) {
+        const inside: ASTN.AbstractSyntaxTreeNode[] = [];
+        let macroReturnValue: ASTN.Value | undefined;
         pools.symbolTable.push(SYMBOL_SEPARATOR.scope);
-        for (const insideSegment of segment.inside) {
+        for (const insideSegment of parseTree.inside) {
             const s = preprocessSegment(insideSegment, coordinateChain, requirement, context);
-            if (!(s instanceof RSegment.Empty)) {
+            if (!(s instanceof ASTN.Empty)) {
                 inside.push(s);
             }
             if (s.macroReturnValue) {
@@ -603,41 +603,41 @@ export default function preprocessSegment(
         }
         pools.popScope();
         if (inside.length == 0) {
-            return new RSegment.Empty(segment.coordinate);
+            return new ASTN.Empty(parseTree.coordinate);
         }
         if (inside.length == 1) {
             return inside[0];
         }
-        const b = new RSegment.Block(segment.coordinate, inside, macroReturnValue);
+        const b = new ASTN.Block(parseTree.coordinate, inside, macroReturnValue);
         b.hasScope = false;
         return b;
     }
-    if (segment instanceof Segment.StructDefine) {
+    if (parseTree instanceof PTN.StructDefine) {
         const def: { [key: string]: Type } = {};
-        for (const key in segment.inside) {
-            def[key] = typeCalc.getTypeWithName(segment.inside[key], context);
+        for (const key in parseTree.inside) {
+            def[key] = typeCalc.getTypeWithName(parseTree.inside[key], context);
         }
-        pools.pushSymbol("Struct", segment.structName, new Struct(segment.structName.value, def), namespace);
-        return new RSegment.Empty(segment.coordinate);
+        pools.pushSymbol("Struct", parseTree.structName, new Struct(parseTree.structName.value, def), namespace);
+        return new ASTN.Empty(parseTree.coordinate);
     }
-    if (segment instanceof Segment.If) {
-        let valueWrapper: RSegment.ValueWrapper | undefined;
-        const condition = preprocessValue(segment.condition, coordinateChain, requirement, context);
-        if (condition instanceof RSegment.EmptyValue) {
+    if (parseTree instanceof PTN.If) {
+        let valueWrapper: ASTN.ValueWrapper | undefined;
+        const condition = preprocessValue(parseTree.condition, coordinateChain, requirement, context);
+        if (condition instanceof ASTN.EmptyValue) {
             reportError();
-            return new RSegment.Empty(segment.coordinate);
+            return new ASTN.Empty(parseTree.coordinate);
         }
         if (!typeCalc.equalsTo(condition.valueType, BASE_TYPES.boolean)) {
             api.logger.error(LOG_ERROR.mismatchingType(), {
-                ...segment.condition.coordinate,
+                ...parseTree.condition.coordinate,
                 chain: coordinateChain
             });
             reportError();
-            return new RSegment.Empty(segment.coordinate);
+            return new ASTN.Empty(parseTree.coordinate);
         }
         if (condition.isMacro) {
             let c1 = condition;
-            if (c1 instanceof RSegment.ValueWrapper) {
+            if (c1 instanceof ASTN.ValueWrapper) {
                 if (c1.codes) {
                     const vw = c1;
                     if (!vw.value) {
@@ -646,10 +646,10 @@ export default function preprocessSegment(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.Empty(segment.coordinate);
+                        return new ASTN.Empty(parseTree.coordinate);
                     }
-                    if ((<RSegment.Bool>vw.value).value) {
-                        c1 = <RSegment.Bool>vw.value;
+                    if ((<ASTN.Bool>vw.value).value) {
+                        c1 = <ASTN.Bool>vw.value;
                         valueWrapper = vw;
                     } else {
                         vw.isMacro = false;
@@ -663,7 +663,7 @@ export default function preprocessSegment(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new RSegment.Empty(segment.coordinate);
+                        return new ASTN.Empty(parseTree.coordinate);
                     }
                     c1 = c1.value;
                 }
@@ -672,27 +672,27 @@ export default function preprocessSegment(
                 ...c1.coordinate,
                 chain: coordinateChain
             }, { api });
-            let statement: RSegment.SegmentInterface;
+            let statement: ASTN.AbstractSyntaxTreeNode;
             if (va) {
-                statement = preprocessSegment(segment.statement, coordinateChain, requirement, context);
+                statement = preprocessSegment(parseTree.statement, coordinateChain, requirement, context);
             } else {
-                if (segment.elseStatement) {
-                    statement = preprocessSegment(segment.elseStatement, coordinateChain, requirement, context);
+                if (parseTree.elseStatement) {
+                    statement = preprocessSegment(parseTree.elseStatement, coordinateChain, requirement, context);
                 } else {
                     if (valueWrapper) {
                         return valueWrapper;
                     }
-                    return new RSegment.Empty(segment.coordinate);
+                    return new ASTN.Empty(parseTree.coordinate);
                 }
             }
-            if (statement instanceof RSegment.Empty) {
+            if (statement instanceof ASTN.Empty) {
                 if (valueWrapper) {
                     return valueWrapper;
                 }
-                return new RSegment.Empty(segment.coordinate);
+                return new ASTN.Empty(parseTree.coordinate);
             } else {
                 if (valueWrapper) {
-                    return new RSegment.ValueWrapper(segment.coordinate, BASE_TYPES.void, [valueWrapper, statement], {
+                    return new ASTN.ValueWrapper(parseTree.coordinate, BASE_TYPES.void, [valueWrapper, statement], {
                         isMacro: false,
                         hasScope: false
                     });
@@ -702,49 +702,49 @@ export default function preprocessSegment(
         } else {
             if (constStatement) {
                 api.logger.warning(LOG_WARNING.notExpandable(), {
-                    ...segment.coordinate,
+                    ...parseTree.coordinate,
                     chain: coordinateChain
                 });
             }
             pools.symbolTable.push(SYMBOL_SEPARATOR.macro);
-            const statement = preprocessSegment(segment.statement, coordinateChain, requirement, context);
-            const elseStatement = segment.elseStatement ? preprocessSegment(segment.elseStatement, coordinateChain, requirement, context) : undefined;
+            const statement = preprocessSegment(parseTree.statement, coordinateChain, requirement, context);
+            const elseStatement = parseTree.elseStatement ? preprocessSegment(parseTree.elseStatement, coordinateChain, requirement, context) : undefined;
             pools.popMacroScope();
-            return new RSegment.If(segment.coordinate, condition, statement, elseStatement, undefined);
+            return new ASTN.If(parseTree.coordinate, condition, statement, elseStatement, undefined);
         }
     }
-    if (segment instanceof Segment.For) {
-        let codes: RSegment.SegmentInterface[] = [];
+    if (parseTree instanceof PTN.For) {
+        let codes: ASTN.AbstractSyntaxTreeNode[] = [];
         pools.symbolTable.push(SYMBOL_SEPARATOR.scope);
-        const statement1 = preprocessSegment(segment.statement1, coordinateChain, requirement, context);
-        const condition = preprocessValue(segment.statement2, coordinateChain, requirement, context);
-        if (condition instanceof RSegment.EmptyValue) {
+        const statement1 = preprocessSegment(parseTree.statement1, coordinateChain, requirement, context);
+        const condition = preprocessValue(parseTree.statement2, coordinateChain, requirement, context);
+        if (condition instanceof ASTN.EmptyValue) {
             reportError();
             pools.popScope();
-            return new RSegment.Empty(segment.coordinate);
+            return new ASTN.Empty(parseTree.coordinate);
         }
         if (!typeCalc.equalsTo(condition.valueType, BASE_TYPES.boolean)) {
             api.logger.error(LOG_ERROR.mismatchingType(), {
-                ...segment.statement2.coordinate,
+                ...parseTree.statement2.coordinate,
                 chain: coordinateChain
             });
             reportError();
             pools.popScope();
-            return new RSegment.Empty(segment.coordinate);
+            return new ASTN.Empty(parseTree.coordinate);
         }
         if (constStatement && condition.isMacro) {
             let c1 = condition;
-            let macroReturnValue: RSegment.Value | undefined;
+            let macroReturnValue: ASTN.Value | undefined;
             let whileCount = 0;
             while (true) {
                 whileCount++;
                 if (whileCount > 9999) {
                     api.logger.errorInterrupt(LOG_ERROR.infiniteLoop(), {
-                        ...segment.coordinate,
+                        ...parseTree.coordinate,
                         chain: coordinateChain
                     });
                 }
-                if (c1 instanceof RSegment.ValueWrapper) {
+                if (c1 instanceof ASTN.ValueWrapper) {
                     if (c1.codes) {
                         const vw = c1;
                         if (!vw.value) {
@@ -753,10 +753,10 @@ export default function preprocessSegment(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.Empty(segment.coordinate);
+                            return new ASTN.Empty(parseTree.coordinate);
                         }
-                        if ((<RSegment.Bool>vw.value).value) {
-                            c1 = <RSegment.Bool>vw.value;
+                        if ((<ASTN.Bool>vw.value).value) {
+                            c1 = <ASTN.Bool>vw.value;
                             codes.push(vw);
                         } else {
                             vw.isMacro = false;
@@ -770,7 +770,7 @@ export default function preprocessSegment(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.Empty(segment.coordinate);
+                            return new ASTN.Empty(parseTree.coordinate);
                         }
                         c1 = c1.value;
                     }
@@ -781,70 +781,70 @@ export default function preprocessSegment(
                 }, { api })) {
                     break;
                 }
-                let statement = preprocessSegment(segment.statement, coordinateChain, requirement, context);
-                if (statement instanceof RSegment.Empty) {
+                let statement = preprocessSegment(parseTree.statement, coordinateChain, requirement, context);
+                if (statement instanceof ASTN.Empty) {
                     codes.push(statement);
                 }
                 if (statement.macroReturnValue) {
                     macroReturnValue = statement.macroReturnValue;
                     break;
                 }
-                const statement3 = preprocessSegment(segment.statement3, coordinateChain, requirement, context);
-                if (!(statement3 instanceof RSegment.Empty)) {
+                const statement3 = preprocessSegment(parseTree.statement3, coordinateChain, requirement, context);
+                if (!(statement3 instanceof ASTN.Empty)) {
                     codes.push(statement3);
                 }
-                c1 = preprocessValue(segment.statement2, coordinateChain, requirement, context);
+                c1 = preprocessValue(parseTree.statement2, coordinateChain, requirement, context);
             }
             pools.popScope();
-            return new RSegment.Block(segment.coordinate, codes, macroReturnValue);
+            return new ASTN.Block(parseTree.coordinate, codes, macroReturnValue);
         } else {
             if (constStatement) {
                 api.logger.warning(LOG_WARNING.notExpandable(), {
-                    ...segment.coordinate,
+                    ...parseTree.coordinate,
                     chain: coordinateChain
                 });
             }
             pools.symbolTable.push(SYMBOL_SEPARATOR.macro);
-            const statement3 = preprocessSegment(segment.statement3, coordinateChain, requirement, context);
-            const statement = preprocessSegment(segment.statement, coordinateChain, requirement, context);
+            const statement3 = preprocessSegment(parseTree.statement3, coordinateChain, requirement, context);
+            const statement = preprocessSegment(parseTree.statement, coordinateChain, requirement, context);
             pools.popMacroScope();
             pools.popScope();
-            return new RSegment.For(segment.coordinate,
-                statement1 instanceof RSegment.Empty || statement1 instanceof RSegment.EmptyValue ? undefined : statement1,
+            return new ASTN.For(parseTree.coordinate,
+                statement1 instanceof ASTN.Empty || statement1 instanceof ASTN.EmptyValue ? undefined : statement1,
                 condition,
-                statement3 instanceof RSegment.Empty || statement3 instanceof RSegment.EmptyValue ? undefined : statement3,
+                statement3 instanceof ASTN.Empty || statement3 instanceof ASTN.EmptyValue ? undefined : statement3,
                 statement,
                 undefined);
         }
     }
-    if (segment instanceof Segment.While) {
-        let codes: RSegment.SegmentInterface[] = [];
-        const condition = preprocessValue(segment.condition, coordinateChain, requirement, context);
-        if (condition instanceof RSegment.EmptyValue) {
+    if (parseTree instanceof PTN.While) {
+        let codes: ASTN.AbstractSyntaxTreeNode[] = [];
+        const condition = preprocessValue(parseTree.condition, coordinateChain, requirement, context);
+        if (condition instanceof ASTN.EmptyValue) {
             reportError();
-            return new RSegment.Empty(segment.coordinate);
+            return new ASTN.Empty(parseTree.coordinate);
         }
         if (!typeCalc.equalsTo(condition.valueType, BASE_TYPES.boolean)) {
             api.logger.error(LOG_ERROR.mismatchingType(), {
-                ...segment.condition.coordinate,
+                ...parseTree.condition.coordinate,
                 chain: coordinateChain
             });
             reportError();
-            return new RSegment.Empty(segment.coordinate);
+            return new ASTN.Empty(parseTree.coordinate);
         }
         if (constStatement && condition.isMacro) {
             let c1 = condition;
-            let macroReturnValue: RSegment.Value | undefined;
+            let macroReturnValue: ASTN.Value | undefined;
             let whileCount = 0;
             while (true) {
                 whileCount++;
                 if (whileCount > 9999) {
                     api.logger.errorInterrupt(LOG_ERROR.infiniteLoop(), {
-                        ...segment.coordinate,
+                        ...parseTree.coordinate,
                         chain: coordinateChain
                     });
                 }
-                if (c1 instanceof RSegment.ValueWrapper) {
+                if (c1 instanceof ASTN.ValueWrapper) {
                     if (c1.codes) {
                         const vw = c1;
                         if (!vw.value) {
@@ -853,10 +853,10 @@ export default function preprocessSegment(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.Empty(segment.coordinate);
+                            return new ASTN.Empty(parseTree.coordinate);
                         }
-                        if ((<RSegment.Bool>vw.value).value) {
-                            c1 = <RSegment.Bool>vw.value;
+                        if ((<ASTN.Bool>vw.value).value) {
+                            c1 = <ASTN.Bool>vw.value;
                             codes.push(vw);
                         } else {
                             vw.isMacro = false;
@@ -870,7 +870,7 @@ export default function preprocessSegment(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new RSegment.Empty(segment.coordinate);
+                            return new ASTN.Empty(parseTree.coordinate);
                         }
                         c1 = c1.value;
                     }
@@ -882,40 +882,40 @@ export default function preprocessSegment(
                 }, { api })) {
                     break;
                 }
-                let statement = preprocessSegment(segment.statement, coordinateChain, requirement, context);
-                if (!(statement instanceof RSegment.Empty)) {
+                let statement = preprocessSegment(parseTree.statement, coordinateChain, requirement, context);
+                if (!(statement instanceof ASTN.Empty)) {
                     codes.push(statement);
                 }
                 if (statement.macroReturnValue) {
                     macroReturnValue = statement.macroReturnValue;
                     break;
                 }
-                c1 = preprocessValue(segment.condition, coordinateChain, requirement, context);
+                c1 = preprocessValue(parseTree.condition, coordinateChain, requirement, context);
             }
-            return new RSegment.Block(segment.coordinate, codes, macroReturnValue);
+            return new ASTN.Block(parseTree.coordinate, codes, macroReturnValue);
         } else {
             if (constStatement) {
                 api.logger.warning(LOG_WARNING.notExpandable(), {
-                    ...segment.coordinate,
+                    ...parseTree.coordinate,
                     chain: coordinateChain
                 });
             }
             pools.symbolTable.push(SYMBOL_SEPARATOR.macro);
-            const statement = preprocessSegment(segment.statement, coordinateChain, requirement, context);
+            const statement = preprocessSegment(parseTree.statement, coordinateChain, requirement, context);
             pools.popMacroScope();
-            return new RSegment.While(segment.coordinate, condition, statement, undefined);
+            return new ASTN.While(parseTree.coordinate, condition, statement, undefined);
         }
     }
-    if (segment instanceof Segment.Namespace) {
-        const ns = [...namespace, ...segment.namespaceName.namespaces, segment.namespaceName.value];
-        const inside: RSegment.SegmentInterface[] = [];
-        let macroReturnValue: RSegment.Value | undefined;
-        for (const insideSegment of segment.block.inside) {
+    if (parseTree instanceof PTN.Namespace) {
+        const ns = [...namespace, ...parseTree.namespaceName.namespaces, parseTree.namespaceName.value];
+        const inside: ASTN.AbstractSyntaxTreeNode[] = [];
+        let macroReturnValue: ASTN.Value | undefined;
+        for (const insideSegment of parseTree.block.inside) {
             const s = preprocessSegment(insideSegment, coordinateChain, requirement, {
                 ...context,
                 namespace: ns
             });
-            if (!(s instanceof RSegment.Empty)) {
+            if (!(s instanceof ASTN.Empty)) {
                 inside.push(s);
             }
             if (s.macroReturnValue) {
@@ -924,28 +924,28 @@ export default function preprocessSegment(
             }
         }
         if (inside.length == 0) {
-            return new RSegment.Empty(segment.coordinate);
+            return new ASTN.Empty(parseTree.coordinate);
         }
         if (inside.length == 1) {
             return inside[0];
         }
-        const b = new RSegment.Block(segment.coordinate, inside, macroReturnValue);
+        const b = new ASTN.Block(parseTree.coordinate, inside, macroReturnValue);
         b.hasScope = false;
         return b;
     }
-    if (segment instanceof Segment.Using) {
-        const symbol = pools.getSymbol(segment.definingName, {
-            ...segment.definingName.coordinate,
+    if (parseTree instanceof PTN.Using) {
+        const symbol = pools.getSymbol(parseTree.definingName, {
+            ...parseTree.definingName.coordinate,
             chain: coordinateChain
         }, { api, namespace });
         pools.symbolTable.push({
             ...symbol,
-            name: segment.definingName.value
+            name: parseTree.definingName.value
         });
-        return new RSegment.Empty(segment.coordinate);
+        return new ASTN.Empty(parseTree.coordinate);
     }
-    if (segment instanceof Segment.UsingNamespace) {
-        const ns = segment.namespaceName.namespaces.join("_") + "_";
+    if (parseTree instanceof PTN.UsingNamespace) {
+        const ns = parseTree.namespaceName.namespaces.join("_") + "_";
         for (const symbol of pools.symbolTable) {
             if (symbol.name.startsWith(ns)) {
                 pools.symbolTable.push({
@@ -954,38 +954,38 @@ export default function preprocessSegment(
                 });
             }
         }
-        return new RSegment.Empty(segment.coordinate);
+        return new ASTN.Empty(parseTree.coordinate);
     }
-    if (segment instanceof Segment.Return) {
+    if (parseTree instanceof PTN.Return) {
         if (pools.returnTypeStack.length == 0) {
-            api.logger.error(LOG_ERROR.returnOutsideFunction(), segment.coordinate);
+            api.logger.error(LOG_ERROR.returnOutsideFunction(), parseTree.coordinate);
             reportError();
-            return new RSegment.Empty(segment.coordinate);
+            return new ASTN.Empty(parseTree.coordinate);
         }
-        if (!segment.value) {
-            return new RSegment.Return(segment.coordinate, undefined, true);
+        if (!parseTree.value) {
+            return new ASTN.Return(parseTree.coordinate, undefined, true);
         }
-        const value = preprocessValue(segment.value, coordinateChain, requirement, context);
+        const value = preprocessValue(parseTree.value, coordinateChain, requirement, context);
         if (typeCalc.equalsTo(value.valueType, BASE_TYPES.void)) {
-            api.logger.error(LOG_ERROR.mismatchingType(), segment.coordinate);
+            api.logger.error(LOG_ERROR.mismatchingType(), parseTree.coordinate);
             reportError();
-            return new RSegment.Return(segment.coordinate, undefined, true);
+            return new ASTN.Return(parseTree.coordinate, undefined, true);
         }
         if (typeCalc.contains(value.valueType, pools.returnTypeStack[pools.returnTypeStack.length - 1].type)) {
             pools.returnTypeStack[pools.returnTypeStack.length - 1].cnt++;
         } else {
-            api.logger.error(LOG_ERROR.mismatchingType(), segment.coordinate);
+            api.logger.error(LOG_ERROR.mismatchingType(), parseTree.coordinate);
             reportError();
         }
-        return new RSegment.Return(segment.coordinate, value, value.isMacro);
+        return new ASTN.Return(parseTree.coordinate, value, value.isMacro);
     }
-    const value = preprocessValue(segment, coordinateChain, requirement, context);
-    if (value instanceof RSegment.EmptyValue) {
+    const value = preprocessValue(parseTree, coordinateChain, requirement, context);
+    if (value instanceof ASTN.EmptyValue) {
         reportError();
-        return new RSegment.Empty(segment.coordinate);
+        return new ASTN.Empty(parseTree.coordinate);
     }
-    if (value.isMacro && !(value instanceof RSegment.ValueWrapper)) {
-        return new RSegment.Empty(segment.coordinate);
+    if (value.isMacro && !(value instanceof ASTN.ValueWrapper)) {
+        return new ASTN.Empty(parseTree.coordinate);
     }
     return value;
 }

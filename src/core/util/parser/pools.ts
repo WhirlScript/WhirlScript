@@ -5,7 +5,7 @@ import MacroFunc from "../../types/parser/macroFunc";
 import Struct from "../../types/parser/struct";
 import LOG_ERROR from "../../logger/logError";
 import Coordinate from "../../types/parser/coordinate";
-import { Segment } from "../../types/parser/segment";
+import { PTN } from "../../types/parser/ptn";
 import ApiWrapper from "../../types/api/apiWrapper";
 import NativeFunc from "../../types/parser/nativeFunc";
 import Annotation from "../../types/parser/annotation";
@@ -71,7 +71,7 @@ export default class Pools {
         }
     }
 
-    getSymbol(symbol: Segment.Name, coordinate: Coordinate, context: { api: ApiWrapper, namespace: string[] }) {
+    getSymbol(symbol: PTN.Name, coordinate: Coordinate, context: { api: ApiWrapper, namespace: string[] }) {
         const names: string[] = [symbol.namespaces.length == 0 ? symbol.value : symbol.namespaces.join("_") + "_" + symbol.value];
         for (let i = context.namespace.length - 1; i >= 0; i--) {
             names.push(context.namespace[i] + "_" + names[names.length - 1]);
@@ -95,7 +95,7 @@ export default class Pools {
     }
 
     pushSymbol(type: "Val" | "Function" | "MacroVal" | "MacroFunction" | "NativeFunction" | "Struct" | "Annotation" | "Separator" | "MacroSeparator",
-               symbol: Segment.Name,
+               symbol: PTN.Name,
                value: Val | Func | MacroVal | MacroFunc | NativeFunc | Struct | Annotation | "",
                namespace: string[]) {
         const name = (namespace.length == 0 ? "" : namespace.join("_") + "_") +

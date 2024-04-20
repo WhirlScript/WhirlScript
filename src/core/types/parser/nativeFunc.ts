@@ -1,10 +1,10 @@
 import Type from "./type";
-import { RSegment } from "./rSegment";
+import { ASTN } from "./astn";
 
 type Args = {
     name: string,
     type: Type,
-    defaultValue?: RSegment.Value
+    defaultValue?: ASTN.Value
 }[];
 
 type NativeFunctionProp = {
