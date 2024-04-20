@@ -1179,11 +1179,11 @@ export default function preprocessValue(
                 } else {
                     r = (<ASTN.Int>s).value;
                 }
-                return wrap(new ASTN.Int(parseTree.coordinate, eval(`${l}${v}${r}`)));
+                return wrap(new ASTN.Int(parseTree.coordinate, (new Function(`${l}${v}${r}`))()));
             }
             if (["<", ">", ">=", "<=", "==", "!="].indexOf(v) >= 0) {
                 return wrap(new ASTN.Bool(parseTree.coordinate,
-                    eval(`${(<ASTN.MacroBase>s).toStr().value}${v}${(<ASTN.MacroBase>o).toStr().value}`)));
+                    (new Function(`${(<ASTN.MacroBase>s).toStr().value}${v}${(<ASTN.MacroBase>o).toStr().value}`)())));
             }
             if (v == "&&" || v == "||") {
                 if (typeCalc.equalsTo(sType, BASE_TYPES.boolean) && typeCalc.equalsTo(oType, BASE_TYPES.boolean)) {

@@ -25,6 +25,21 @@
   "bin": {
     "wrsc": "./bin/wrsc"
   },
+  "exports": {
+    ".": {
+      "types": {
+        "default": "./lib/whirlscript.d.ts"
+      },
+      "browser": {
+        "require": "./lib/browser/whirlscript.cjs",
+        "default": "./lib/whirlscript.js"
+      },
+      "default": {
+        "require": "./lib/node/whirlscript.cjs",
+        "default": "./lib/esm/whirlscript.js"
+      }
+    }
+  },
   "files": [
     "bin",
     "lib",
@@ -36,15 +51,30 @@
   ],
   "scripts": {
     "test": "jest",
-    "build": "tsc",
+    "build": "gulp clear && rollup -c -m && gulp post-build",
     "cli": "ts-node src/cli"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.24.4",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.20",
+    "fs-extra": "^11.2.0",
+    "gulp": "^5.0.0",
     "jest": "^29.7.0",
+    "rollup": "^4.14.3",
+    "rollup-plugin-auto-external": "^2.0.0",
+    "rollup-plugin-bundle-size": "^1.0.3",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-node-builtins": "^2.1.2",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
+    "tslib": "^2.6.2",
     "typescript": "^5.3.3"
   }
 }

@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
     "target": "ES6",
-    "sourceMap": false,
+    "sourceMap": true,
     "declaration": true,
     "strict": true,
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "moduleResolution": "Node",
+    "module": "ESNext"
   },
   "exclude": [
     "./lib",
