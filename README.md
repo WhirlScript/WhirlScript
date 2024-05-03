@@ -1,5 +1,8 @@
 # WhirlScript
 
+> [!WARNING]
+> This project is in progress and not available yet.
+
 WhirlScript is a language that compiles to bat and sh scripts, all platform in one code. WhirlScript compiles to readable shell scripts.
 
 <div align="center">
