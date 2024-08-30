@@ -4,7 +4,7 @@ import Func from "./func";
 import Type, { BASE_TYPES } from "./type";
 import MacroVal from "./macroVal";
 
-export namespace ASTN {
+export namespace AST {
     export interface AbstractSyntaxTreeNode {
         coordinate: Coordinate;
         returned: boolean;
@@ -130,7 +130,7 @@ export namespace ASTN {
         }
 
         toStr(): String {
-            return new ASTN.String(this.coordinate, "");
+            return new AST.String(this.coordinate, "");
         }
     }
 
@@ -151,7 +151,7 @@ export namespace ASTN {
         }
 
         toStr(): String {
-            return new ASTN.String(this.coordinate, this.value.toString());
+            return new AST.String(this.coordinate, this.value.toString());
         }
     }
 
@@ -176,7 +176,7 @@ export namespace ASTN {
         }
 
         toStr(): String {
-            return new ASTN.String(this.coordinate, this.value ? "1" : "0");
+            return new AST.String(this.coordinate, this.value ? "1" : "0");
         }
     }
 
@@ -279,14 +279,14 @@ export namespace ASTN {
     export class MacroFunction implements AbstractSyntaxTreeNode {
         readonly coordinate: Coordinate;
 
-        codes: ASTN.AbstractSyntaxTreeNode[];
+        codes: AST.AbstractSyntaxTreeNode[];
         hasScope: boolean;
         valueType: Type;
 
         isMacro: boolean;
 
         readonly returned = false;
-        value: ASTN.Value | undefined;
+        value: AST.Value | undefined;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate, valueType: Type, codes: AbstractSyntaxTreeNode[], prop: {
@@ -305,14 +305,14 @@ export namespace ASTN {
     export class ValueWrapper implements Value {
         readonly coordinate: Coordinate;
 
-        codes: ASTN.AbstractSyntaxTreeNode[];
+        codes: AST.AbstractSyntaxTreeNode[];
         hasScope: boolean;
         valueType: Type;
 
         isMacro: boolean;
 
         readonly returned: boolean;
-        value: ASTN.Value | undefined;
+        value: AST.Value | undefined;
         readonly macroReturnValue: undefined;
 
         constructor(coordinate: Coordinate, valueType: Type, codes: AbstractSyntaxTreeNode[], prop: {

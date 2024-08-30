@@ -73,7 +73,7 @@ export default function pushToken(tokens: Deque<Token>, piece: string, status: S
         });
     } else if (status == "docs") {
         tokens.pushRear({
-            value: piece,// keep raw as it will not be in output
+            value: piece,// keep raw as it will not be in codegen
             coordinate,
             flag: "docs"
         });

@@ -1,11 +1,27 @@
-import CodeNode from "../core/util/parser/codeNode";
-import splitNode from "../core/util/parser/splitNode";
+import RawCode from "../core/util/parser/rawCode";
+import tokenize from "../core/parser/tokenize";
 import * as fs from "fs";
+import CliApi from "./types/api";
+import resolve from "../core/parser/resolve";
+import ApiWrapper from "../core/types/api/apiWrapper";
+import preprocess from "../core/parser/preprocess";
 
-const script = fs.readFileSync(process.cwd() + "/src/tests/resource/expandTest.txt").toString();
+const path = process.cwd() + "\\src\\tests\\resource\\preprocess.wrs";
+const script = fs.readFileSync(path).toString();
 
-const codeNode = new CodeNode({
-    line: 1, type: "code", value: script
+const codeNode = new RawCode({
+    coordinate: {
+        file: "F",
+        line: 1,
+        column: 1,
+        chain: undefined
+    }, value: script
 });
 
-console.log(splitNode(codeNode));
+const api = new ApiWrapper(new CliApi());
+
+const s = resolve(tokenize(codeNode, { api }), { api, importPool: [] });
+
+const p = preprocess(s, { target: "sh" }, { api });
+// console.log(p);
+console.log(JSON.stringify(p));

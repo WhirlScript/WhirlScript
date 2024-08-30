@@ -1,13 +1,13 @@
 import { PTN } from "./ptn";
 import Type from "./type";
-import { ASTN } from "./astn";
+import { AST } from "./AST";
 import Coordinate from "./coordinate";
 
 type Args = {
     name: string,
     type: Type,
     isMacro: boolean,
-    defaultValue?: ASTN.Value
+    defaultValue?: AST.Value
 }[];
 
 type MacroFunctionProp = {

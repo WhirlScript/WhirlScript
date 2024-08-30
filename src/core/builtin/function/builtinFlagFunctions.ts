@@ -1,6 +1,6 @@
 import Func from "../../types/parser/func";
 import Type, { BASE_TYPES } from "../../types/parser/type";
-import { ASTN } from "../../types/parser/astn";
+import { AST } from "../../types/parser/AST";
 import { BUILTIN_COORDINATE } from "../../types/parser/coordinate";
 
 type Args = {
@@ -8,11 +8,11 @@ type Args = {
     type: Type,
     isMacro: boolean,
     optional: boolean,
-    defaultValue?: ASTN.Value
+    defaultValue?: AST.Value
 }[];
 
 function createFlagFunction(name: string, type: Type, args: Args, deprecated: boolean) {
-    const func = new Func(name, BUILTIN_COORDINATE, [], type, args, new ASTN.Block(BUILTIN_COORDINATE, [], undefined), {
+    const func = new Func(name, BUILTIN_COORDINATE, [], type, args, new AST.Block(BUILTIN_COORDINATE, [], undefined), {
         deprecated,
         optional: false
     });

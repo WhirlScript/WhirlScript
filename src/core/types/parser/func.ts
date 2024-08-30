@@ -1,5 +1,5 @@
 import Type from "./type";
-import { ASTN } from "./astn";
+import { AST } from "./AST";
 import Val from "./val";
 import { SName } from "../../util/parser/pools";
 import Coordinate from "./coordinate";
@@ -8,7 +8,7 @@ type Args = {
     name: string,
     type: Type,
     isMacro: boolean,
-    defaultValue?: ASTN.Value
+    defaultValue?: AST.Value
 }[];
 
 type FunctionProp = {
@@ -21,14 +21,14 @@ export default class Func {
     readonly coordinate: Coordinate;
     readonly args: Args;
     readonly type: Type;
-    readonly body: ASTN.Block;
+    readonly body: AST.Block;
     readonly prop: FunctionProp;
     used: boolean = false;
     required: boolean = false;
     requireList: (Func | Val)[];
     flag: string | undefined;
 
-    constructor(name: string, coordinate: Coordinate, requireList: (Func | Val)[], type: Type, args: Args, body: ASTN.Block, prop: FunctionProp) {
+    constructor(name: string, coordinate: Coordinate, requireList: (Func | Val)[], type: Type, args: Args, body: AST.Block, prop: FunctionProp) {
         this.name = { v: name };
         this.coordinate = coordinate;
         this.requireList = requireList;

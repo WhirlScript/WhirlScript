@@ -2,7 +2,7 @@ import { PTN } from "../../types/parser/ptn";
 import Coordinate from "../../types/parser/coordinate";
 import ApiWrapper from "../../types/api/apiWrapper";
 import Pools from "../../util/parser/pools";
-import { ASTN } from "../../types/parser/astn";
+import { AST } from "../../types/parser/AST";
 import preprocessSegment from "./preprocessSegment";
 import * as crypto from "crypto";
 import LOG_WARNING from "../../logger/logWarning";
@@ -18,19 +18,19 @@ export default function preprocess(
     const { api } = context;
     const coordinateChain: Coordinate[] = [];
     const pools = new Pools();
-    const result: ASTN.AbstractSyntaxTreeNode[] = [];
+    const result: AST.AbstractSyntaxTreeNode[] = [];
     const hasError = { v: false };
 
-    function push(ast: ASTN.AbstractSyntaxTreeNode) {
-        if (ast instanceof ASTN.Empty || ast instanceof ASTN.EmptyValue) {
+    function push(ast: AST.AbstractSyntaxTreeNode) {
+        if (ast instanceof AST.Empty || ast instanceof AST.EmptyValue) {
             return;
         }
-        if (ast instanceof ASTN.Block && !ast.hasScope) {
+        if (ast instanceof AST.Block && !ast.hasScope) {
             for (const s of ast.inside) {
                 push(s);
             }
         }
-        if (ast instanceof ASTN.ValueWrapper && ast.codes.length != 0) {
+        if (ast instanceof AST.ValueWrapper && ast.codes.length != 0) {
             for (const s of ast.codes) {
                 push(s);
             }
@@ -38,7 +38,7 @@ export default function preprocess(
                 push(ast.value);
             }
         }
-        if (ast instanceof ASTN.Int || ast instanceof ASTN.Bool || ast instanceof ASTN.String) {
+        if (ast instanceof AST.Int || ast instanceof AST.Bool || ast instanceof AST.String) {
             return;
         }
         result.push(ast);

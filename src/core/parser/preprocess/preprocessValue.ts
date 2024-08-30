@@ -2,7 +2,7 @@ import { PTN } from "../../types/parser/ptn";
 import Coordinate from "../../types/parser/coordinate";
 import ApiWrapper from "../../types/api/apiWrapper";
 import Pools from "../../util/parser/pools";
-import { ASTN } from "../../types/parser/astn";
+import { AST } from "../../types/parser/AST";
 import typeCalc from "../../util/parser/typeCalc";
 import LOG_ERROR from "../../logger/logError";
 import Type, { BASE_TYPES, TypeStruct } from "../../types/parser/type";
@@ -28,7 +28,7 @@ export default function preprocessValue(
         hasError: { v: boolean },
         namespace: string[]
     }
-): ASTN.Value {
+): AST.Value {
     const { api, pools, namespace } = context;
     let parseTree = parseTreeRaw;
 
@@ -38,15 +38,15 @@ export default function preprocessValue(
 
     if (parseTree instanceof PTN.Assertion) {
         const v = preprocessValue(parseTree.value, coordinateChain, requirement, context);
-        if (v instanceof ASTN.EmptyValue) {
+        if (v instanceof AST.EmptyValue) {
             reportError();
-            return new ASTN.EmptyValue(parseTree.coordinate);
+            return new AST.EmptyValue(parseTree.coordinate);
         }
-        if (v instanceof ASTN.ValueWrapper) {
+        if (v instanceof AST.ValueWrapper) {
             v.valueType = typeCalc.getTypeWithName(parseTree.toType, context);
             return v;
         }
-        return new ASTN.ValueWrapper(
+        return new AST.ValueWrapper(
             {
                 ...parseTree.coordinate,
                 chain: coordinateChain
@@ -61,7 +61,7 @@ export default function preprocessValue(
         );
     }
     if (parseTree instanceof PTN.Int) {
-        return new ASTN.Int(
+        return new AST.Int(
             {
                 ...parseTree.coordinate,
                 chain: coordinateChain
@@ -70,7 +70,7 @@ export default function preprocessValue(
         );
     }
     if (parseTree instanceof PTN.Bool) {
-        return new ASTN.Bool(
+        return new AST.Bool(
             {
                 ...parseTree.coordinate,
                 chain: coordinateChain
@@ -79,7 +79,7 @@ export default function preprocessValue(
         );
     }
     if (parseTree instanceof PTN.String) {
-        return new ASTN.String(
+        return new AST.String(
             {
                 ...parseTree.coordinate,
                 chain: coordinateChain
@@ -88,21 +88,21 @@ export default function preprocessValue(
         );
     }
     if (parseTree instanceof PTN.TemplateString) {
-        let values: ASTN.Value[] = [];
+        let values: AST.Value[] = [];
         for (const value of parseTree.values) {
             let r = preprocessValue(value, coordinateChain, requirement, context);
-            if (r instanceof ASTN.EmptyValue) {
+            if (r instanceof AST.EmptyValue) {
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             }
-            if (r instanceof ASTN.MacroValCall) {
+            if (r instanceof AST.MacroValCall) {
                 if (!r.val.value) {
                     api.logger.error(LOG_ERROR.useBeforeInit(), {
                         ...r.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
                 r = r.val.value;
             }
@@ -112,39 +112,39 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             }
             if (values.length == 0) {
-                if (r instanceof ASTN.Bool || r instanceof ASTN.Int) {
+                if (r instanceof AST.Bool || r instanceof AST.Int) {
                     values.push(r.toStr());
                 } else {
                     values.push(r);
                 }
             } else {
                 if (r.isMacro) {
-                    if (values[values.length - 1] instanceof ASTN.String) {
-                        const b = <ASTN.String>values.pop();
+                    if (values[values.length - 1] instanceof AST.String) {
+                        const b = <AST.String>values.pop();
                         values.push(
-                            new ASTN.String(
+                            new AST.String(
                                 {
                                     ...b.coordinate,
                                     chain: coordinateChain
                                 },
-                                b.value + (<ASTN.MacroBase>r).toStr().value
+                                b.value + (<AST.MacroBase>r).toStr().value
                             )
                         );
                     } else {
-                        values.push((<ASTN.MacroBase>r).toStr());
+                        values.push((<AST.MacroBase>r).toStr());
                     }
                 } else {
                     values.push(r);
                 }
             }
         }
-        if (values.length == 1 && values[0] instanceof ASTN.String) {
+        if (values.length == 1 && values[0] instanceof AST.String) {
             return values[0];
         } else {
-            return new ASTN.TemplateString(
+            return new AST.TemplateString(
                 {
                     ...parseTree.coordinate,
                     chain: coordinateChain
@@ -155,15 +155,15 @@ export default function preprocessValue(
     }
     if (parseTree instanceof PTN.StructBlock) {
         const def: { [key: string]: Type } = {};
-        const inside: { [key: string]: ASTN.Value } = {};
+        const inside: { [key: string]: AST.Value } = {};
         for (const key in parseTree.inside) {
             inside[key] = preprocessValue(parseTree.inside[key], coordinateChain, requirement, context);
-            if (inside[key] instanceof ASTN.EmptyValue) {
+            if (inside[key] instanceof AST.EmptyValue) {
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             }
-            if (inside[key] instanceof ASTN.MacroValCall) {
-                const v = (<ASTN.MacroValCall>inside[key]).val.value;
+            if (inside[key] instanceof AST.MacroValCall) {
+                const v = (<AST.MacroValCall>inside[key]).val.value;
                 if (v) {
                     inside[key] = v;
                 } else {
@@ -172,13 +172,13 @@ export default function preprocessValue(
                         , chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
             }
             def[key] = inside[key].valueType;
         }
         const struct = new Struct("", def);
-        return new ASTN.StructBlock(
+        return new AST.StructBlock(
             {
                 ...parseTree.coordinate,
                 chain: coordinateChain
@@ -205,7 +205,7 @@ export default function preprocessValue(
                 chain: coordinateChain
             });
             reportError();
-            return new ASTN.EmptyValue(parseTree.coordinate);
+            return new AST.EmptyValue(parseTree.coordinate);
         }
         if (symbol.type == "MacroVal") {
             const val = <MacroVal>symbol.value;
@@ -221,9 +221,9 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             }
-            return new ASTN.MacroValCall(parseTree.coordinate, val);
+            return new AST.MacroValCall(parseTree.coordinate, val);
         }
         if (symbol.type == "Val") {
             const val = <Val>symbol.value;
@@ -242,7 +242,7 @@ export default function preprocessValue(
                 });
                 reportError();
             }
-            return new ASTN.ValCall(
+            return new AST.ValCall(
                 {
                     ...parseTree.coordinate,
                     chain: coordinateChain
@@ -270,13 +270,13 @@ export default function preprocessValue(
             }
             func.used = true;
             pools.pushRequirePool(func);
-            const args: ASTN.Value[] = [];
+            const args: AST.Value[] = [];
             for (let i = 0; i < func.args.length; i++) {
                 if (parseTree.args[i]) {
                     const a = preprocessValue(parseTree.args[i], coordinateChain, requirement, context);
-                    if (a instanceof ASTN.EmptyValue) {
+                    if (a instanceof AST.EmptyValue) {
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                     if (!typeCalc.contains(a.valueType, func.args[i].type)) {
                         api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
@@ -284,7 +284,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                     if (func.args[i].isMacro && !a.isMacro) {
                         api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
@@ -292,7 +292,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                     args.push(a);
                 } else {
@@ -302,12 +302,12 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
-                    args.push(<ASTN.Value>func.args[i].defaultValue);
+                    args.push(<AST.Value>func.args[i].defaultValue);
                 }
             }
-            return new ASTN.FunctionCall(
+            return new AST.FunctionCall(
                 {
                     ...parseTree.coordinate,
                     chain: coordinateChain
@@ -344,16 +344,16 @@ export default function preprocessValue(
                     p.popScope();
                 }
             };
-            const rStates: ASTN.AbstractSyntaxTreeNode[] = [];
+            const rStates: AST.AbstractSyntaxTreeNode[] = [];
             for (let i = 0; i < func.args.length; i++) {
                 if (parseTree.args[i]) {
                     let a = preprocessValue(parseTree.args[i], coordinateChain, requirement, context);
-                    if (a instanceof ASTN.EmptyValue) {
+                    if (a instanceof AST.EmptyValue) {
                         reportError();
                         beforeReturn();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
-                    if (a instanceof ASTN.MacroValCall) {
+                    if (a instanceof AST.MacroValCall) {
                         const v = a.val.value;
                         if (v) {
                             a = v;
@@ -364,7 +364,7 @@ export default function preprocessValue(
                             });
                             reportError();
                             beforeReturn();
-                            return new ASTN.EmptyValue(parseTree.coordinate);
+                            return new AST.EmptyValue(parseTree.coordinate);
                         }
                     }
                     if (!typeCalc.contains(a.valueType, func.args[i].type)) {
@@ -374,7 +374,7 @@ export default function preprocessValue(
                         });
                         reportError();
                         beforeReturn();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                     if (func.args[i].isMacro && !a.isMacro) {
                         api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
@@ -383,7 +383,7 @@ export default function preprocessValue(
                         });
                         reportError();
                         beforeReturn();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                     if (a.isMacro) {
                         p.symbolTable.push({
@@ -406,12 +406,12 @@ export default function preprocessValue(
                         });
                         val.isInit = true;
                         rStates.push(
-                            new ASTN.ExpressionSVO(
+                            new AST.ExpressionSVO(
                                 {
                                     ...parseTree.coordinate,
                                     chain: coordinateChain
                                 },
-                                new ASTN.ValCall(
+                                new AST.ValCall(
                                     {
                                         ...parseTree.coordinate,
                                         chain: coordinateChain
@@ -438,7 +438,7 @@ export default function preprocessValue(
                         });
                         reportError();
                         beforeReturn();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                     if (func.args[i].isMacro) {
                         p.symbolTable.push({
@@ -463,12 +463,12 @@ export default function preprocessValue(
                             optional: false
                         });
                         rStates.push(
-                            new ASTN.ExpressionSVO(
+                            new AST.ExpressionSVO(
                                 {
                                     ...parseTree.coordinate,
                                     chain: coordinateChain
                                 },
-                                new ASTN.ValCall(
+                                new AST.ValCall(
                                     {
                                         ...parseTree.coordinate,
                                         chain: coordinateChain
@@ -476,7 +476,7 @@ export default function preprocessValue(
                                     val
                                 ),
                                 "=",
-                                <ASTN.Value>func.args[i].defaultValue,
+                                <AST.Value>func.args[i].defaultValue,
                                 val.type
                             )
                         );
@@ -490,7 +490,7 @@ export default function preprocessValue(
                     }
                 }
             }
-            let macroReturnValue: ASTN.Value | undefined;
+            let macroReturnValue: AST.Value | undefined;
             for (const segInside of func.body.inside) {
                 //TODO-implement: closure
                 const s = preprocessSegment(
@@ -499,7 +499,7 @@ export default function preprocessValue(
                     requirement,
                     { ...context, pools: p }
                 );
-                if (!(s instanceof ASTN.Empty)) {
+                if (!(s instanceof AST.Empty)) {
                     rStates.push(s);
                 }
                 if (s.macroReturnValue) {
@@ -511,9 +511,9 @@ export default function preprocessValue(
                         });
                         reportError();
                         beforeReturn();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
-                    if (macroReturnValue instanceof ASTN.ValueWrapper) {
+                    if (macroReturnValue instanceof AST.ValueWrapper) {
                         if (macroReturnValue.codes.length > 0) {
                             rStates.push(macroReturnValue);
                         }
@@ -533,7 +533,7 @@ export default function preprocessValue(
                 );
             }
             // TODO-optimise: if no body?
-            return new ASTN.ValueWrapper(
+            return new AST.ValueWrapper(
                 {
                     ...parseTree.coordinate,
                     chain: coordinateChain
@@ -559,11 +559,11 @@ export default function preprocessValue(
             for (let i = 0; i < func.args.length; i++) {
                 if (parseTree.args[i]) {
                     let a = preprocessValue(parseTree.args[i], coordinateChain, requirement, context);
-                    if (a instanceof ASTN.EmptyValue) {
+                    if (a instanceof AST.EmptyValue) {
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
-                    if (a instanceof ASTN.MacroValCall) {
+                    if (a instanceof AST.MacroValCall) {
                         const v = a.val.value;
                         if (v) {
                             a = v;
@@ -573,7 +573,7 @@ export default function preprocessValue(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new ASTN.EmptyValue(parseTree.coordinate);
+                            return new AST.EmptyValue(parseTree.coordinate);
                         }
                     }
                     if (!typeCalc.contains(a.valueType, func.args[i].type)) {
@@ -582,7 +582,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                     if (!a.isMacro) {
                         api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
@@ -590,7 +590,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                     try {
                         args.push(
@@ -609,7 +609,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                 } else {
                     if (!func.args[i].defaultValue) {
@@ -618,13 +618,13 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                     args.push(
                         typeCalc.valueToObj(
-                            <ASTN.Value>func.args[i].defaultValue,
+                            <AST.Value>func.args[i].defaultValue,
                             {
-                                ...(<ASTN.Value>func.args[i].defaultValue).coordinate,
+                                ...(<AST.Value>func.args[i].defaultValue).coordinate,
                                 chain: coordinateChain
                             },
                             { api }
@@ -641,7 +641,7 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             }
             return typeCalc.objToValue(
                 o,
@@ -657,13 +657,13 @@ export default function preprocessValue(
             chain: coordinateChain
         });
         reportError();
-        return new ASTN.EmptyValue(parseTree.coordinate);
+        return new AST.EmptyValue(parseTree.coordinate);
     }
     if (parseTree instanceof PTN.Exec) {
         const a = preprocessValue(parseTree.command, coordinateChain, requirement, context);
-        if (a instanceof ASTN.EmptyValue) {
+        if (a instanceof AST.EmptyValue) {
             reportError();
-            return new ASTN.EmptyValue(parseTree.coordinate);
+            return new AST.EmptyValue(parseTree.coordinate);
         }
         if (!typeCalc.contains(a.valueType, BASE_TYPES.string)) {
             api.logger.error(LOG_ERROR.mismatchFunctionCall(), {
@@ -671,10 +671,10 @@ export default function preprocessValue(
                 chain: coordinateChain
             });
             reportError();
-            return new ASTN.EmptyValue(parseTree.coordinate);
+            return new AST.EmptyValue(parseTree.coordinate);
         }
 
-        return new ASTN.FunctionCall(
+        return new AST.FunctionCall(
             {
                 ...parseTree.coordinate,
                 chain: coordinateChain
@@ -685,9 +685,9 @@ export default function preprocessValue(
     }
     if (parseTree instanceof PTN.ExpressionSVO) {
         let s = preprocessValue(parseTree.s, coordinateChain, requirement, context);
-        if (s instanceof ASTN.EmptyValue) {
+        if (s instanceof AST.EmptyValue) {
             reportError();
-            return new ASTN.EmptyValue(parseTree.coordinate);
+            return new AST.EmptyValue(parseTree.coordinate);
         }
         if (parseTree.v == ".") {
             if (!(parseTree.o instanceof PTN.ValCall)) {
@@ -696,7 +696,7 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             }
             if (parseTree.o.valName.namespaces.length != 0) {
                 api.logger.error(LOG_ERROR.unresolvedReference(""), {
@@ -704,7 +704,7 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             }
             const o = parseTree.o.valName.value;
             if (s.valueType.type == "base") {
@@ -713,20 +713,20 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             } else {
                 if (s.valueType.struct.def[o]) {
-                    if (s instanceof ASTN.ValueWrapper) {
+                    if (s instanceof AST.ValueWrapper) {
                         if (!s.value) {
                             api.logger.error(LOG_ERROR.unresolvedReference("null"), {
                                 ...parseTree.coordinate,
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new ASTN.EmptyValue(parseTree.coordinate);
+                            return new AST.EmptyValue(parseTree.coordinate);
                         }
                         if (s.isMacro) {
-                            return new ASTN.ValueWrapper(
+                            return new AST.ValueWrapper(
                                 s.coordinate,
                                 s.valueType,
                                 s.codes,
@@ -734,10 +734,10 @@ export default function preprocessValue(
                                     isMacro: s.isMacro,
                                     hasScope: s.hasScope
                                 },
-                                (<ASTN.StructBlock>s.value).inside[o]
+                                (<AST.StructBlock>s.value).inside[o]
                             );
                         } else {
-                            return new ASTN.ValueWrapper(
+                            return new AST.ValueWrapper(
                                 s.coordinate,
                                 s.valueType,
                                 s.codes,
@@ -745,9 +745,9 @@ export default function preprocessValue(
                                     isMacro: s.isMacro,
                                     hasScope: s.hasScope
                                 },
-                                new ASTN.GetProperty(
+                                new AST.GetProperty(
                                     s.coordinate,
-                                    <ASTN.Value>s.value,
+                                    <AST.Value>s.value,
                                     o,
                                     s.valueType.struct.def[o]
                                 )
@@ -755,7 +755,7 @@ export default function preprocessValue(
                         }
                     }
                     let s1 = s;
-                    if (s1 instanceof ASTN.MacroValCall) {
+                    if (s1 instanceof AST.MacroValCall) {
                         const v = s1.val.value;
                         if (v) {
                             s1 = v;
@@ -765,14 +765,14 @@ export default function preprocessValue(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new ASTN.EmptyValue(parseTree.coordinate);
+                            return new AST.EmptyValue(parseTree.coordinate);
                         }
                     }
-                    if (s1 instanceof ASTN.StructBlock) {
+                    if (s1 instanceof AST.StructBlock) {
                         if (s1.isMacro) {
                             return s1.inside[o];
                         } else {
-                            return new ASTN.GetProperty(
+                            return new AST.GetProperty(
                                 parseTree.coordinate,
                                 s1,
                                 o,
@@ -780,8 +780,8 @@ export default function preprocessValue(
                             );
                         }
                     }
-                    if (s1 instanceof ASTN.ValCall) {
-                        return new ASTN.GetProperty(
+                    if (s1 instanceof AST.ValCall) {
+                        return new AST.GetProperty(
                             parseTree.coordinate,
                             s1,
                             o,
@@ -789,8 +789,8 @@ export default function preprocessValue(
                             s1.val
                         );
                     }
-                    if (s1 instanceof ASTN.GetProperty) {
-                        return new ASTN.GetProperty(
+                    if (s1 instanceof AST.GetProperty) {
+                        return new AST.GetProperty(
                             parseTree.coordinate,
                             s1,
                             o,
@@ -803,19 +803,19 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
                 api.logger.error(LOG_ERROR.noProperty(o), {
                     ...parseTree.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             }
         }
         let v = parseTree.v;
 
-        let o: ASTN.Value;
+        let o: AST.Value;
         if (v == "+=") {
             v = "+";
             o = preprocessValue(
@@ -859,9 +859,9 @@ export default function preprocessValue(
         } else {
             o = preprocessValue(parseTree.o, coordinateChain, requirement, context);
         }
-        if (o instanceof ASTN.EmptyValue) {
+        if (o instanceof AST.EmptyValue) {
             reportError();
-            return new ASTN.EmptyValue(parseTree.coordinate);
+            return new AST.EmptyValue(parseTree.coordinate);
         }
 
         if (typeCalc.equalsTo(s.valueType, BASE_TYPES.void) ||
@@ -871,40 +871,40 @@ export default function preprocessValue(
                 chain: coordinateChain
             });
             reportError();
-            return new ASTN.EmptyValue(parseTree.coordinate);
+            return new AST.EmptyValue(parseTree.coordinate);
         }
         if (v == "=") {
-            if (s instanceof ASTN.ValCall) {
+            if (s instanceof AST.ValCall) {
                 if (s.val.prop.isConst) {
                     api.logger.error(LOG_ERROR.notAVar(), {
                         ...s.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
                 if (typeCalc.contains(o.valueType, s.valueType)) {
                     s.val.isInit = true;
-                    return new ASTN.ExpressionSVO(parseTree.coordinate, s, parseTree.v, o, s.valueType);
+                    return new AST.ExpressionSVO(parseTree.coordinate, s, parseTree.v, o, s.valueType);
                 } else {
                     api.logger.error(LOG_ERROR.mismatchingType(), {
                         ...parseTree.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
-            } else if (s instanceof ASTN.GetProperty) {
+            } else if (s instanceof AST.GetProperty) {
                 if (s.valObj) {
                     if (typeCalc.contains(o.valueType, s.valueType)) {
-                        return new ASTN.ExpressionSVO(parseTree.coordinate, s, parseTree.v, o, s.valueType);
+                        return new AST.ExpressionSVO(parseTree.coordinate, s, parseTree.v, o, s.valueType);
                     } else {
                         api.logger.error(LOG_ERROR.mismatchingType(), {
                             ...parseTree.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                 } else {
                     api.logger.error(LOG_ERROR.notAVar(), {
@@ -912,9 +912,9 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
-            } else if (s instanceof ASTN.MacroValCall) {
+            } else if (s instanceof AST.MacroValCall) {
                 const val = s.val;
                 if (!o.isMacro) {
                     api.logger.error(LOG_ERROR.notMacro(), {
@@ -922,7 +922,7 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
                 if (!typeCalc.contains(o.valueType, s.valueType)) {
                     api.logger.error(LOG_ERROR.mismatchingType(), {
@@ -930,11 +930,11 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
                 let o1 = o;
                 let type = o1.valueType;
-                if (o1 instanceof ASTN.ValueWrapper) {
+                if (o1 instanceof AST.ValueWrapper) {
                     if (o1.codes) {
                         const vw = o1;
                         if (!vw.value) {
@@ -943,7 +943,7 @@ export default function preprocessValue(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new ASTN.EmptyValue(parseTree.coordinate);
+                            return new AST.EmptyValue(parseTree.coordinate);
                         }
                         if (!typeCalc.contains(type, val.type)) {
                             api.logger.error(LOG_ERROR.mismatchingType(), {
@@ -951,7 +951,7 @@ export default function preprocessValue(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new ASTN.EmptyValue(parseTree.coordinate);
+                            return new AST.EmptyValue(parseTree.coordinate);
                         }
                         val.value = vw.value;
                         return o1;
@@ -962,12 +962,12 @@ export default function preprocessValue(
                                 chain: coordinateChain
                             });
                             reportError();
-                            return new ASTN.EmptyValue(parseTree.coordinate);
+                            return new AST.EmptyValue(parseTree.coordinate);
                         }
                         o1 = o1.value;
                     }
                 }
-                if (o1 instanceof ASTN.MacroValCall) {
+                if (o1 instanceof AST.MacroValCall) {
                     if (o1.val.value) {
                         o1 = o1.val.value;
                     } else {
@@ -976,7 +976,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                 }
                 const v = MacroVal.fromValue(o1, val.prop.isConst, { api });
@@ -994,7 +994,7 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
             } else {
                 api.logger.error(LOG_ERROR.notAVar(), {
@@ -1002,7 +1002,7 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             }
         }
         if (s.valueType.type == "struct" || o.valueType.type == "struct") {
@@ -1011,14 +1011,14 @@ export default function preprocessValue(
                 chain: coordinateChain
             });
             reportError();
-            return new ASTN.EmptyValue(parseTree.coordinate);
+            return new AST.EmptyValue(parseTree.coordinate);
         }
         if (s.isMacro && o.isMacro) {
-            const codes: ASTN.ValueWrapper[] = [];
+            const codes: AST.ValueWrapper[] = [];
             const sType = s.valueType;
             const oType = o.valueType;
 
-            const wrap = (value: ASTN.Value): ASTN.Value => {
+            const wrap = (value: AST.Value): AST.Value => {
                 if (codes.length == 0) {
                     return value;
                 }
@@ -1027,7 +1027,7 @@ export default function preprocessValue(
                     codes[0].valueType = value.valueType;
                     return codes[0];
                 }
-                return new ASTN.ValueWrapper(
+                return new AST.ValueWrapper(
                     parseTree.coordinate,
                     value.valueType,
                     codes,
@@ -1039,19 +1039,19 @@ export default function preprocessValue(
                 );
             };
 
-            if (s instanceof ASTN.ValueWrapper) {
+            if (s instanceof AST.ValueWrapper) {
                 if (s.codes.length > 0) {
-                    codes.push(<ASTN.ValueWrapper>s);
+                    codes.push(<AST.ValueWrapper>s);
                 }
-                s = <ASTN.Value>s.value;
+                s = <AST.Value>s.value;
             }
-            if (o instanceof ASTN.ValueWrapper) {
+            if (o instanceof AST.ValueWrapper) {
                 if (o.codes.length > 0) {
-                    codes.push(<ASTN.ValueWrapper>o);
+                    codes.push(<AST.ValueWrapper>o);
                 }
-                o = <ASTN.Value>o.value;
+                o = <AST.Value>o.value;
             }
-            if (s instanceof ASTN.MacroValCall) {
+            if (s instanceof AST.MacroValCall) {
                 const val = s.val;
                 if (val.value) {
                     s = val.value;
@@ -1061,10 +1061,10 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
             }
-            if (o instanceof ASTN.MacroValCall) {
+            if (o instanceof AST.MacroValCall) {
                 const val = o.val;
                 if (val.value) {
                     o = val.value;
@@ -1074,72 +1074,72 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
             }
             if (!typeCalc.equalsTo(sType, s.valueType)) {
                 if (typeCalc.equalsTo(sType, BASE_TYPES.boolean)) {
-                    const str = (<ASTN.MacroBase>s).toStr().value;
+                    const str = (<AST.MacroBase>s).toStr().value;
                     if (str == "1") {
-                        s = new ASTN.Bool(s.coordinate, true);
+                        s = new AST.Bool(s.coordinate, true);
                     } else if (str == "0") {
-                        s = new ASTN.Bool(s.coordinate, false);
+                        s = new AST.Bool(s.coordinate, false);
                     } else {
                         api.logger.error(LOG_ERROR.mismatchingType(), {
                             ...s.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        s = new ASTN.Bool(s.coordinate, true);
+                        s = new AST.Bool(s.coordinate, true);
                     }
                 }
                 if (typeCalc.equalsTo(sType, BASE_TYPES.int)) {
-                    const num = Number((<ASTN.MacroBase>s).toStr().value);
+                    const num = Number((<AST.MacroBase>s).toStr().value);
                     if (isNaN(num)) {
                         api.logger.error(LOG_ERROR.mismatchingType(), {
                             ...s.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
-                    s = new ASTN.Int(s.coordinate, num);
+                    s = new AST.Int(s.coordinate, num);
                 }
             }
             if (!typeCalc.equalsTo(oType, o.valueType)) {
                 if (typeCalc.equalsTo(oType, BASE_TYPES.boolean)) {
-                    const str = (<ASTN.MacroBase>o).toStr().value;
+                    const str = (<AST.MacroBase>o).toStr().value;
                     if (str == "1") {
-                        o = new ASTN.Bool(o.coordinate, true);
+                        o = new AST.Bool(o.coordinate, true);
                     } else if (str == "0") {
-                        o = new ASTN.Bool(o.coordinate, false);
+                        o = new AST.Bool(o.coordinate, false);
                     } else {
                         api.logger.error(LOG_ERROR.mismatchingType(), {
                             ...o.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        o = new ASTN.Bool(o.coordinate, true);
+                        o = new AST.Bool(o.coordinate, true);
                     }
                 }
                 if (typeCalc.equalsTo(oType, BASE_TYPES.int)) {
-                    const num = Number((<ASTN.MacroBase>o).toStr().value);
+                    const num = Number((<AST.MacroBase>o).toStr().value);
                     if (isNaN(num)) {
                         api.logger.error(LOG_ERROR.mismatchingType(), {
                             ...o.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
-                    o = new ASTN.Int(o.coordinate, num);
+                    o = new AST.Int(o.coordinate, num);
                 }
             }
             if (v == "+") {
                 if (typeCalc.equalsTo(sType, BASE_TYPES.string) ||
                     typeCalc.equalsTo(oType, BASE_TYPES.string)) {
-                    return wrap(new ASTN.String(parseTree.coordinate,
-                        (<ASTN.MacroBase>s).toStr().value + (<ASTN.MacroBase>o).toStr().value));
+                    return wrap(new AST.String(parseTree.coordinate,
+                        (<AST.MacroBase>s).toStr().value + (<AST.MacroBase>o).toStr().value));
                 }
             } else if (v == "==" || v == "!=") {
                 if (!(sType.type == "base") || !(oType.type == "base")) {
@@ -1148,12 +1148,12 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
                 if (v == "==") {
-                    return wrap(new ASTN.Bool(parseTree.coordinate, (<ASTN.MacroBase>s).value == (<ASTN.MacroBase>o).value));
+                    return wrap(new AST.Bool(parseTree.coordinate, (<AST.MacroBase>s).value == (<AST.MacroBase>o).value));
                 } else {
-                    return wrap(new ASTN.Bool(parseTree.coordinate, (<ASTN.MacroBase>s).value != (<ASTN.MacroBase>o).value));
+                    return wrap(new AST.Bool(parseTree.coordinate, (<AST.MacroBase>s).value != (<AST.MacroBase>o).value));
                 }
             } else {
                 if (typeCalc.equalsTo(sType, BASE_TYPES.string) ||
@@ -1163,34 +1163,34 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
             }
             if (["+", "-", "*", "/", "%", ">>", "<<"].indexOf(v) >= 0) {
                 let l: number;
                 let r: number;
                 if (typeCalc.equalsTo(sType, BASE_TYPES.boolean)) {
-                    l = (<ASTN.Bool>s).value ? 1 : 0;
+                    l = (<AST.Bool>s).value ? 1 : 0;
                 } else {
-                    l = (<ASTN.Int>s).value;
+                    l = (<AST.Int>s).value;
                 }
                 if (typeCalc.equalsTo(sType, BASE_TYPES.boolean)) {
-                    r = (<ASTN.Bool>s).value ? 1 : 0;
+                    r = (<AST.Bool>s).value ? 1 : 0;
                 } else {
-                    r = (<ASTN.Int>s).value;
+                    r = (<AST.Int>s).value;
                 }
-                return wrap(new ASTN.Int(parseTree.coordinate, (new Function(`${l}${v}${r}`))()));
+                return wrap(new AST.Int(parseTree.coordinate, (new Function(`${l}${v}${r}`))()));
             }
             if (["<", ">", ">=", "<=", "==", "!="].indexOf(v) >= 0) {
-                return wrap(new ASTN.Bool(parseTree.coordinate,
-                    (new Function(`${(<ASTN.MacroBase>s).toStr().value}${v}${(<ASTN.MacroBase>o).toStr().value}`)())));
+                return wrap(new AST.Bool(parseTree.coordinate,
+                    (new Function(`${(<AST.MacroBase>s).toStr().value}${v}${(<AST.MacroBase>o).toStr().value}`)())));
             }
             if (v == "&&" || v == "||") {
                 if (typeCalc.equalsTo(sType, BASE_TYPES.boolean) && typeCalc.equalsTo(oType, BASE_TYPES.boolean)) {
                     if (v == "&&") {
-                        return wrap(new ASTN.Bool(parseTree.coordinate, (<ASTN.Bool>s).value && (<ASTN.Bool>o).value));
+                        return wrap(new AST.Bool(parseTree.coordinate, (<AST.Bool>s).value && (<AST.Bool>o).value));
                     } else {
-                        return wrap(new ASTN.Bool(parseTree.coordinate, (<ASTN.Bool>s).value || (<ASTN.Bool>o).value));
+                        return wrap(new AST.Bool(parseTree.coordinate, (<AST.Bool>s).value || (<AST.Bool>o).value));
                     }
                 }
                 api.logger.error(LOG_ERROR.mismatchingType(), {
@@ -1198,24 +1198,24 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             }
         } else {
-            const codes: ASTN.ValueWrapper[] = [];
+            const codes: AST.ValueWrapper[] = [];
             const sType = s.valueType;
             const oType = o.valueType;
 
-            if (s instanceof ASTN.ValueWrapper) {
+            if (s instanceof AST.ValueWrapper) {
                 if (s.codes.length > 0) {
                     codes.push(s);
                 }
-                s = <ASTN.Value>s.value;
+                s = <AST.Value>s.value;
             }
-            if (o instanceof ASTN.ValueWrapper) {
+            if (o instanceof AST.ValueWrapper) {
                 if (o.codes.length > 0) {
                     codes.push(o);
                 }
-                o = <ASTN.Value>o.value;
+                o = <AST.Value>o.value;
             }
             let type: Type;
             if (v == "+") {
@@ -1235,7 +1235,7 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 } else if (["-", "*", "/", "%", ">>", "<<"].indexOf(v) >= 0) {
                     type = BASE_TYPES.int;
                 } else if (["<", ">", ">=", "<="].indexOf(v) >= 0) {
@@ -1249,7 +1249,7 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                 } else {
                     api.logger.error(LOG_ERROR.invalidCharacterOrToken(v), {
@@ -1257,10 +1257,10 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
             }
-            const value = new ASTN.ExpressionSVO(parseTree.coordinate, s, v, o, type);
+            const value = new AST.ExpressionSVO(parseTree.coordinate, s, v, o, type);
 
             if (codes.length == 0) {
                 return value;
@@ -1270,7 +1270,7 @@ export default function preprocessValue(
                 codes[0].valueType = value.valueType;
                 return codes[0];
             }
-            return new ASTN.ValueWrapper(
+            return new AST.ValueWrapper(
                 parseTree.coordinate,
                 type,
                 codes,
@@ -1285,9 +1285,9 @@ export default function preprocessValue(
 
     if (parseTree instanceof PTN.ExpressionSV) {
         let s = preprocessValue(parseTree.s, coordinateChain, requirement, context);
-        if (s instanceof ASTN.EmptyValue) {
+        if (s instanceof AST.EmptyValue) {
             reportError();
-            return new ASTN.EmptyValue(parseTree.coordinate);
+            return new AST.EmptyValue(parseTree.coordinate);
         }
         let v = parseTree.v;
 
@@ -1297,25 +1297,25 @@ export default function preprocessValue(
                 chain: coordinateChain
             });
             reportError();
-            return new ASTN.EmptyValue(parseTree.coordinate);
+            return new AST.EmptyValue(parseTree.coordinate);
         }
 
-        if (s instanceof ASTN.MacroValCall) {
+        if (s instanceof AST.MacroValCall) {
             const val = s.val;
             if (val.value) {
                 if (typeCalc.equalsTo(val.type, BASE_TYPES.int)) {
-                    const ret = new ASTN.Int(parseTree.coordinate, (<ASTN.Int>val.value).value);
+                    const ret = new AST.Int(parseTree.coordinate, (<AST.Int>val.value).value);
                     if (v == "++") {
-                        val.value = new ASTN.Int(parseTree.coordinate, (<ASTN.Int>val.value).value + 1);
+                        val.value = new AST.Int(parseTree.coordinate, (<AST.Int>val.value).value + 1);
                         return ret;
                     }
                     if (v == "--") {
-                        val.value = new ASTN.Int(parseTree.coordinate, (<ASTN.Int>val.value).value - 1);
+                        val.value = new AST.Int(parseTree.coordinate, (<AST.Int>val.value).value - 1);
                         return ret;
                     }
                 }
                 if (typeCalc.equalsTo(val.type, BASE_TYPES.string)) {
-                    let num = Number((<ASTN.String>val.value).value);
+                    let num = Number((<AST.String>val.value).value);
                     if (isNaN(num)) {
                         api.logger.error(LOG_ERROR.mismatchingType(), {
                             ...s.coordinate,
@@ -1324,13 +1324,13 @@ export default function preprocessValue(
                         reportError();
                         num = 0;
                     }
-                    const ret = new ASTN.Int(parseTree.coordinate, num);
+                    const ret = new AST.Int(parseTree.coordinate, num);
                     if (v == "++") {
-                        val.value = new ASTN.String(parseTree.coordinate, (num + 1).toString());
+                        val.value = new AST.String(parseTree.coordinate, (num + 1).toString());
                         return ret;
                     }
                     if (v == "--") {
-                        val.value = new ASTN.String(parseTree.coordinate, (num - 1).toString());
+                        val.value = new AST.String(parseTree.coordinate, (num - 1).toString());
                         return ret;
                     }
                 }
@@ -1339,17 +1339,17 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             } else {
                 api.logger.error(LOG_ERROR.useBeforeInit(), {
                     ...s.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             }
         }
-        if (s instanceof ASTN.ValCall) {
+        if (s instanceof AST.ValCall) {
             if (s.val.prop.isConst) {
                 api.logger.error(LOG_ERROR.assignToConst(), {
                     ...s.coordinate,
@@ -1357,18 +1357,18 @@ export default function preprocessValue(
                 });
                 reportError();
             }
-            return new ASTN.ExpressionSV(parseTree.coordinate, s, parseTree.v, s.valueType);
+            return new AST.ExpressionSV(parseTree.coordinate, s, parseTree.v, s.valueType);
         }
-        if (s instanceof ASTN.GetProperty) {
+        if (s instanceof AST.GetProperty) {
             if (s.valObj && !s.valObj.prop.isConst) {
-                return new ASTN.ExpressionSV(parseTree.coordinate, s, parseTree.v, s.valueType);
+                return new AST.ExpressionSV(parseTree.coordinate, s, parseTree.v, s.valueType);
             } else {
                 api.logger.error(LOG_ERROR.notAVar(), {
                     ...s.coordinate,
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             }
         }
     }
@@ -1376,9 +1376,9 @@ export default function preprocessValue(
     if (parseTree instanceof PTN.ExpressionVO) {
         let v = parseTree.v;
         let o = preprocessValue(parseTree.o, coordinateChain, requirement, context);
-        if (o instanceof ASTN.EmptyValue) {
+        if (o instanceof AST.EmptyValue) {
             reportError();
-            return new ASTN.EmptyValue(parseTree.coordinate);
+            return new AST.EmptyValue(parseTree.coordinate);
         }
 
         if (v == "!") {
@@ -1388,17 +1388,17 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.Bool(parseTree.coordinate, false);
+                return new AST.Bool(parseTree.coordinate, false);
             }
             if (o.isMacro) {
-                let vw: ASTN.ValueWrapper | undefined;
-                if (o instanceof ASTN.ValueWrapper) {
+                let vw: AST.ValueWrapper | undefined;
+                if (o instanceof AST.ValueWrapper) {
                     if (o.codes.length > 0) {
                         vw = o;
                     }
-                    o = <ASTN.Value>o.value;
+                    o = <AST.Value>o.value;
                 }
-                if (o instanceof ASTN.MacroValCall) {
+                if (o instanceof AST.MacroValCall) {
                     const val = o.val;
                     if (val.value) {
                         o = val.value;
@@ -1408,39 +1408,39 @@ export default function preprocessValue(
                             chain: coordinateChain
                         });
                         reportError();
-                        return new ASTN.EmptyValue(parseTree.coordinate);
+                        return new AST.EmptyValue(parseTree.coordinate);
                     }
                 }
                 if (!typeCalc.equalsTo(o.valueType, BASE_TYPES.boolean)) {
-                    const str = (<ASTN.MacroBase>o).toStr().value;
+                    const str = (<AST.MacroBase>o).toStr().value;
                     if (str == "1") {
-                        o = new ASTN.Bool(o.coordinate, true);
+                        o = new AST.Bool(o.coordinate, true);
                     } else if (str == "0") {
-                        o = new ASTN.Bool(o.coordinate, false);
+                        o = new AST.Bool(o.coordinate, false);
                     } else {
                         api.logger.error(LOG_ERROR.mismatchingType(), {
                             ...o.coordinate,
                             chain: coordinateChain
                         });
                         reportError();
-                        o = new ASTN.Bool(o.coordinate, true);
+                        o = new AST.Bool(o.coordinate, true);
                     }
                 }
                 if (vw) {
-                    vw.value = new ASTN.Bool(parseTree.coordinate, !(<ASTN.Bool>o).value);
+                    vw.value = new AST.Bool(parseTree.coordinate, !(<AST.Bool>o).value);
                     return vw;
                 } else {
-                    return new ASTN.Bool(parseTree.coordinate, !(<ASTN.Bool>o).value);
+                    return new AST.Bool(parseTree.coordinate, !(<AST.Bool>o).value);
                 }
             } else {
-                let vw: ASTN.ValueWrapper | undefined;
+                let vw: AST.ValueWrapper | undefined;
                 const oType = o.valueType;
 
-                if (o instanceof ASTN.ValueWrapper) {
+                if (o instanceof AST.ValueWrapper) {
                     if (o.codes.length > 0) {
                         vw = o;
                     }
-                    o = <ASTN.Value>o.value;
+                    o = <AST.Value>o.value;
                 }
                 if (typeCalc.equalsTo(oType, BASE_TYPES.string)) {
                     api.logger.error(LOG_ERROR.mismatchingType(), {
@@ -1448,9 +1448,9 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
-                const value = new ASTN.ExpressionVO(parseTree.coordinate, v, o, BASE_TYPES.boolean);
+                const value = new AST.ExpressionVO(parseTree.coordinate, v, o, BASE_TYPES.boolean);
                 if (vw) {
                     vw.value = value;
                     return vw;
@@ -1466,24 +1466,24 @@ export default function preprocessValue(
                     chain: coordinateChain
                 });
                 reportError();
-                return new ASTN.EmptyValue(parseTree.coordinate);
+                return new AST.EmptyValue(parseTree.coordinate);
             }
-            if (o instanceof ASTN.MacroValCall) {
+            if (o instanceof AST.MacroValCall) {
                 const val = o.val;
                 if (val.value) {
                     if (typeCalc.equalsTo(val.type, BASE_TYPES.int)) {
-                        const ret = new ASTN.Int(parseTree.coordinate, (<ASTN.Int>val.value).value);
+                        const ret = new AST.Int(parseTree.coordinate, (<AST.Int>val.value).value);
                         if (v == "++") {
-                            val.value = new ASTN.Int(parseTree.coordinate, (<ASTN.Int>val.value).value + 1);
+                            val.value = new AST.Int(parseTree.coordinate, (<AST.Int>val.value).value + 1);
                             return ret;
                         }
                         if (v == "--") {
-                            val.value = new ASTN.Int(parseTree.coordinate, (<ASTN.Int>val.value).value - 1);
+                            val.value = new AST.Int(parseTree.coordinate, (<AST.Int>val.value).value - 1);
                             return ret;
                         }
                     }
                     if (typeCalc.equalsTo(val.type, BASE_TYPES.string)) {
-                        let num = Number((<ASTN.String>val.value).value);
+                        let num = Number((<AST.String>val.value).value);
                         if (isNaN(num)) {
                             api.logger.error(LOG_ERROR.mismatchingType(), {
                                 ...o.coordinate,
@@ -1493,11 +1493,11 @@ export default function preprocessValue(
                             num = 0;
                         }
                         if (v == "++") {
-                            val.value = new ASTN.String(parseTree.coordinate, (num + 1).toString());
+                            val.value = new AST.String(parseTree.coordinate, (num + 1).toString());
                             return val.value;
                         }
                         if (v == "--") {
-                            val.value = new ASTN.String(parseTree.coordinate, (num - 1).toString());
+                            val.value = new AST.String(parseTree.coordinate, (num - 1).toString());
                             return val.value;
                         }
                     }
@@ -1506,37 +1506,37 @@ export default function preprocessValue(
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 } else {
                     api.logger.error(LOG_ERROR.useBeforeInit(), {
                         ...o.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
             }
-            if (o instanceof ASTN.ValCall) {
+            if (o instanceof AST.ValCall) {
                 if (o.val.prop.isConst) {
                     api.logger.error(LOG_ERROR.notAVar(), {
                         ...o.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
-                return new ASTN.ExpressionSV(parseTree.coordinate, o, parseTree.v, o.valueType);
+                return new AST.ExpressionSV(parseTree.coordinate, o, parseTree.v, o.valueType);
             }
-            if (o instanceof ASTN.GetProperty) {
+            if (o instanceof AST.GetProperty) {
                 if (o.valObj && !o.valObj.prop.isConst) {
-                    return new ASTN.ExpressionSV(parseTree.coordinate, o, parseTree.v, o.valueType);
+                    return new AST.ExpressionSV(parseTree.coordinate, o, parseTree.v, o.valueType);
                 } else {
                     api.logger.error(LOG_ERROR.notAVar(), {
                         ...o.coordinate,
                         chain: coordinateChain
                     });
                     reportError();
-                    return new ASTN.EmptyValue(parseTree.coordinate);
+                    return new AST.EmptyValue(parseTree.coordinate);
                 }
             }
         }
@@ -1545,5 +1545,5 @@ export default function preprocessValue(
         ...parseTree.coordinate,
         chain: coordinateChain
     });
-    return <ASTN.Value>{};
+    return <AST.Value>{};
 }

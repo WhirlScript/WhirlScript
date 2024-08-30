@@ -5,7 +5,7 @@ import ApiWrapper from "../../types/api/apiWrapper";
 import Pools from "./pools";
 import LOG_ERROR from "../../logger/logError";
 import Struct from "../../types/parser/struct";
-import { ASTN } from "../../types/parser/astn";
+import { AST } from "../../types/parser/AST";
 
 class TypeCalcC {
     equalsTo(type1: Type, type2: Type): boolean {
@@ -94,13 +94,13 @@ class TypeCalcC {
         };
     }
 
-    valueToObj(value: ASTN.Value, coordinate: Coordinate, context: { api: ApiWrapper }): any {
+    valueToObj(value: AST.Value, coordinate: Coordinate, context: { api: ApiWrapper }): any {
         if (!value.isMacro) {
             context.api.logger.errorInterrupt(LOG_ERROR.notMacro(), coordinate);
         }
         let va = value;
         const t = va.valueType;
-        if (va instanceof ASTN.ValueWrapper) {
+        if (va instanceof AST.ValueWrapper) {
             const r = va.value;
             if (r) {
                 va = r;
@@ -108,7 +108,7 @@ class TypeCalcC {
                 context.api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), coordinate);
             }
         }
-        if (va instanceof ASTN.MacroValCall) {
+        if (va instanceof AST.MacroValCall) {
             const val = va.val;
             if (!val.value) {
                 context.api.logger.errorInterrupt(LOG_ERROR.useBeforeInit(), coordinate);
@@ -120,7 +120,7 @@ class TypeCalcC {
                 context.api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), value.coordinate);
             }
             if (this.equalsTo(t, BASE_TYPES.boolean)) {
-                const str = (<ASTN.MacroBase>va).toStr().value;
+                const str = (<AST.MacroBase>va).toStr().value;
                 if (str == "1") {
                     return true;
                 }
@@ -130,18 +130,18 @@ class TypeCalcC {
                 context.api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), value.coordinate);
             }
             if (this.equalsTo(t, BASE_TYPES.int)) {
-                const num = Number((<ASTN.MacroBase>va).toStr().value);
+                const num = Number((<AST.MacroBase>va).toStr().value);
                 if (isNaN(num)) {
                     context.api.logger.errorInterrupt(LOG_ERROR.mismatchingType(), value.coordinate);
                 }
                 return num;
             }
         }
-        if (va instanceof ASTN.StructBlock) {
+        if (va instanceof AST.StructBlock) {
             const obj: any = {};
             for (const key in va.inside) {
                 let v = va.inside[key];
-                if (v instanceof ASTN.ValueWrapper) {
+                if (v instanceof AST.ValueWrapper) {
                     const r = v.value;
                     if (r) {
                         v = r;
@@ -149,39 +149,39 @@ class TypeCalcC {
                         context.api.logger.errorInterrupt(LOG_ERROR.mismatchFunctionCall(), coordinate);
                     }
                 }
-                obj[key] = this.valueToObj(<ASTN.StructBlock>va.inside[key], coordinate, context);
+                obj[key] = this.valueToObj(<AST.StructBlock>va.inside[key], coordinate, context);
 
             }
             return obj;
         } else {
-            return (<ASTN.MacroBase>va).value;
+            return (<AST.MacroBase>va).value;
         }
     }
 
-    objToValue(obj: any, coordinate: Coordinate, context: { api: ApiWrapper }): ASTN.Value {
+    objToValue(obj: any, coordinate: Coordinate, context: { api: ApiWrapper }): AST.Value {
         if (obj == undefined) {
-            return new ASTN.Void(coordinate);
+            return new AST.Void(coordinate);
         }
         if (typeof obj == "boolean") {
-            return new ASTN.Bool(coordinate, obj);
+            return new AST.Bool(coordinate, obj);
         }
         if (typeof obj == "number") {
-            return new ASTN.Int(coordinate, obj);
+            return new AST.Int(coordinate, obj);
         }
         if (typeof obj == "string") {
-            return new ASTN.String(coordinate, obj);
+            return new AST.String(coordinate, obj);
         }
         if (typeof obj != "object") {
             context.api.logger.errorInterrupt(LOG_ERROR.nativeValueError(obj), coordinate);
         }
         const def: { [key: string]: Type } = {};
-        const inside: { [key: string]: ASTN.Value } = {};
+        const inside: { [key: string]: AST.Value } = {};
         for (const key in obj) {
             inside[key] = this.objToValue(obj[key], coordinate, context);
             def[key] = inside[key].valueType;
         }
         const struct = new Struct("", def);
-        return new ASTN.StructBlock(
+        return new AST.StructBlock(
             coordinate,
             inside,
             {

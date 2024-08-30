@@ -1,10 +1,10 @@
 import Type from "./type";
-import { ASTN } from "./astn";
+import { AST } from "./AST";
 
 type Args = {
     name: string,
     type: Type,
-    defaultValue?: ASTN.Value
+    defaultValue?: AST.Value
 }[];
 
 type NativeFunctionProp = {
